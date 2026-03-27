@@ -1,14 +1,14 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 
-const index = () => {
+const reports = () => {
   return (
     <View>
-      <Text>index</Text>
+      <Text>reports</Text>
     </View>
   )
 }
 
-export default index
+export default reports
 
 const styles = StyleSheet.create({})

@@ -1,14 +1,14 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 
-const index = () => {
+const AuthHeader = () => {
   return (
     <View>
-      <Text>index</Text>
+      <Text>AuthHeader</Text>
     </View>
   )
 }
 
-export default index
+export default AuthHeader
 
 const styles = StyleSheet.create({})
