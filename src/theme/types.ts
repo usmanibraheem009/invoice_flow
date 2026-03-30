@@ -57,27 +57,29 @@ export interface TextStyle{
     lineHeight: number
 };
 
-export interface typography {
-    displayLarge: string,
-    displayMedium: string,
-    displaySmall: string,
-    titleLarge: string,
-    titleMedium: string,
-    titleSemibold: string,
-    titleSmall: string,
-    labelLarge: string,
-    labelMedium: string,
-    labelSmall: string,
-    headingLarge: string,
-    headingMedium: string,
-    headingSmall: string,
-    bodyLarge: string,
-    bodyMedium: string,
-    bodySmall: string,
+export interface Typography {
+    displayLarge: TextStyle,
+    displayMedium: TextStyle,
+    displaySmall: TextStyle,
+    titleLarge: TextStyle,
+    titleMedium: TextStyle,
+    titleSemibold: TextStyle,
+    titleSmall: TextStyle,
+    labelLarge: TextStyle,
+    labelMedium: TextStyle,
+    labelSmall: TextStyle,
+    headlineLarge: TextStyle,
+    headlineMedium: TextStyle,
+    headlineSmall: TextStyle,
+    bodyLarge: TextStyle,
+    bodyMedium: TextStyle,
+    bodySmall: TextStyle,
+    actionLarge: TextStyle,
 }
 
 export type FontWeight = 
     | 'regular'
+    | 'medium'
     | 'bold'
     | 'semibold'
     | 'black'

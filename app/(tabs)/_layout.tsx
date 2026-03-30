@@ -1,11 +1,12 @@
+import MyStore from '@/src/redux/store/myStore';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Provider } from 'react-native-paper';
+import { Provider } from 'react-redux';
 
 const _layout = () => {
   return (
-    <Provider>
+    <Provider store={MyStore}>
         <Tabs>
             <Tabs.Screen options={{title: 'Dash', headerShown: false, tabBarIcon: (color:any) => (<MaterialIcons name='dashboard' color={'grey'} size={24}/>)}} name='index'/>
             <Tabs.Screen options={{title: 'Invoices', headerShown: false, tabBarIcon: (color:any) => (<MaterialIcons name='receipt' color={'grey'} size={24}/>)}} name='invoices'/>
