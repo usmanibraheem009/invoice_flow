@@ -1,10 +1,11 @@
 import ProductCard from '@/src/components/invoice/product-card'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
+import ItemModal from '@/src/components/primitives/item-modal'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import useTheme from '@/src/hooks/useTheme'
 import { mVs } from '@/src/utils/scale'
 import { router } from 'expo-router'
-import React from 'react'
+import React, { useState } from 'react'
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import ScreenFooter from '../components/screen-footer'
 import AuthHeader from '../components/screen-header'
@@ -22,7 +23,9 @@ const LineItems = () => {
         { id: '4', title: 'Food Web', pricePerHour: 150 },
         { id: '5', title: 'Food Web', pricePerHour: 150 },
         { id: '6', title: 'Food Web', pricePerHour: 150 },
-    ]
+    ];
+
+    const [visible, setVisible] = useState(false);
 
     const submitFunc = async () => {
 
@@ -35,6 +38,7 @@ const LineItems = () => {
 
             <View style={{ flex: 1, backgroundColor: theme.background.primary, paddingHorizontal: 20, maxHeight: 500 }}>
                 <Text style={[styles.title, { color: theme.text.primary }]} > Line Items </Text>
+                
                 <FlatList
                     data={services}
                     keyExtractor={(item) => item.id}
@@ -43,11 +47,11 @@ const LineItems = () => {
                         return (
                             <ProductCard title={item.title} price={item.pricePerHour} hours={4} />
                         )
-                    }}>
+                    }}> 
                 </FlatList>
             </View>
 
-            <Pressable onPress={() => { }} style={[styles.addItemContainer, { borderBottomColor: theme.border.secondary }]}>
+            <Pressable onPress={() => {setVisible(true)}} style={[styles.addItemContainer, { borderBottomColor: theme.border.secondary }]}>
                 <Text style={[styles.addItem, { color: theme.text.secondary }]}>+ Add New Item</Text>
             </Pressable>
 
@@ -59,6 +63,8 @@ const LineItems = () => {
             <ScreenFooter backButton>
                 <SimpleButton btnText='NEXT STEP' onPress={() => { router.push('/screens/preview-screen') }} />
             </ScreenFooter>
+
+            <ItemModal visible={visible} onClose={() => setVisible(false)}/>
         </ScreenWrapper>
     )
 }

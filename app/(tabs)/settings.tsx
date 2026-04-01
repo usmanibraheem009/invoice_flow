@@ -10,7 +10,7 @@ const settings = () => {
   const dispatch = useDispatch();
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper safeArea paddingHorizontal={16}>
       <SimpleButton btnText='Light Mode' onPress={() => dispatch(setTheme('light'))} />
         <View style={{marginTop: 20}}/>
       <SimpleButton btnText='Dark Mode' onPress={() => dispatch(setTheme('dark'))} />
