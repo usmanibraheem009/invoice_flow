@@ -15,9 +15,9 @@ export interface screenWrapperProps {
 const ScreenWrapper = ({
     children,
     scrollable = false,
-    safeArea = true,
+    safeArea = false,
     backgroundColor,
-    paddingHorizontal = 16,
+    paddingHorizontal,
     paddingVertical = 0,
     keyboardAvoidingView = true
 }: screenWrapperProps) => {

@@ -8,7 +8,7 @@ const ArrowBack = () => {
     const {theme} = useTheme();
 
   return (
-    <Ionicons name='arrow-back' size={24} onPress={() => router.back()} color={theme.colors.textPrimary} />
+    <Ionicons name='arrow-back' size={24} onPress={() => router.back()} color={theme.text.primary} />
   )
 }
 

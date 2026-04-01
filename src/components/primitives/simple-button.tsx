@@ -1,7 +1,7 @@
 import useTheme from '@/src/hooks/useTheme'
 import { mVs } from '@/src/utils/scale'
 import React from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity } from 'react-native'
 
 interface buttonProps{
     btnText: string,
@@ -13,11 +13,9 @@ const SimpleButton = ({btnText, onPress} : buttonProps) => {
   const {theme} = useTheme();
 
   return (
-    <View style={[styles.container, {backgroundColor: theme.surface.primary}]}>
-     <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity style={[styles.container, {backgroundColor: theme.surface.primary}]} onPress={onPress}>
         <Text style={styles.btnText}>{btnText}</Text>
-     </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   )
 }
 

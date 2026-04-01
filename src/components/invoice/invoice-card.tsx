@@ -5,31 +5,29 @@ import { StyleSheet, Text, View } from 'react-native'
 import InvoiceStatus from './invoice-status'
 
 interface invoiceCardProps {
-    invoiceNumber: string,
-    title: string,
-    issueDate: string,
-    totalPrice: string
+    invoiceNumber?: string,
+    title?: string,
+    price?: number,
+    status?: string,
+    issueDate?: string,
+    totalPrice?: string
 }
 
-const InvoiceCard = () => {
+const InvoiceCard = ({title, status, price, issueDate }: invoiceCardProps) => {
     // const InvoiceCard = ({invoiceNumber, title, issueDate, totalPrice}: invoiceCardProps) => {
 
     const { theme } = useTheme();
     return (
-        <View style={[styles.container, { backgroundColor: theme.background.secondary }]}>
+        <View style={[styles.container, { backgroundColor: theme.background.secondary, borderColor: theme.border.primary }]}>
             <View style={styles.leftContainer}>
-                {/* <Text style={styles.invoiceNo}>{invoiceNumber}</Text> */}
-                <Text style={styles.invoiceNo}>INV-045</Text>
-                {/* <Text style={styles.title}>{title}</Text> */}
+                <Text style={[styles.invoiceNo, {color: theme.text.secondary}]}>{title}</Text>
                 <Text style={[styles.title, { color: theme.text.primary }]}>Pied Piper</Text>
-                {/* <Text style={styles.date}>{issueDate}</Text> */}
-                <Text style={styles.date}>30-OCT-2026</Text>
+                <Text style={[styles.date, {color: theme.text.secondary}]}>{issueDate}</Text>
             </View>
 
             <View style={styles.rightContainer}>
-                {/* <Text style={styles.price}>{totalPrice}$</Text> */}
-                <Text style={[styles.price, {color: theme.text.primary}]}>$3400</Text>
-                <InvoiceStatus />
+                <Text style={[styles.price, {color: theme.text.primary}]}>${price}</Text>
+                <InvoiceStatus status={status}/>
             </View>
         </View>
     )
@@ -41,7 +39,7 @@ const styles = StyleSheet.create({
     container: {
         width: '100%',
         borderRadius: 10,
-        borderWidth: .7,
+        borderWidth: 1,
         padding: mVs(20),
         flexDirection: 'row',
         justifyContent: 'space-between',

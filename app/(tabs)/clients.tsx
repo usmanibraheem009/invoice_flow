@@ -1,14 +1,18 @@
+import ScreenWrapper from '@/src/components/layout/screen-wrapper'
+import FloatingButton from '@/src/components/primitives/floating-button'
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet } from 'react-native'
 
 const clients = () => {
   return (
-    <View>
-      <Text>clients</Text>
-    </View>
+    <ScreenWrapper>
+      <FloatingButton icon='person-add' onPress={() => {}} />
+    </ScreenWrapper>
   )
 }
 
 export default clients
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  
+})

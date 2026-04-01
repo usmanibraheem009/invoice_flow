@@ -1,3 +1,3 @@
-import LoginScreen from "@/src/ui/screens/login-screen";
+import LoginScreen from "@/src/ui/screens/auth/login-screen";
 
 export default LoginScreen;

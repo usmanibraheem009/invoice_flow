@@ -11,7 +11,7 @@ export default function RootLayout() {
     <Provider store={MyStore}>
       <PersistGate persistor={persistor} loading={null}>
         <GestureHandlerRootView>
-          <Stack>
+          <Stack screenOptions={{headerShown: false}}>
             <Stack.Screen name="index" options={{ headerShown: false }} />
           </Stack>
         </GestureHandlerRootView>

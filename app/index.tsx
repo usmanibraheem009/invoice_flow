@@ -1,7 +1,7 @@
-import LoginScreen from "./screens/login-screen";
+import SignupScreen from "./screens/signup-screen";
 
 export default function Index() {
   return (
-      <LoginScreen />
+      <SignupScreen />
   );
 }

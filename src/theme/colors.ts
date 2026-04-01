@@ -1,4 +1,12 @@
-import { semanticColors } from "./types";
+import { ColorScale, semanticColors } from "./types";
+
+export const secondary: ColorScale = {
+  50: '#2DC653', //paid
+  100: '#F4A261', //pending 
+  200: '#E63946', //overdue
+  300: '#6B7685' //draft
+};
+
 
 export const lightSemanticColors: semanticColors = {
   background: {
@@ -13,16 +21,14 @@ export const lightSemanticColors: semanticColors = {
   },
   text: {
     primary: '#111827',
-    secondary: '#2DC653', // PAID
-    tertiary: '#F4A261', // PENDING
+    secondary: '#6B7685',
+    tertiary: '#00A896', // PENDING
     inverse: '#E63946', // OVERDUE
     disableText: '#6B7685' // DRAFT,
-    // '#B0B8C1',
-    // '#7A8491'
   },
   border: {
     primary: '#EAEDF2',
-    secondary: '#D1D5DB',
+    secondary: '#EAEDF2',
     tertiary: '#9ABDF8',
   },
 };
@@ -40,14 +46,14 @@ export const darkSemanticColors: semanticColors = {
   },
   text: {
     primary: '#F9FAFB',
-    secondary: '#2DC653', // PAID
-    tertiary: '#F4A261', // PENDING
+    secondary: '#B0B8C1',
+    tertiary: '#00A896', // PENDING
     inverse: '#E63946', // OVERDUE
     disableText: '#6B7685' // DRAFT
   },
   border: {
     primary: '#2A3140',
-    secondary: '#4B5563',
+    secondary: '#282F3D',
     tertiary: '#254A87',
   }
 };

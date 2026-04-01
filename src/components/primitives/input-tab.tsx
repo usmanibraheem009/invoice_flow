@@ -1,9 +1,14 @@
 import useTheme from '@/src/hooks/useTheme'
 import { mVs } from '@/src/utils/scale'
 import React, { useState } from 'react'
-import { StyleSheet, TextInput, View } from 'react-native'
+import { StyleSheet, TextInput, TextInputProps, View } from 'react-native'
 
-const InputTab = ({icon, placeholder, value, onChangeText, ...props} : any) => {
+interface InputTabProps extends TextInputProps{
+    icon? : React.ReactNode,
+    onIconPress? : () => void
+};
+
+const InputTab = ({icon, placeholder, value, style, onIconPress, onChangeText, ...props} : InputTabProps) => {
     const {theme} = useTheme();
 
     const [isFocused, setIsFocused] = useState(false);
@@ -15,8 +20,9 @@ const InputTab = ({icon, placeholder, value, onChangeText, ...props} : any) => {
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={'#B0B5BC'}
-        style={styles.textInput}
+        placeholderTextColor={theme.text.secondary}
+        cursorColor={'#B0B5BC'}
+        style={[styles.textInput, {color: theme.text.primary}]}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         {...props}
@@ -34,10 +40,11 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 10,
         paddingHorizontal: mVs(12),
-        height: mVs(48),
+        height: mVs(55),
     },
     textInput: {
         flex: 1,
-        marginLeft: 8
+        marginLeft: 8,
+        fontSize: mVs(18)
     }
 })

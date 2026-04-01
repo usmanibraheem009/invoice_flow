@@ -12,26 +12,26 @@ interface AuthHeaderProps{
   trailingIcon?: keyof typeof Ionicons.glyphMap;
 }
 
-const AuthHeader = ({ title, arrowBack, subtitle, trailingIcon }: AuthHeaderProps) => {
+const AuthHeader = ({ title, arrowBack, trailingIcon }: AuthHeaderProps) => {
 
   const {theme} = useTheme();
 
   return (
-    <View style={styles.container}>
-      <View>
+    <View style={[styles.container, {borderBottomColor: theme.border.secondary}]}>
+      <View style={styles.leftIcon}>
       {arrowBack && (
         <ArrowBack />
       )}
       
     </View>
 
-    <View>
+    <View style={styles.title}>
       {title && (
-        <Text style={[styles.title,{color: theme.text.primary}]}>{title}</Text>
+        <Text style={[styles.titleText,{color: theme.text.primary}]}>{title}</Text>
       )}
     </View>
 
-    <View>
+    <View style={styles.rightIcon}>
       {trailingIcon && (
         <Ionicons name={trailingIcon} size={24} color={theme.text.primary} />
       )}
@@ -44,14 +44,31 @@ export default AuthHeader
 
 const styles = StyleSheet.create({
   container: {
-     width: "100%",
+    width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    height: 56,
-    paddingHorizontal: 16,
-    marginBottom: 10
+    justifyContent: 'center',
+    height: mVs(96),
+    marginBottom: mVs(10),
+    marginTop: mVs(10),
+    borderBottomWidth: 1,
+    paddingTop: mVs(30),
+    paddingHorizontal: mVs(20)
   },
   title: {
+    flex: 2,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  leftIcon: {
+    flex: 1,
+    alignItems: 'flex-start'
+  },
+  rightIcon: {
+    flex: 1,
+    alignItems: 'flex-end'
+  },
+  titleText: {
     fontSize: mVs(20),
     fontWeight: 500,
   }
