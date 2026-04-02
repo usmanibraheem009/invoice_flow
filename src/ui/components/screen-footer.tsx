@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'space-between',
     borderTopWidth: 1,
-    position: 'absolute',
+    // position: 'absolute',
     padding: 16,
     bottom: 0,
     right: 0,

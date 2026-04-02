@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: mVs(96),
     marginBottom: mVs(10),
-    marginTop: mVs(10),
+    // marginTop: mVs(10),
     borderBottomWidth: 1,
     paddingTop: mVs(30),
     paddingHorizontal: mVs(20)

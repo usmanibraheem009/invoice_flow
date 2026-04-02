@@ -1,71 +1,111 @@
-import ProductCard from '@/src/components/invoice/product-card'
+import ProductCard, { InvoiceItem } from '@/src/components/invoice/product-card'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import ItemModal from '@/src/components/primitives/item-modal'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import useTheme from '@/src/hooks/useTheme'
 import { mVs } from '@/src/utils/scale'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import React, { useState } from 'react'
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import ScreenFooter from '../components/screen-footer'
 import AuthHeader from '../components/screen-header'
 
 const LineItems = () => {
 
     const { theme } = useTheme();
-
-    const services = [
-        { id: '1', title: 'Software Consulting', pricePerHour: 150 },
-        { id: '2', title: 'UI Design Kit', pricePerHour: 450 },
-        { id: '7', title: 'UI Design Kit', pricePerHour: 450 },
-        { id: '8', title: 'UI Design Kit', pricePerHour: 450 },
-        { id: '3', title: 'Software Development', pricePerHour: 250 },
-        { id: '4', title: 'Food Web', pricePerHour: 150 },
-        { id: '5', title: 'Food Web', pricePerHour: 150 },
-        { id: '6', title: 'Food Web', pricePerHour: 150 },
-    ];
+    const { invoiceData } = useLocalSearchParams<{ invoiceData: any }>();
+    const parsedInvoiceData = invoiceData ? JSON.parse(invoiceData) : null;
 
     const [visible, setVisible] = useState(false);
+    const [items, setItems] = useState<InvoiceItem[]>([]);
+    const [selectedItem, setSelectedItem] = useState<InvoiceItem | null>(null);
 
-    const submitFunc = async () => {
-
+    const handleSubmitItem = (newItem: InvoiceItem) => {
+        if (selectedItem) {
+            setItems(prev => prev.map(item => item.id === selectedItem.id ? newItem : item))
+        }
+        else {
+            setItems((prev: any[]) => [...prev, newItem])
+        }
+        setSelectedItem(null);
     };
 
+    const deleteItem = (id: string) => {
+        setItems((prev: any[]) => prev.filter(item => item.id !== id));
+    };
+
+    const editItem = (item: InvoiceItem) => {
+        setSelectedItem(item);
+        setVisible(true);
+    }
+
+    const subTotal = items.reduce((sum, item) => sum + item.total, 0);
+
+    const previewInvoice = () => {
+
+        if (items.length === 0) {
+            Alert.alert('Warning', 'Please add at least one item');
+            return;
+        };
+
+        const fullInvoiceDate = {
+            ...parsedInvoiceData,
+            items,
+            subTotal
+        };
+
+        router.push({
+            pathname: '/screens/preview-screen',
+            params: { invoiceData: JSON.stringify(fullInvoiceDate) }
+        });
+    }
+
     return (
-        <ScreenWrapper keyboardAvoidingView >
+        <>
+            <ScreenWrapper keyboardAvoidingView >
+                <AuthHeader arrowBack title='Step 2 of 3' />
 
-            <AuthHeader arrowBack title='Step 2 of 3' />
+                <View style={{ flex: 1, backgroundColor: theme.background.primary, paddingHorizontal: 20, maxHeight: 500 }}>
+                    <Text style={[styles.title, { color: theme.text.primary }]} > Line Items </Text>
 
-            <View style={{ flex: 1, backgroundColor: theme.background.primary, paddingHorizontal: 20, maxHeight: 500 }}>
-                <Text style={[styles.title, { color: theme.text.primary }]} > Line Items </Text>
-                
-                <FlatList
-                    data={services}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={{ gap: 12, marginTop: 20, paddingBottom: 20 }}
-                    renderItem={({ item }) => {
-                        return (
-                            <ProductCard title={item.title} price={item.pricePerHour} hours={4} />
-                        )
-                    }}> 
-                </FlatList>
-            </View>
+                    <FlatList
+                        data={items}
+                        keyExtractor={(item) => item.id}
+                        contentContainerStyle={{ gap: 12, marginTop: 20, paddingBottom: 20 }}
+                        ListEmptyComponent={() => (<Text style={[styles.dummyText, { color: theme.text.secondary }]}> No items added yet </Text>)}
+                        renderItem={({ item }) => {
+                            return (
+                                <ProductCard
+                                    id={item.id}
+                                    name={item.name}
+                                    price={item.price}
+                                    quantity={item.quantity}
+                                    total={item.total}
+                                    type={item.type}
+                                    onDelete={() => deleteItem(item.id)}
+                                    onEdit={() => editItem(item)}
+                                />
+                            )
+                        }}>
+                    </FlatList>
+                </View>
 
-            <Pressable onPress={() => {setVisible(true)}} style={[styles.addItemContainer, { borderBottomColor: theme.border.secondary }]}>
-                <Text style={[styles.addItem, { color: theme.text.secondary }]}>+ Add New Item</Text>
-            </Pressable>
+                <Pressable onPress={() => { setVisible(true) }} style={[styles.addItemContainer, { borderBottomColor: theme.border.secondary }]}>
+                    <Text style={[styles.addItem, { color: theme.text.secondary }]}>+ Add New Item</Text>
+                </Pressable>
 
-            <View style={styles.statsBox}>
-                <Text style={[styles.subtotal, { color: theme.text.secondary }]}>SUBTOTAL ESTIMATE</Text>
-                <Text style={[styles.totalPrice]}>$6450.00</Text>
-            </View>
+                <View style={styles.statsBox}>
+                    <Text style={[styles.subtotal, { color: theme.text.secondary }]}>SUBTOTAL ESTIMATE</Text>
+                    <Text style={[styles.totalPrice]}>${subTotal}</Text>
+                </View>
 
+
+                <ItemModal visible={visible} onClose={() => { setVisible(false); setSelectedItem(null) }} onSubmitItem={handleSubmitItem} editItem={selectedItem} />
+            </ScreenWrapper>
             <ScreenFooter backButton>
-                <SimpleButton btnText='NEXT STEP' onPress={() => { router.push('/screens/preview-screen') }} />
+                <SimpleButton btnText='NEXT STEP' onPress={() => { previewInvoice() }} />
             </ScreenFooter>
-
-            <ItemModal visible={visible} onClose={() => setVisible(false)}/>
-        </ScreenWrapper>
+        </>
     )
 }
 
@@ -135,5 +175,11 @@ const styles = StyleSheet.create({
     back: {
         fontSize: mVs(18),
         fontWeight: 'bold',
+    },
+    dummyText: {
+        textAlign: 'center',
+        marginTop: 80,
+        fontSize: mVs(16),
+        fontWeight: 500
     }
 })

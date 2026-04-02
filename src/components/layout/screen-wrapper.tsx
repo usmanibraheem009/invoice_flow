@@ -45,6 +45,7 @@ const ScreenWrapper = ({
                     paddingHorizontal,
                     paddingTop: safeArea ? insets.top + paddingVertical : paddingVertical,
                     paddingBottom: safeArea ? insets.bottom + paddingVertical : paddingVertical,
+                    flexGrow: 1
                 }]}
                 showsHorizontalScrollIndicator={false}
                 keyboardShouldPersistTaps='handled'>
@@ -85,7 +86,7 @@ const styles = StyleSheet.create({
         flex: 1
     },
     scrollView: {
-        flex: 1,
+        flexGrow: 1,
     },
     scrollContent:{ 
         flexGrow: 1
