@@ -2,15 +2,18 @@ import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import useTheme from '@/src/hooks/useTheme'
+import { setInvoiceNumber } from '@/src/redux/slices/invoiceSlice'
 import { validationSchema } from '@/src/utils/auth-form'
 import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import DateTimePicker from '@react-native-community/datetimepicker'
+import { addDays, format } from 'date-fns'
 import { router } from 'expo-router'
 import { Formik } from 'formik'
 import React, { useEffect, useRef, useState } from 'react'
-import { Platform, StyleSheet, Text, View } from 'react-native'
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 import ErrorText from '../components/error-text'
 import ScreenFooter from '../components/screen-footer'
 import AuthHeader from '../components/screen-header'
@@ -25,17 +28,21 @@ const AddInvoice = () => {
 
     const { theme } = useTheme();
     const formikRef = useRef<any>(null);
+    const paymentOptions = ['Due on Receipt', 'Net 7', 'Net 15', 'Net 30'];
+    const invoiceNumber = useSelector((state: any) => state.invoiceReducer.currentInvoiceNumber);
+    const dispatch = useDispatch();
 
-    const [invoiceNumber, setInvoiceNumber] = useState("INV-0001");
     const [issueDatePicker, setIssueDatePicker] = useState(false);
     const [dueDatePicker, setDueDatePicker] = useState(false);
+    const [openPaymentList, setOpenPaymentList] = useState(false);
 
     useEffect(() => {
         const fetchLastInvoiceNumber = async () => {
             const lastInvoice = await AsyncStorage.getItem('lastInvoiceNumber');
             const lastNumber = lastInvoice ? parseInt(lastInvoice.split('-')[1]) : 0;
+            const newNumber = generateInvoiceNumber(lastNumber);
 
-            setInvoiceNumber(generateInvoiceNumber(lastNumber));
+            dispatch(setInvoiceNumber(newNumber));
         };
 
         fetchLastInvoiceNumber();
@@ -43,13 +50,38 @@ const AddInvoice = () => {
 
     const initialValues = {
         clientName: '',
-        invoiceNumber,
+        invoiceNumber: invoiceNumber || 'INV-0001',
         issueDate: '',
         dueDate: '',
         paymentTerms: '',
     };
 
-    const paymentOptions = ['Due on Receipt', 'Net 7', 'Net 15', 'Net 30'];
+    const handleAutoDueDate = (issueDateIso: string, paymentTerm: string) => {
+        if (!issueDateIso) return;
+        const issueDate = new Date(issueDateIso);
+        let daysToAdd = 0;
+
+        switch (paymentTerm) {
+            case 'Net 7':
+                daysToAdd = 7;
+                break;
+
+            case 'Net 15':
+                daysToAdd = 15;
+                break;
+
+            case 'Net 30':
+                daysToAdd = 30;
+                break;
+
+            case 'Due on receipt':
+            default:
+                daysToAdd = 0;
+        }
+
+        return addDays(issueDate, daysToAdd).toISOString();
+    };
+
 
     return (
         <>
@@ -62,6 +94,7 @@ const AddInvoice = () => {
                     <Formik
                         innerRef={formikRef}
                         initialValues={initialValues}
+                        enableReinitialize
                         validationSchema={validationSchema.clientDetails}
                         onSubmit={async (values: any) => {
                             router.push({
@@ -85,16 +118,21 @@ const AddInvoice = () => {
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
                                     <View style={{ flex: 1 }}>
                                         <Text style={[styles.label, { color: theme.text.secondary }]}>ISSUE DATE </Text>
-                                        <InputTab icon={<Ionicons name='calendar-number' color={theme.text.secondary} size={24} onPress={() => setIssueDatePicker(true)} />} placeholder='Issue Date' value={values.issueDate} editable={false} />
-                                        {touched.issueDate && errors.issueDate && (<ErrorText errorText={errors.issueDate} />)}
+                                        <Pressable onPress={() => setIssueDatePicker(true)} >
+                                            <InputTab icon={<Ionicons name='calendar-number' color={theme.text.secondary} size={24} />} placeholder='Issue Date' value={values.issueDate ? format(new Date(values.issueDate), 'dd-MM-yyyy') : ''} editable={false} />
+                                            {touched.issueDate && errors.issueDate && (<ErrorText errorText={errors.issueDate} />)}
+                                        </Pressable>
                                         {issueDatePicker && (
                                             <DateTimePicker
                                                 value={values.issueDate ? new Date(values.issueDate) : new Date()}
                                                 mode='date'
                                                 display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                                                onValueChange={(event, selectedDate) => {
+                                                onChange={(event, selectedDate) => {
                                                     setIssueDatePicker(false);
-                                                    if (selectedDate) setFieldValue('issueDate', selectedDate.toLocaleDateString().split('T')[0]);
+                                                    if (event.type === 'dismissed') return;
+                                                    if (selectedDate) {
+                                                        setFieldValue('issueDate', selectedDate);
+                                                    };
                                                 }}
                                             />
                                         )}
@@ -102,16 +140,20 @@ const AddInvoice = () => {
 
                                     <View style={{ flex: 1 }}>
                                         <Text style={[styles.label, { color: theme.text.secondary }]}> DUE DATE </Text>
-                                        <InputTab icon={<Ionicons name='calendar-number' color={theme.text.secondary} size={24} onPress={() => setDueDatePicker(true)} />} placeholder='Due Date' value={values.dueDate} />
-                                        {touched.dueDate && errors.dueDate && (<ErrorText errorText={errors.dueDate} />)}
+                                        <Pressable onPress={() => setDueDatePicker(true)}>
+                                            <InputTab icon={<Ionicons name='calendar-number' color={theme.text.secondary} size={24} />} placeholder='Due Date' value={values.dueDate ? format(new Date(values.dueDate), 'dd-MM-yyyy') : ''} editable={false} />
+                                            {touched.dueDate && errors.dueDate && (<ErrorText errorText={errors.dueDate} />)}
+                                        </Pressable>
                                         {dueDatePicker && (
                                             <DateTimePicker
                                                 value={values.dueDate ? new Date(values.dueDate) : new Date()}
                                                 mode='date'
                                                 display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                                                onValueChange={(event, selectedDate) => {
+                                                onChange={(event, selectedDate) => {
                                                     setDueDatePicker(false);
-                                                    if (selectedDate) setFieldValue('dueDate', selectedDate.toLocaleDateString().split('T')[0]);
+                                                    if (event.type === 'dismissed') return;
+
+                                                    if (selectedDate) setFieldValue('dueDate', selectedDate);
                                                 }}
                                             />
                                         )}
@@ -119,11 +161,24 @@ const AddInvoice = () => {
                                 </View>
 
                                 <Text style={[styles.label, { color: theme.text.secondary }]}>PAYMENT TERMS</Text>
-                                <InputTab icon={<Ionicons name='chevron-down' color={theme.text.secondary} size={24} onPress={() => {
-                                    const nextIndex = (paymentOptions.indexOf(values.paymentTerms) + 1) % paymentOptions.length;
-                                    setFieldValue('paymentTerms', paymentOptions[nextIndex]);
-                                }} />} placeholder='Payment Terms' value={values.paymentTerms} onChangeText={handleChange('paymentTerms')} />
-                                {touched.paymentTerms && errors.paymentTerms && (<ErrorText errorText={errors.paymentTerms} />)}
+                                <Pressable onPress={() => setOpenPaymentList(!openPaymentList)}>
+                                    <InputTab icon={<Ionicons name='chevron-down' color={theme.text.secondary} size={24} />} placeholder='Payment Terms' value={values.paymentTerms} editable={false} />
+                                    {touched.paymentTerms && errors.paymentTerms && (<ErrorText errorText={errors.paymentTerms} />)}
+                                </Pressable>
+                                {openPaymentList && (
+                                    <View style={styles.dropdownContainer}>
+                                        {paymentOptions.map((term) => (
+                                            <Pressable key={term} style={styles.dropdownItem} onPress={() => {
+                                                setFieldValue('paymentTerms', term);
+                                                setOpenPaymentList(false);
+                                                setFieldValue('dueDate', handleAutoDueDate(values.issueDate, term))
+                                            }}>
+                                                <Text>{term}</Text>
+                                            </Pressable>
+                                        ))}
+                                    </View>
+                                )}
+
 
                             </View>
                         )}
@@ -161,5 +216,18 @@ const styles = StyleSheet.create({
         bottom: 0,
         right: 0,
         left: 0
-    }
+    },
+    dropdownContainer: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 6,
+        marginTop: 4,
+        overflow: 'hidden',
+    },
+    dropdownItem: {
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
+    },
 })

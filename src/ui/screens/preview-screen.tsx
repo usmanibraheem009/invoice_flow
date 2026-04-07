@@ -6,7 +6,7 @@ import useTheme from '@/src/hooks/useTheme'
 import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import { router, useLocalSearchParams } from 'expo-router'
-import React from 'react'
+import React, { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import ScreenFooter from '../components/screen-footer'
 import AuthHeader from '../components/screen-header'
@@ -14,6 +14,7 @@ import AuthHeader from '../components/screen-header'
 const PreviewScreen = () => {
 
   const { theme } = useTheme();
+  const [notes, setNotes] = useState('');
   const { invoiceData } = useLocalSearchParams<{ invoiceData: string }>();
   const parsedInvoice = invoiceData ? JSON.parse(invoiceData) : null;
   const tax = parsedInvoice.subTotal * 10 / 100;
@@ -82,7 +83,7 @@ const PreviewScreen = () => {
 
         <View style={styles.notesContainer}>
           <Text style={[styles.label, { color: theme.text.secondary }]}>NOTES TO CLIENT</Text>
-          <InputTab icon={<Ionicons name='pencil' color={theme.text.secondary} size={24} />} placeholder='Add a note...' />
+          <InputTab icon={<Ionicons name='pencil' color={theme.text.secondary} size={24} />} placeholder='Add a note...' value={notes} onChangeText={setNotes}/>
         </View>
 
       </View>
@@ -90,7 +91,14 @@ const PreviewScreen = () => {
     </ScreenWrapper>
 
       <ScreenFooter backButton>
-        <SimpleButton btnText='Send Now' onPress={() => { router.replace('/(tabs)') }} />
+        <SimpleButton btnText='CONFIRM' onPress={() => { 
+          const mergedData = {...parsedInvoice, tax, discount, grandTotal, notes};
+          router.replace({
+          pathname: '/screens/template-screen',
+          params: {
+            invoiceData: JSON.stringify(mergedData),
+          }
+          }) }} />
       </ScreenFooter>
 
       </>

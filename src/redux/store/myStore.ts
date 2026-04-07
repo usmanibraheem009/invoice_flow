@@ -1,27 +1,24 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
-
-// import authReducer from "../slices/authSlice";
-// import cartReducer from "../slices/cartSlice";
-// import favoritesReducer from "../slices/favouriteSlice";
-// import imageReducer from "../slices/imageSlice";
-// import productReducer from "../slices/productSlice";
+import imageReducer from "../slices/imageSlice";
+import invoiceReducer from "../slices/invoiceSlice";
+import locationReducer from "../slices/locationSlice";
+import templateReducer from '../slices/templateSlice';
 import themeReducer from "../slices/themeSlice";
 
 const persistConfig = {
     key: "root",
     storage: AsyncStorage,
-    whitelist: ["authReducer", "favoritesReducer", "cartReducer", "themeReducer"],
+    whitelist: ["authReducer", "templateReducer", "imageReducer"],
 };
 
 const rootReducer = combineReducers({
     themeReducer,
-    // authReducer,
-    // imageReducer,
-    // favoritesReducer,
-    // cartReducer,
-    // productsReducer: productReducer,
+    templateReducer,
+    invoiceReducer,
+    imageReducer,
+    locationReducer,
 });
 
 const persistedReducer =

@@ -15,6 +15,17 @@ export const initialValues = {
         name: '',
         price: '',
         quantity: '',
+    },
+    addNewClient: {
+        clientName: '',
+        clientEmail: '',
+        phone: '',
+        addressLine1: '',
+        addressLine2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+        country: ''
     }
 };
 
@@ -40,6 +51,17 @@ export const validationSchema = {
         name: Yup.string().required('Item name required'),
         price: Yup.number().required('Price required'),
         quantity: Yup.number().required('Quantity required'),
+    }),
+    addNewClient: Yup.object({
+        clientName: Yup.string().required('Name is required'),
+        clientEmail: Yup.string().matches(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, 'Enter a valid email').required('Email is required'),
+        phone: Yup.string().required('Phone number is required'),
+        addressLine1: Yup.string().required('Address is required'),
+        country: Yup.string().required('Select your country'),
+        city: Yup.string().required('City name is required'),
+        state: Yup.string().required('state is required'),
+        postalCode: Yup.string().required('Postal code is required'),
     })
+
 };
 
