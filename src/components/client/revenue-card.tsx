@@ -8,31 +8,30 @@ interface revenueCardProps{
     title?: string,
     amount?: number,
     status?: string,
-    ratio?: string, 
 }
 
-const ReportCard = ({title, amount, status, ratio}: revenueCardProps) => {
+const RevenueCard = ({title, amount, status}: revenueCardProps) => {
     const {theme} = useTheme();
 
   return (
     <View style={[ styles.container,{backgroundColor: theme.background.secondary, borderColor: theme.border.primary}]}>
-      <Text style={[styles.title,{color: theme.text.secondary}]}>{title || 'REVENUE'}</Text>
-      <Text style={[styles.price, {color: theme.text.primary}]}>${amount || '24850'}</Text>
-      <Text style={[styles.ratio, {color: secondary[50]}]}>{ratio || '12.5%'}</Text>
+      <Text style={[styles.title,{color: theme.text.secondary}]}>{title}</Text>
+      <Text style={[styles.price, {color: status=== 'PAID'? secondary[50] : secondary[200]}]}>$ {amount}</Text>
     </View>
   )
 }
 
-export default ReportCard
+export default RevenueCard
 
 const styles = StyleSheet.create({
     container: {
         height: 'auto',
-        width: '40%',
+        width: 'auto',
         padding: 20,
         borderRadius: 10,
         borderWidth: 1,
         justifyContent: "center",
+        alignItems: 'center',
         gap: 6
     },
     title: {

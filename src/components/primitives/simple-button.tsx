@@ -4,7 +4,7 @@ import React from 'react'
 import { StyleSheet, Text, TouchableOpacity } from 'react-native'
 
 interface buttonProps{
-    btnText: string,
+    btnText: React.ReactNode,
     onPress: () => void,
     disabled?: boolean,
 }

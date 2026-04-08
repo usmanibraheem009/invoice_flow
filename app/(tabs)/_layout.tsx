@@ -27,6 +27,7 @@ const _layout = () => {
           <Tabs.Screen options={{ title: 'Invoices', headerShown: false, tabBarIcon: ({ color }: any) => (<Ionicons name='receipt-outline' color={color} size={24} />) }} name='invoices' />
           <Tabs.Screen options={{ title: 'Clients', headerShown: false, tabBarIcon: ({ color }: any) => (<Ionicons name='people-outline' color={color} size={24} />) }} name='clients' />
           <Tabs.Screen options={{ title: 'Reports', headerShown: false, tabBarIcon: ({ color }: any) => (<Ionicons name='bar-chart' color={color} size={24} />) }} name='reports' />
+          <Tabs.Screen options={{ title: 'Products', headerShown: false, tabBarIcon: ({ color }: any) => (<Ionicons name='cube-outline' color={color} size={24} />) }} name='products' />
           <Tabs.Screen options={{ title: 'Settings', headerShown: false, tabBarIcon: ({ color }: any) => (<Ionicons name='settings-outline' color={color} size={24} />) }} name='settings' />
         </Tabs>
       </Provider>

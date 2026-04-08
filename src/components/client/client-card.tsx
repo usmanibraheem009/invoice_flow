@@ -1,7 +1,7 @@
 import useTheme from '@/src/hooks/useTheme'
 import { mVs } from '@/src/utils/scale'
 import React from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native'
 import UserAvatar from './user-avatar'
 
 interface ClientCardProps{
@@ -10,16 +10,21 @@ interface ClientCardProps{
     totalRevenue: string,
     createdAt: string,
     onPressed: () => void,
+    profileImage?: string,
 }
 
-const ClientCard = ({clientName, createdAt, organizationName, totalRevenue, onPressed}: ClientCardProps) => {
+const ClientCard = ({clientName, createdAt, organizationName, totalRevenue, onPressed, profileImage}: ClientCardProps) => {
 
     const { theme } = useTheme();
 
     return (
         <Pressable style={[styles.container, { backgroundColor: theme.background.secondary, borderColor: theme.border.primary }]} onPress={onPressed}>
             <View style={styles.leftContainer}>
-                <UserAvatar name={clientName}/>
+                {profileImage? (
+                    <Image source={{uri: profileImage}} height={60} width={60} style={{borderRadius: 50}} />
+                ): (
+                    <UserAvatar name={clientName}/>
+                )}
                 <View style={{alignItems: 'flex-start', gap: 12}}>
                     <Text style={[styles.title, { color: theme.text.primary }]}>{clientName}</Text>
                     <Text style={[styles.subTitle, { color: theme.text.tertiary }]}>{organizationName}</Text>
@@ -48,7 +53,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     title: {
-        fontSize: mVs(22),
+        fontSize: mVs(18),
         fontWeight: 'bold',
     },
     subTitle: {

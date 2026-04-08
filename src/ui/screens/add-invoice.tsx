@@ -1,3 +1,4 @@
+import ModalWrapper from '@/src/components/layout/modal-wrapper'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
@@ -30,11 +31,13 @@ const AddInvoice = () => {
     const formikRef = useRef<any>(null);
     const paymentOptions = ['Due on Receipt', 'Net 7', 'Net 15', 'Net 30'];
     const invoiceNumber = useSelector((state: any) => state.invoiceReducer.currentInvoiceNumber);
+    const clients = useSelector((state: any) => state.clientsReducer.clients);
     const dispatch = useDispatch();
 
     const [issueDatePicker, setIssueDatePicker] = useState(false);
     const [dueDatePicker, setDueDatePicker] = useState(false);
     const [openPaymentList, setOpenPaymentList] = useState(false);
+    const [openClientModal, setOpenClientModal] = useState(false);
 
     useEffect(() => {
         const fetchLastInvoiceNumber = async () => {
@@ -104,12 +107,18 @@ const AddInvoice = () => {
                             await AsyncStorage.setItem('lastInvoiceNumber', values.invoiceNumber);
                         }} >
 
-                        {({ errors, touched, handleChange, setFieldValue, values }: any) => (
+                        {({ errors, touched, setFieldValue, values }: any) => (
                             <View style={{ paddingHorizontal: 16 }}>
                                 <Text style={[styles.title, { color: theme.text.primary }]} > Client & Details </Text>
+
                                 <Text style={[styles.label, { color: theme.text.secondary }]}> SELECT CLIENT </Text>
-                                <InputTab icon={<Ionicons name='people-outline' size={25} color={theme.text.secondary} onPress={() => { }} />} placeholder='Search or select...' value={values.clientName} onChangeText={handleChange('clientName')} />
+                                <Pressable onPress={() => setOpenClientModal(!openClientModal)}>
+                                    <InputTab icon={<Ionicons name='people-outline' size={25} color={theme.text.secondary} />} placeholder='Select client...' value={values.clientName} editable={false} />
+                                </Pressable>
                                 {touched.clientName && errors.clientName && (<ErrorText errorText={errors.clientName} />)}
+                                <ModalWrapper visible={openClientModal} onClose={() => {setOpenClientModal(false)}} searchBar
+                                data={clients} labelKey='clientName' valueKey='id' modalTitle='Select Client' 
+                                onItemPress={(item) => setFieldValue('clientName', item.clientName)} />
 
                                 <Text style={[styles.label, { color: theme.text.secondary }]}> INVOICE NUMBER </Text>
                                 <InputTab placeholder='Invoice Number' value={values.invoiceNumber} editable={false} />
@@ -173,7 +182,7 @@ const AddInvoice = () => {
                                                 setOpenPaymentList(false);
                                                 setFieldValue('dueDate', handleAutoDueDate(values.issueDate, term))
                                             }}>
-                                                <Text>{term}</Text>
+                                                <Text style={[styles.terms, {color: theme.text.primary}]}>{term}</Text>
                                             </Pressable>
                                         ))}
                                     </View>
@@ -230,4 +239,8 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
     },
+    terms: {
+        fontSize: mVs(16),
+        fontWeight: 500
+    }
 })

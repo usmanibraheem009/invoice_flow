@@ -3,6 +3,7 @@ import InputTab from '@/src/components/primitives/input-tab';
 import LocationModal from '@/src/components/primitives/location-modal';
 import SimpleButton from '@/src/components/primitives/simple-button';
 import useTheme from '@/src/hooks/useTheme';
+import { addClient } from '@/src/redux/slices/clientsSlice';
 import { clearProfileImage, setProfileImage } from '@/src/redux/slices/imageSlice';
 import { fetchCities, fetchCountries, fetchStates } from '@/src/redux/slices/locationSlice';
 import { initialValues, validationSchema } from '@/src/utils/auth-form';
@@ -13,6 +14,7 @@ import { router } from 'expo-router';
 import { Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
+import uuid from 'react-native-uuid';
 import { useDispatch, useSelector } from 'react-redux';
 import ErrorText from '../components/error-text';
 import AuthHeader from '../components/screen-header';
@@ -46,16 +48,26 @@ const AddClient = () => {
 
   // Submit handler
   const onSubmitFunc = (values: any) => {
-    const profileImageUrl = imageUrl;
-    console.log('submissionnn')
-
-    console.log('submit triggered!');
+    const newClient = {
+      id: uuid.v4().toString(),
+      clientName: values.clientName,
+      clientEmail: values.clientEmail,
+      phone: values.phone,
+      addressLine1: values.addressLine1,
+      addressLine2: values.addressLine2,
+      orgName: values.orgName,
+      country: values.country,
+      state: values.state,
+      city: values.city,
+      postalCode: values.postalCode || '',
+      profileImage: imageUrl || '',
+    }
     setShowCountry(false);
     setShowState(false);
     setShowCity(false);
 
+    dispatch(addClient(newClient));
     dispatch(clearProfileImage());
-
     router.replace('/(tabs)/clients');
   };
 
@@ -71,11 +83,7 @@ const AddClient = () => {
         >
           {({ errors, values, touched, handleSubmit, handleChange, setFieldValue }: any) => (
             <View style={{ gap: 12, paddingBottom: 20 }}>
-              {/* Profile Image */}
-              <Pressable
-                onPress={OpenImagePicker}
-                style={[styles.imageContainer, { backgroundColor: imageUrl ? 'transparent' : 'grey' }]}
-              >
+              <Pressable onPress={OpenImagePicker} style={[styles.imageContainer, { backgroundColor: imageUrl ? 'transparent' : 'grey' }]}>
                 {imageUrl ? (
                   <Image source={{ uri: imageUrl }} style={styles.userAvatar} />
                 ) : (
@@ -83,7 +91,6 @@ const AddClient = () => {
                 )}
               </Pressable>
 
-              {/* Client Info */}
               <InputTab placeholder="Enter your name" value={values.clientName} onChangeText={handleChange('clientName')} />
               {touched.clientName && errors.clientName && <ErrorText errorText={errors.clientName} />}
 
@@ -98,6 +105,9 @@ const AddClient = () => {
 
               <InputTab placeholder="Address Line 2" value={values.addressLine2} onChangeText={handleChange('addressLine2')} />
               {touched.addressLine2 && errors.addressLine2 && <ErrorText errorText={errors.addressLine2} />}
+
+              <InputTab placeholder="Organization Name" value={values.orgName} onChangeText={handleChange('orgName')} />
+              {touched.orgName && errors.orgName && <ErrorText errorText={errors.orgName} />}
 
               <Pressable onPress={() => setShowCountry(true)}>
                 <InputTab placeholder="Select your country" value={values.country} editable={false} />
@@ -165,10 +175,7 @@ const AddClient = () => {
               <InputTab placeholder="Postal Code" value={values.postalCode} onChangeText={handleChange('postalCode')} />
               {touched.postalCode && errors.postalCode && <ErrorText errorText={errors.postalCode} />}
 
-              <SimpleButton btnText="Add Client" onPress={() => {
-                console.log('button triggered')
-                handleSubmit()
-              }} />
+              <SimpleButton btnText="Add Client" onPress={handleSubmit} />
             </View>
           )}
         </Formik>

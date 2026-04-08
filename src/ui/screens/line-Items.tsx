@@ -1,12 +1,13 @@
 import ProductCard, { InvoiceItem } from '@/src/components/invoice/product-card'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
-import ItemModal from '@/src/components/primitives/item-modal'
+import SelectProduct from '@/src/components/modals/select-product'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import useTheme from '@/src/hooks/useTheme'
 import { mVs } from '@/src/utils/scale'
 import { router, useLocalSearchParams } from 'expo-router'
 import React, { useState } from 'react'
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+import { useSelector } from 'react-redux'
 import ScreenFooter from '../components/screen-footer'
 import AuthHeader from '../components/screen-header'
 
@@ -15,6 +16,8 @@ const LineItems = () => {
     const { theme } = useTheme();
     const { invoiceData } = useLocalSearchParams<{ invoiceData: any }>();
     const parsedInvoiceData = invoiceData ? JSON.parse(invoiceData) : null;
+    const products = useSelector((state: any) => state.productsReducer.products);
+    console.log(products)
 
     const [visible, setVisible] = useState(false);
     const [items, setItems] = useState<InvoiceItem[]>([]);
@@ -39,7 +42,7 @@ const LineItems = () => {
         setVisible(true);
     }
 
-    const subTotal = items.reduce((sum, item) => sum + item.total, 0);
+    const subTotal = items.reduce((sum, item) => sum + item.total!, 0);
 
     const previewInvoice = () => {
 
@@ -58,7 +61,7 @@ const LineItems = () => {
             pathname: '/screens/preview-screen',
             params: { invoiceData: JSON.stringify(fullInvoiceDate) }
         });
-    }
+    };
 
     return (
         <>
@@ -90,7 +93,7 @@ const LineItems = () => {
                     </FlatList>
                 </View>
 
-                <Pressable onPress={() => { setVisible(true) }} style={[styles.addItemContainer, { borderBottomColor: theme.border.secondary }]}>
+                <Pressable onPress={() => { setVisible(true); setSelectedItem(null); }} style={[styles.addItemContainer, { borderBottomColor: theme.border.secondary }]}>
                     <Text style={[styles.addItem, { color: theme.text.secondary }]}>+ Add New Item</Text>
                 </Pressable>
 
@@ -99,9 +102,10 @@ const LineItems = () => {
                     <Text style={[styles.totalPrice]}>${subTotal}</Text>
                 </View>
 
+                <SelectProduct visible={visible} onClose={() => setVisible(false)} onSubmit={() => {}} />
 
-                <ItemModal visible={visible} onClose={() => { setVisible(false); setSelectedItem(null) }} onSubmitItem={handleSubmitItem} editItem={selectedItem} />
             </ScreenWrapper>
+
             <ScreenFooter backButton>
                 <SimpleButton btnText='NEXT STEP' onPress={() => { previewInvoice() }} />
             </ScreenFooter>
@@ -181,5 +185,11 @@ const styles = StyleSheet.create({
         marginTop: 80,
         fontSize: mVs(16),
         fontWeight: 500
-    }
+    },
+    dropdownItem: {
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        borderWidth: 1,
+        marginVertical: 10
+    },
 })

@@ -22,15 +22,12 @@ const TemplateScreen = () => {
   const { selectedTemplateId, rememberChoice } =
     useSelector((state: any) => state.templateReducer);
 
-  // ✅ Load saved template on mount
   useEffect(() => {
     dispatch(loadPersistedTemp());
   }, []);
 
-  // ✅ Get params safely
   const params = useLocalSearchParams();
 
-  // ✅ Parse invoice safely (memoized)
   const parsedInvoiceData = useMemo(() => {
     try {
       if (params.invoiceData) {

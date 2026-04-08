@@ -3,7 +3,7 @@ import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
-import UserAvatar from '../primitives/user-avatar'
+import UserAvatar from '../client/user-avatar'
 
 const DashHeader = () => {
     const {theme} = useTheme();
@@ -16,7 +16,7 @@ const DashHeader = () => {
             </View>
            <View style={styles.rightContainer}>
              <Ionicons name='notifications-outline' size={mVs(30)} color={theme.text.primary}/>
-             <UserAvatar />
+             <UserAvatar name={'usman'} />
            </View>
             
         </View>

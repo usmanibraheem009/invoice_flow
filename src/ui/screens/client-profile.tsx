@@ -1,3 +1,4 @@
+import RevenueCard from '@/src/components/client/revenue-card'
 import InvoiceCard from '@/src/components/invoice/invoice-card'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import ContactButton from '@/src/components/primitives/contact-button'
@@ -13,12 +14,27 @@ const invoices = [
   { id: '1', title: 'Invoice #001', status: 'PAID', price: 3400, issueDate: '30-OCT-2024' },
   { id: '2', title: 'Invoice #002', status: 'PENDING', price: 3080, issueDate: '01-DEC-2024' },
   { id: '3', title: 'Invoice #003', status: 'OVERDUE', price: 2810, issueDate: '07-FEB-2025' },
-
 ];
 
 const ClientProfile = () => {
 
   const { theme } = useTheme();
+
+  const { paidAmount, unpaidAmount } = invoices.reduce(
+    (acc, invoice) => {
+      if (invoice.status === 'PAID') {
+        acc.paidAmount += invoice.price;
+      } else {
+        acc.unpaidAmount += invoice.price;
+      }
+
+      return acc;
+    },
+    {
+      paidAmount: 0,
+      unpaidAmount: 0,
+    }
+  )
 
   return (
     <ScreenWrapper>
@@ -37,17 +53,18 @@ const ClientProfile = () => {
         </View>
       </View>
 
-      <View>
-        
+      <View style={{ flexDirection: 'row', marginHorizontal: mVs(20), gap: mVs(15), marginTop: mVs(20), alignItems: 'center', justifyContent: 'center' }}>
+        <RevenueCard title='Invoices' amount={unpaidAmount} />
+        <RevenueCard title='Paid' amount={paidAmount} status={'PAID'} />
+        <RevenueCard title='Due' amount={unpaidAmount} status='UNPAID' />
       </View>
 
-      <View style={styles.invoiceList}>
-        <FlatList data={invoices} keyExtractor={(item) => item.id} contentContainerStyle={{gap: mVs(15), paddingHorizontal: mVs(20)}}
-        ListHeaderComponent={<Text style={[styles.history,{color: theme.text.primary}]}>History</Text>}
-          renderItem={({ item }) => (
-            <InvoiceCard title={item.title} issueDate={item.issueDate} status={item.status} price={item.price} invoiceNumber={item.title} />
-          )} />
-      </View>
+      <Text style={[styles.history, { color: theme.text.primary }]}>History</Text>
+
+      <FlatList data={invoices} keyExtractor={(item) => item.id} style={{ flex: 1 }} contentContainerStyle={styles.invoiceList} showsVerticalScrollIndicator={false}
+        renderItem={({ item }) => (
+          <InvoiceCard title={item.title} issueDate={item.issueDate} status={item.status} price={item.price} invoiceNumber={item.title} />
+        )} />
 
     </ScreenWrapper>
   )
@@ -95,8 +112,13 @@ const styles = StyleSheet.create({
   history: {
     fontSize: mVs(26),
     fontWeight: 'bold',
+    paddingHorizontal: mVs(20),
+    marginBottom: mVs(15),
+    marginTop: mVs(10),
   },
   invoiceList: {
-    marginTop: mVs(30)
+    gap: mVs(15),
+    paddingHorizontal: mVs(20),
+    paddingBottom: mVs(20)
   }
 })

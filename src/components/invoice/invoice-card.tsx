@@ -26,7 +26,7 @@ const InvoiceCard = ({title, status, price, issueDate }: invoiceCardProps) => {
             </View>
 
             <View style={styles.rightContainer}>
-                <Text style={[styles.price, {color: theme.text.primary}]}>${price}</Text>
+                <Text style={[styles.price, {color: theme.text.primary}]}>$ {price}</Text>
                 <InvoiceStatus status={status}/>
             </View>
         </View>

@@ -7,31 +7,43 @@ import { StyleSheet, Text, View } from 'react-native';
 export interface InvoiceItem {
     id: string,
     name: string,
-    price: number,
-    quantity: number,
-    total: number,
+    description?: string,
+    unitPrice?: string,
+    price?: number,
+    quantity?: number,
+    total?: number,
     type: 'Product' | 'Service',
     onDelete: (id: string) => void,
     onEdit: (item: InvoiceItem) => void
 }
 
-const ProductCard = ({ name, price, quantity, total, type, id, onDelete, onEdit }: InvoiceItem) => {
+const ProductCard = ({ name, price, quantity, total, type, id, onDelete, onEdit, unitPrice, description }: InvoiceItem) => {
 
     const { theme } = useTheme();
 
     return (
-            <View style={[styles.container, { backgroundColor: theme.background.secondary, borderColor: theme.border.primary }]}>
-                <View style={styles.leftContainer}>
-                    <Text style={[styles.title, { color: theme.text.primary }]}>{name}</Text>
+        <View style={[styles.container, { backgroundColor: theme.background.secondary, borderColor: theme.border.primary }]}>
+            <View style={styles.leftContainer}>
+                <Text style={[styles.title, { color: theme.text.primary }]}>{name}</Text>
+                {description && (
+                    <Text style={[styles.description, { color: theme.text.primary }]}>{description}</Text>
+                )}
+                {quantity ? (
                     <Text style={[styles.date, { color: theme.text.secondary }]}>{type === 'Product' ? `${quantity} X ${price}` : `${quantity} h X ${price}`}</Text>
-                    <Text style={[styles.price, { color: theme.text.primary }]}>${total}</Text>
-                </View>
+                ) : (
+                    <Text style={[styles.price, { color: theme.text.secondary }]}>{type === 'Product' ? `unit price: $ ${unitPrice}`: `price per hour: $ ${unitPrice}` }</Text>
+                )}
 
-                <View style={styles.rightContainer}>
-                    <Ionicons name='trash-outline' color={'red'} size={20} onPress={() => onDelete(id)} />
-                    <Ionicons name='pencil' color={theme.text.secondary} size={20} onPress={() => onEdit({id, name, price, quantity, total, type, onDelete, onEdit})} />
-                </View>
+                {total && (
+                    <Text style={[styles.price, { color: theme.text.primary }]}>${total}</Text>
+                )}
             </View>
+
+            <View style={styles.rightContainer}>
+                <Ionicons name='trash-outline' color={'red'} size={20} onPress={() => onDelete(id)} />
+                <Ionicons name='pencil' color={theme.text.secondary} size={20} onPress={() => onEdit({ id, name, price, quantity, total, type, onDelete, onEdit, description, unitPrice })} />
+            </View>
+        </View>
     )
 }
 
@@ -62,11 +74,11 @@ const styles = StyleSheet.create({
         color: '#B0B8C1'
     },
     price: {
-        fontSize: mVs(16),
-        fontWeight: 'bold',
+        fontSize: mVs(14),
+        fontWeight: 500,
     },
     rightContainer: {
-        justifyContent: 'center',
+        justifyContent: 'space-evenly',
         alignItems: 'center',
         gap: mVs(10)
     },
@@ -80,5 +92,10 @@ const styles = StyleSheet.create({
         fontWeight: 500,
         alignSelf: 'center',
         marginBottom: mVs(10)
+    },
+    description: {
+        fontSize: mVs(14),
+        fontWeight: 400,
+        maxWidth: mVs(200)
     }
 })
