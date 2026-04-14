@@ -17,7 +17,7 @@ import userReducer from "../slices/userSlice";
 const persistConfig = {
     key: "root",
     storage: AsyncStorage,
-    whitelist: ["authReducer", "templateReducer", "imageReducer", "clientsReducer", "productsReducer"],
+    whitelist: ["authReducer", "templateReducer", "imageReducer", "clientsReducer", "productsReducer", "organizationReducer"],
 };
 
 const rootReducer = combineReducers({

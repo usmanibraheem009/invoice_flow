@@ -5,9 +5,9 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-interface ProductCardProps extends InvoiceItem{
+interface ProductCardProps extends InvoiceItem {
     onDelete: (id: string) => void,
-    onEdit: (item : any) => void,
+    onEdit: (item: any) => void,
     unitPrice?: number,
     description?: string
 }
@@ -26,7 +26,7 @@ const ProductCard = ({ name, price, quantity, total, type, id, onDelete, onEdit,
                 {quantity ? (
                     <Text style={[styles.date, { color: theme.text.secondary }]}>{type === 'Product' ? `${quantity} X ${price}` : `${quantity} h X ${price}`}</Text>
                 ) : (
-                    <Text style={[styles.price, { color: theme.text.secondary }]}>{type === 'Product' ? `unit price: $ ${unitPrice}`: `price per hour: $ ${unitPrice}` }</Text>
+                    <Text style={[styles.price, { color: theme.text.secondary }]}>{type === 'Product' ? `unit price: $ ${unitPrice}` : `price per hour: $ ${unitPrice}`}</Text>
                 )}
 
                 {total && (

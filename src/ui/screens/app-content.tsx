@@ -2,16 +2,18 @@ import { fetchCurrentUser, isTokenExpired } from '@/src/apis/authApi';
 import { fetchOrganization } from '@/src/apis/organizationApi';
 import { loadSessionFromStore, setSession } from '@/src/redux/slices/authSlice';
 import { setOrganization } from '@/src/redux/slices/organizationSlice';
+import { RootState } from '@/src/redux/store/myStore';
 import { refreshAccessToken } from '@/src/services/tokenService';
 import { router, Stack } from 'expo-router';
 import React, { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const AppContent = () => {
 
 
     const dispatch = useDispatch();
+    const organization = useSelector((state: RootState) => state.organizationReducer.data);
 
     useEffect(() => {
         const bootstrapAuth = async () => {
@@ -48,16 +50,16 @@ const AppContent = () => {
 
     useEffect(() => {
         const loadOrganization = async () => {
-          try {
-            const res = await fetchOrganization('ed947957-9fc9-4e46-9a4b-6bc9cd1ed297');
-            dispatch(setOrganization(res.data))
-          }catch(error: any){
-            console.log(error);
-          }
+            try {
+                const res = await fetchOrganization(organization?.id!);
+                dispatch(setOrganization(res.data))
+            } catch (error: any) {
+                console.log('Error loading org: ', error);
+            }
         };
-    
+
         loadOrganization();
-      }, []);
+    }, []);
 
     return (
         <GestureHandlerRootView>

@@ -45,9 +45,8 @@ const index = () => {
     } else if (currentHour > 18 && currentHour < 20) {
       return 'GOOD EVENING 🌙';
     } else {
-      'GOOD NIGHT 🌙';
+      return 'GOOD NIGHT 🌙';
     }
-    return 'GREETINGS'
   };
 
   const invoices = [

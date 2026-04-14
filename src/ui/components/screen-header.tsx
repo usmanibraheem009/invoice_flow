@@ -5,37 +5,38 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import ArrowBack from './arrow-back';
 
-interface AuthHeaderProps{
+interface AuthHeaderProps {
   title?: string,
-  arrowBack? : boolean,
+  arrowBack?: boolean,
   subtitle?: string,
   trailingIcon?: keyof typeof Ionicons.glyphMap;
+  onIconPress?: () => void
 }
 
-const AuthHeader = ({ title, arrowBack, trailingIcon }: AuthHeaderProps) => {
+const AuthHeader = ({ title, arrowBack, trailingIcon, onIconPress }: AuthHeaderProps) => {
 
-  const {theme} = useTheme();
+  const { theme } = useTheme();
 
   return (
-    <View style={[styles.container, {borderBottomColor: theme.border.secondary}]}>
+    <View style={[styles.container, { borderBottomColor: theme.border.secondary }]}>
       <View style={styles.leftIcon}>
-      {arrowBack && (
-        <ArrowBack />
-      )}
-      
-    </View>
+        {arrowBack && (
+          <ArrowBack />
+        )}
 
-    <View style={styles.title}>
-      {title && (
-        <Text style={[styles.titleText,{color: theme.text.primary}]}>{title}</Text>
-      )}
-    </View>
+      </View>
 
-    <View style={styles.rightIcon}>
-      {trailingIcon && (
-        <Ionicons name={trailingIcon} size={24} color={theme.text.primary} />
-      )}
-    </View>
+      <View style={styles.title}>
+        {title && (
+          <Text style={[styles.titleText, { color: theme.text.primary }]}>{title}</Text>
+        )}
+      </View>
+
+      <View style={styles.rightIcon}>
+        {trailingIcon && (
+          <Ionicons name={trailingIcon} size={24} color={theme.text.primary} onPress={onIconPress} />
+        )}
+      </View>
     </View>
   )
 }

@@ -1,13 +1,14 @@
 import { deleteOrganization } from '@/src/apis/organizationApi'
+import UserAvatar from '@/src/components/client/user-avatar'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
+import { setLoading } from '@/src/redux/slices/loadingSlice'
 import { clearOrganization } from '@/src/redux/slices/organizationSlice'
-import { clearSnackBar, setSnackBar } from '@/src/redux/slices/snackbarSlice'
+import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
 import { RootState } from '@/src/redux/store/myStore'
 import { mVs } from '@/src/utils/scale'
-import SnackBar from '@/src/utils/snackbar'
 import { router } from 'expo-router'
 import React, { useState } from 'react'
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
@@ -17,9 +18,8 @@ import AuthHeader from '../components/screen-header'
 const OrganizationSettings = () => {
 
     const organization = useSelector((state: RootState) => state.organizationReducer.data);
-    const snackbar = useSelector((state: RootState) => state.snackbarReducer);
-    console.log('organization data: ', organization)
     const [edit, setEdit] = useState(false);
+    const [snackbar, setSnackbar] = useState<{ message: string, type: 'info' | 'success' | 'error' } | null>(null)
     const { theme } = useTheme();
     const dispatch = useDispatch();
 
@@ -29,9 +29,16 @@ const OrganizationSettings = () => {
                 { text: 'Cancel', style: 'cancel' },
                 {
                     text: 'Yes', onPress: async () => {
-                        await deleteOrganization(id);
-                        dispatch(setSnackBar({ message: 'Organization Deleted successfully', type: 'success' }));
-                        dispatch(clearOrganization());
+                        dispatch(setLoading(true));
+                        try {
+                            await deleteOrganization(id);
+                            dispatch(showSnackbar({ message: 'Organization Deleted successfully', type: 'success' }));
+                            dispatch(clearOrganization());
+                        } catch (error: any) {
+                            dispatch(showSnackbar({ message: error.message, type: error.type }));
+                        } finally {
+                            dispatch(setLoading(false));
+                        }
                     }
                 }
             ]
@@ -58,23 +65,19 @@ const OrganizationSettings = () => {
     return (
         <ScreenWrapper>
             <AuthHeader arrowBack title='Organization' />
+            <View style={[styles.container, { borderColor: theme.border.secondary }]}>
 
-            {!organization?.id ? (<Pressable onPress={() => { router.push('/screens/add-organization') }} >
-                <InputTab placeholder=' + Add new organization' editable={false} centerAlign={true} />
-            </Pressable>) :
-                (
-                    <View style={styles.container}>
-                        <Text style={[styles.labelText, { color: theme.text.secondary }]}>ORGANIZATION IFNROMATION</Text>
-                        <InputTab placeholder={'Enter legal name'} value={organization?.legalName || ''} editable={edit} />
+                <UserAvatar name={organization?.legalName} />
+                <Text style={[styles.labelText, { color: theme.text.secondary }]}>ORGANIZATION NAME</Text>
+                <InputTab placeholder={'Enter legal name'} value={organization?.legalName || ''} editable={edit} />
 
-                        <Text style={[styles.labelText, { color: theme.text.secondary }]}>TAX ID</Text>
-                        <InputTab placeholder={'Enter Tax Id'} value={organization?.taxId || ''} editable={edit} />
+                <Text style={[styles.labelText, { color: theme.text.secondary }]}>TAX ID</Text>
+                <InputTab placeholder={'Enter Tax Id'} value={organization?.taxId || ''} editable={edit} />
 
-                        <Text style={[styles.labelText, { color: theme.text.secondary }]}>HOME CURRENCY</Text>
-                        <InputTab placeholder={'Enter home currency'} value={organization?.homeCurrency || ''} editable={edit} />
-                    </View>
-                )
-            }
+                <Text style={[styles.labelText, { color: theme.text.secondary }]}>HOME CURRENCY</Text>
+                <InputTab placeholder={'Enter home currency'} value={organization?.homeCurrency || ''} editable={edit} />
+            </View>
+
             <View style={styles.btnContainer}>
                 <SimpleButton btnText='Edit Info' onPress={() => {
                     router.push({
@@ -83,16 +86,8 @@ const OrganizationSettings = () => {
                     });
                 }} />
 
-                <SimpleButton btnText='Delete organization' onPress={() => deleteOrg(organization!.id)} />
+                <SimpleButton btnText='Delete organization' onPress={() => deleteOrg(organization!.id)} backgroundColor={theme.surface.tertiary} />
             </View>
-
-            {snackbar?.message ? (
-                <SnackBar message={snackbar.message} type={snackbar.type} onDismiss={() => {
-                    dispatch(clearSnackBar());
-                    router.back()
-                }
-                } />
-            ) : null}
         </ScreenWrapper>
     )
 }
@@ -105,15 +100,18 @@ const styles = StyleSheet.create({
         fontWeight: 500
     },
     container: {
-        paddingHorizontal: mVs(20),
+        padding: mVs(20),
         alignItems: 'center',
-        marginTop: mVs(20)
+        marginTop: mVs(20),
+        borderWidth: 2,
+        marginHorizontal: mVs(20),
+        borderRadius: mVs(20),
     },
     labelText: {
         fontSize: mVs(14),
         fontWeight: 500,
         alignSelf: 'flex-start',
-        marginBottom: mVs(10),
+        marginBottom: mVs(5),
         marginTop: mVs(20)
     },
     btnContainer: {

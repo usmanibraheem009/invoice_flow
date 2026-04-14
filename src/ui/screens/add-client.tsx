@@ -1,75 +1,139 @@
+import { createClient, updateClient } from '@/src/apis/clientApi';
 import ScreenWrapper from '@/src/components/layout/screen-wrapper';
 import InputTab from '@/src/components/primitives/input-tab';
 import LocationModal from '@/src/components/primitives/location-modal';
 import SimpleButton from '@/src/components/primitives/simple-button';
-import { useTheme } from '@/src/hooks/useTheme';
-import { addClient } from '@/src/redux/slices/clientsSlice';
-import { clearProfileImage, setProfileImage } from '@/src/redux/slices/imageSlice';
+import { addClient, updateExistingClient } from '@/src/redux/slices/clientsSlice';
+import { setLoading } from '@/src/redux/slices/loadingSlice';
 import { fetchCities, fetchCountries, fetchStates } from '@/src/redux/slices/locationSlice';
+import { showSnackbar } from '@/src/redux/slices/snackbarSlice';
 import { initialValues, validationSchema } from '@/src/utils/auth-form';
 import { mVs } from '@/src/utils/scale';
-import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
-import uuid from 'react-native-uuid';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import ErrorText from '../components/error-text';
 import AuthHeader from '../components/screen-header';
 
 const AddClient = () => {
-  const { theme } = useTheme();
+  const { editable, clientData } = useLocalSearchParams();
+  const parsedClientData = clientData ? JSON.parse(clientData as string) : null;
   const dispatch = useDispatch<any>();
-  const imageUrl = useSelector((state: any) => state.imageReducer.imageUrl);
   const { countries, states, cities } = useSelector((state: any) => state.locationReducer);
+  const isEdit = editable === 'true' && parsedClientData?.id;
 
   const [showCountry, setShowCountry] = useState(false);
   const [showState, setShowState] = useState(false);
   const [showCity, setShowCity] = useState(false);
 
-  // Load countries on mount
   useEffect(() => {
     dispatch(fetchCountries());
   }, []);
 
-  const OpenImagePicker = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
+  const onSubmitFunc = async (values: any) => {
+    dispatch(setLoading(true));
 
-    if (!result.canceled) {
-      dispatch(setProfileImage(result.assets[0].uri));
+    try {
+      const payload = {
+        name: values.clientName,
+        email: values.clientEmail,
+        phone: values.phone,
+        addressLine1: values.addressLine1,
+        country: values.country,
+        state: values.state,
+        city: values.city,
+        postalCode: values.postalCode || '',
+      };
+
+      setShowCountry(false);
+      setShowState(false);
+      setShowCity(false);
+
+      let clientResponse;
+
+      if (isEdit) {
+        clientResponse = await updateClient(parsedClientData.id, payload);
+
+        const client = clientResponse?.data;
+
+        const updatedClient = {
+          id: client.id,
+          clientName: client.name,
+          clientEmail: client.email,
+          phone: client.phone,
+          addressLine1: client.addressLine1,
+          addressLine2: '',
+          orgName: '',
+          country: client.country,
+          state: client.state,
+          city: client.city,
+          postalCode: client.postalCode,
+        };
+
+        dispatch(updateExistingClient(updatedClient));
+
+        dispatch(
+          showSnackbar({
+            message: 'Client updated successfully',
+            type: 'success',
+          })
+        );
+
+      } else {
+        clientResponse = await createClient(payload);
+
+        const client = clientResponse;
+
+        const newClient = {
+          id: client.id,
+          clientName: client.name,
+          clientEmail: client.email || '',
+          phone: client.phone || '',
+          addressLine1: client.addressLine1 || '',
+          addressLine2: '',
+          orgName: '',
+          country: client.country || '',
+          state: client.state || '',
+          city: client.city || '',
+          postalCode: client.postalCode || '',
+        };
+
+        dispatch(addClient(newClient));
+
+        dispatch(
+          showSnackbar({
+            message: 'Client created successfully',
+            type: 'success',
+          })
+        );
+      }
+
+      router.replace('/(tabs)/clients');
+
+    } catch (error: any) {
+      dispatch(
+        showSnackbar({
+          message: error?.message || 'Something went wrong',
+          type: 'error',
+        })
+      );
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 
-  // Submit handler
-  const onSubmitFunc = (values: any) => {
-    const newClient = {
-      id: uuid.v4().toString(),
-      clientName: values.clientName,
-      clientEmail: values.clientEmail,
-      phone: values.phone,
-      addressLine1: values.addressLine1,
-      addressLine2: values.addressLine2,
-      orgName: values.orgName,
-      country: values.country,
-      state: values.state,
-      city: values.city,
-      postalCode: values.postalCode || '',
-      profileImage: imageUrl || '',
-    }
-    setShowCountry(false);
-    setShowState(false);
-    setShowCity(false);
-
-    dispatch(addClient(newClient));
-    dispatch(clearProfileImage());
-    router.replace('/(tabs)/clients');
-  };
+  const editableValues = {
+    clientName: parsedClientData?.name || '',
+    clientEmail: parsedClientData?.email,
+    phone: parsedClientData?.phone,
+    addressLine1: parsedClientData?.addressLine1,
+    country: parsedClientData?.country,
+    state: parsedClientData?.state,
+    city: parsedClientData?.city,
+    postalCode: parsedClientData?.postalCode || '',
+  }
 
   return (
     <ScreenWrapper scrollable keyboardAvoidingView>
@@ -77,19 +141,13 @@ const AddClient = () => {
 
       <View style={{ paddingHorizontal: mVs(20) }}>
         <Formik
-          initialValues={initialValues.addNewClient}
+          initialValues={editable === 'true' ? editableValues : initialValues.addNewClient}
+          enableReinitialize={true}
           validationSchema={validationSchema.addNewClient}
           onSubmit={onSubmitFunc}
         >
           {({ errors, values, touched, handleSubmit, handleChange, setFieldValue }: any) => (
             <View style={{ gap: 12, paddingBottom: 20 }}>
-              <Pressable onPress={OpenImagePicker} style={[styles.imageContainer, { backgroundColor: imageUrl ? 'transparent' : 'grey' }]}>
-                {imageUrl ? (
-                  <Image source={{ uri: imageUrl }} style={styles.userAvatar} />
-                ) : (
-                  <Ionicons name="camera" size={24} />
-                )}
-              </Pressable>
 
               <InputTab placeholder="Enter your name" value={values.clientName} onChangeText={handleChange('clientName')} />
               {touched.clientName && errors.clientName && <ErrorText errorText={errors.clientName} />}
@@ -175,7 +233,7 @@ const AddClient = () => {
               <InputTab placeholder="Postal Code" value={values.postalCode} onChangeText={handleChange('postalCode')} />
               {touched.postalCode && errors.postalCode && <ErrorText errorText={errors.postalCode} />}
 
-              <SimpleButton btnText="Add Client" onPress={handleSubmit} />
+              <SimpleButton btnText={editable === 'true' ? "Update Client" : "Add Client"} onPress={handleSubmit} />
             </View>
           )}
         </Formik>

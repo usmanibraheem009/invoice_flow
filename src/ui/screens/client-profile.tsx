@@ -1,13 +1,19 @@
+import { deleteExistingClient, getClientById } from '@/src/apis/clientApi'
 import RevenueCard from '@/src/components/client/revenue-card'
 import InvoiceCard from '@/src/components/invoice/invoice-card'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import ContactButton from '@/src/components/primitives/contact-button'
+import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
+import { setLoading } from '@/src/redux/slices/loadingSlice'
+import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
 import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
-import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { router, useLocalSearchParams } from 'expo-router'
+import React, { useEffect, useState } from 'react'
+import { Linking, StyleSheet, Text, View } from 'react-native'
 import { FlatList } from 'react-native-gesture-handler'
+import { useDispatch } from 'react-redux'
 import AuthHeader from '../components/screen-header'
 
 const invoices = [
@@ -19,6 +25,38 @@ const invoices = [
 const ClientProfile = () => {
 
   const { theme } = useTheme();
+  const { clientId } = useLocalSearchParams();
+  const [client, setClient] = useState<any>(null);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!clientId) return;
+    fetchClient();
+  }, []);
+
+  const fetchClient = async () => {
+    try {
+      const response = await getClientById(clientId as string);
+      const clientData = response.data;
+
+      setClient(clientData);
+    } catch (error: any) {
+      console.log('error getting client data: ', error)
+    }
+  };
+
+  const getInitials = (fullName: string): string => {
+    if (!fullName) return 'NA'
+
+    const nameParts = fullName.trim().split(' ').filter(Boolean)
+
+    if (nameParts.length === 1) {
+      return nameParts[0][0].toUpperCase()
+    }
+
+    return (
+      nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+  }
 
   const { paidAmount, unpaidAmount } = invoices.reduce(
     (acc, invoice) => {
@@ -34,34 +72,83 @@ const ClientProfile = () => {
       paidAmount: 0,
       unpaidAmount: 0,
     }
-  )
+  );
+
+  const handleEmail = async (email: string) => {
+    if (!email) return;
+    const url = `mailto:${email}`;
+    try {
+      Linking.openURL(url);
+    } catch (error: any) {
+      console.log('error opening email: ', error);
+    }
+  };
+
+  const handlePhone = async (phoneNumber: string) => {
+    if (!phoneNumber) return;
+    const url = `tel:${phoneNumber}`;
+    try {
+      Linking.openURL(url);
+    } catch (error) {
+      console.log('error opening phone: ', error);
+    }
+  };
+
+  const deleteClient = async (id: string) => {
+    dispatch(setLoading(true))
+    try {
+      await deleteExistingClient(id);
+      dispatch(showSnackbar({
+        message: 'Client deleted successfully', type: 'error'
+      }));
+      router.back();
+    } catch (error: any) {
+      dispatch(showSnackbar({
+        message: error.message, type: error.type
+      }))
+    } finally {
+      dispatch(setLoading(false))
+    }
+  }
 
   return (
     <ScreenWrapper>
-      <AuthHeader arrowBack title='Profile' trailingIcon='pencil' />
-      <View style={[styles.avatar, { borderColor: theme.surface.primary, backgroundColor: theme.background.secondary }]}>
-        <Text style={styles.clientName}>JD</Text>
-      </View>
-
-      <View style={styles.userDetails}>
-        <Text style={[styles.name, { color: theme.text.primary }]}>John Doe</Text>
-        <Text style={[styles.orgName, { color: theme.text.secondary }]}>Doe Labs Inc.</Text>
-        <View style={styles.contactInfo}>
-          <ContactButton icon={<Ionicons name='mail-outline' size={mVs(30)} color={theme.text.primary} />} onPress={() => { }} />
-          <ContactButton icon={<Ionicons name='call-outline' size={mVs(30)} color={theme.text.primary} />} onPress={() => { }} />
-          <ContactButton icon={<Ionicons name='share-outline' size={mVs(30)} color={theme.text.primary} />} onPress={() => { }} />
-        </View>
-      </View>
-
-      <View style={{ flexDirection: 'row', marginHorizontal: mVs(20), gap: mVs(15), marginTop: mVs(20), alignItems: 'center', justifyContent: 'center' }}>
-        <RevenueCard title='Invoices' amount={unpaidAmount} />
-        <RevenueCard title='Paid' amount={paidAmount} status={'PAID'} />
-        <RevenueCard title='Due' amount={unpaidAmount} status='UNPAID' />
-      </View>
-
-      <Text style={[styles.history, { color: theme.text.primary }]}>History</Text>
+      <AuthHeader arrowBack title='Profile' trailingIcon='pencil' onIconPress={() => {
+        router.push({ pathname: '/screens/add-client', params: { editable: 'true', clientData: JSON.stringify(client) } });
+      }} />
 
       <FlatList data={invoices} keyExtractor={(item) => item.id} style={{ flex: 1 }} contentContainerStyle={styles.invoiceList} showsVerticalScrollIndicator={false}
+        ListFooterComponent={
+          <>
+            <SimpleButton btnText='Delete client' onPress={() => { deleteClient(clientId as string) }} backgroundColor={theme.surface.tertiary} />
+          </>
+        }
+        ListHeaderComponent={
+          <>
+            <View style={[styles.avatar, { borderColor: theme.surface.primary, backgroundColor: theme.background.secondary }]}>
+              <Text style={styles.clientName}>{getInitials(client?.name)}</Text>
+            </View>
+
+            <View style={styles.userDetails}>
+              <Text style={[styles.name, { color: theme.text.primary }]}>{client?.name || 'John'}</Text>
+              <Text style={[styles.orgName, { color: theme.text.secondary }]}>Doe Labs Inc.</Text>
+              <View style={styles.contactInfo}>
+                <ContactButton icon={<Ionicons name='mail-outline' size={mVs(30)} color={theme.text.primary} />} onPress={() => { handleEmail(client?.email) }} />
+                <ContactButton icon={<Ionicons name='call-outline' size={mVs(30)} color={theme.text.primary} />} onPress={() => { handlePhone(client?.phone) }} />
+                <ContactButton icon={<Ionicons name='share-outline' size={mVs(30)} color={theme.text.primary} />} onPress={() => { }} />
+              </View>
+            </View>
+
+            <View style={{ flexDirection: 'row', marginHorizontal: mVs(20), gap: mVs(15), marginTop: mVs(20), alignItems: 'center', justifyContent: 'center' }}>
+              <RevenueCard title='Invoices' amount={unpaidAmount} />
+              <RevenueCard title='Paid' amount={paidAmount} status={'PAID'} />
+              <RevenueCard title='Due' amount={unpaidAmount} status='UNPAID' />
+            </View>
+
+            <Text style={[styles.history, { color: theme.text.primary }]}>History</Text>
+
+          </>
+        }
         renderItem={({ item }) => (
           <InvoiceCard title={item.title} issueDate={item.issueDate} status={item.status} price={item.price} invoiceNumber={item.title} />
         )} />

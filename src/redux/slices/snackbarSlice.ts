@@ -1,31 +1,38 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type snackbarType = 'error' | 'success' | 'info' | 'null';
+type SnackbarType = "success" | "error" | "info";
 
-interface snackbarState {
-    message: string,
-    type: snackbarType | snackbarType
+interface SnackbarState {
+    visible: boolean;
+    message: string;
+    type: SnackbarType;
 }
 
-const initialState: snackbarState = {
-    message: '',
-    type: 'null',
-}
+const initialState: SnackbarState = {
+    visible: false,
+    message: "",
+    type: "info",
+};
 
 const snackbarSlice = createSlice({
-    name: 'snackBarSlice',
+    name: "snackbar",
     initialState,
     reducers: {
-        setSnackBar: (state, action: PayloadAction<{ message: string, type: snackbarType }>) => {
-            state.message = action.payload.message,
-                state.type = action.payload.type
+        showSnackbar: (
+            state,
+            action: PayloadAction<{ message: string; type?: SnackbarType }>
+        ) => {
+            state.visible = true;
+            state.message = action.payload.message;
+            state.type = action.payload.type || "info";
         },
-        clearSnackBar: (state) => {
-            state.message = '';
-            state.type = 'null';
+
+        hideSnackbar: (state) => {
+            state.visible = false;
+            state.message = "";
         },
-    }
+    },
 });
 
-export const { setSnackBar, clearSnackBar } = snackbarSlice.actions;
+export const { showSnackbar, hideSnackbar } = snackbarSlice.actions;
 export default snackbarSlice.reducer;

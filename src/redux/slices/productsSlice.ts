@@ -24,20 +24,23 @@ const productsSlice = createSlice({
         addProduct: (state, action) => {
             state.products.push(action.payload);
         },
-        deleteProduct: (state, action) => {
+        deleteStoredProduct: (state, action) => {
             state.products = state.products.filter(
                 (product) => product.id !== action.payload
             );
         },
-        updateProduct: (state, action) => {
+        updateStoredProduct: (state, action) => {
             const index = state.products.findIndex((product) => product.id === action.payload.id);
 
-            if(index !== -1){
+            if (index !== -1) {
                 state.products[index] = action.payload
             }
+        },
+        clearAllProducts: (state) => {
+            state.products = [];
         }
     }
 });
 
-export const { addProduct, deleteProduct, updateProduct } = productsSlice.actions;
+export const { addProduct, deleteStoredProduct, updateStoredProduct, clearAllProducts } = productsSlice.actions;
 export default productsSlice.reducer;

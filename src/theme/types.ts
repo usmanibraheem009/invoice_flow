@@ -91,6 +91,6 @@ export interface InvoiceItem {
     name: string
     price?: number
     total?: number
-    type: 'Product' | 'Service',
-    description? : string,
+    type?: 'Product' | 'Service',
+    description?: string,
 }

@@ -1,13 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Animated, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { hideSnackbar } from '../redux/slices/snackbarSlice';
+import { RootState } from '../redux/store/myStore';
 import { mVs } from './scale';
-
-interface snackbarProps {
-    message: string,
-    duration?: number,
-    type: 'success' | 'error' | 'info' | 'null',
-    onDismiss: () => void,
-}
 
 const colors = {
     success: '#2DC653',
@@ -16,43 +12,27 @@ const colors = {
     null: '#3333'
 }
 
-const SnackBar = ({ message, onDismiss, duration = 3000, type }: snackbarProps) => {
+const SnackBar = () => {
 
-    const [visible, setVisible] = useState(false);
     const translateY = new Animated.Value(50);
+    const dispatch = useDispatch();
+    const { visible, message, type } = useSelector((state: RootState) => state.snackbarReducer);
 
     useEffect(() => {
-        setVisible(true);
-        Animated.timing(translateY, {
-            toValue: 0,
-            duration: 300,
-            useNativeDriver: true,
-        }).start();
-
-        const timer = setTimeout(() => {
-            hideSnackBar();
-        }, duration);
-
-        return () => clearTimeout((timer));
-    }, [message]);
-
-    const hideSnackBar = () => {
-        Animated.timing(translateY, {
-            toValue: 50,
-            duration: 300,
-            useNativeDriver: true,
-        }).start(() => {
-            setVisible(false);
-            onDismiss && onDismiss();
-        });
-    };
+        if (visible) {
+            const timer = setTimeout(() => {
+                dispatch(hideSnackbar());
+            }, 2500);
+            return () => clearTimeout((timer));
+        }
+    }, [visible]);
 
     if (!visible) return null;
 
     return (
         <Animated.View style={[styles.container, { backgroundColor: colors[type], transform: [{ translateY }] }]}>
             <Text style={[styles.message]}>{message}</Text>
-            <TouchableOpacity onPress={onDismiss}>
+            <TouchableOpacity onPress={() => hideSnackbar()}>
                 <Text style={[styles.dismiss]}>X</Text>
             </TouchableOpacity>
         </Animated.View>

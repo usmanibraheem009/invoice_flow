@@ -5,12 +5,11 @@ import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
 import { setOrganization } from '@/src/redux/slices/organizationSlice'
-import { clearSnackBar, setSnackBar } from '@/src/redux/slices/snackbarSlice'
+import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
 import { RootState } from '@/src/redux/store/myStore'
 import { CountryCurrency, fetchCountries } from '@/src/services/countryService'
 import { initialValues, validationSchema } from '@/src/utils/auth-form'
 import { mVs } from '@/src/utils/scale'
-import SnackBar from '@/src/utils/snackbar'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Formik } from 'formik'
 import React, { useEffect, useState } from 'react'
@@ -22,11 +21,10 @@ import AuthHeader from '../components/screen-header'
 const AddOrganization = () => {
 
     const { editable } = useLocalSearchParams();
-    console.log(editable);
     const [showCurrencyModal, setShowCurrencyModal] = useState(false);
+    const [snackbar, setSnackbar] = useState<{ message: string, type: 'info' | 'success' | 'error' } | null>(null)
     const [countries, setCountries] = useState<CountryCurrency[]>([]);
     const dispatch = useDispatch();
-    const snackbar = useSelector((state: RootState) => state.snackbarReducer);
     const loading = useSelector((state: RootState) => state.loadingReducer.loading);
     const organization = useSelector((state: RootState) => state.organizationReducer.data);
 
@@ -40,7 +38,7 @@ const AddOrganization = () => {
             const data = await fetchCountries();
             setCountries(data);
         } catch (error: any) {
-            dispatch(setSnackBar({ message: error.message, type: error.type }))
+            setSnackbar({ message: error.message, type: error.type })
         }
     }
 
@@ -52,34 +50,23 @@ const AddOrganization = () => {
 
             if (organization?.id) {
                 res = await updateOrganization(organization.id, payload);
-                dispatch(setSnackBar({
+                dispatch(showSnackbar({
                     message: "Organization updated successfully",
                     type: "success"
-                })
-                );
+                }));
+                router.back();
             } else {
                 res = await createOrganization(payload);
-
-                dispatch(setSnackBar({
+                dispatch(showSnackbar({
                     message: "Organization created successfully",
                     type: "success",
-                })
-                );
+                }));
+                router.back();
             }
-
-            console.log("response:", res.data);
-
             dispatch(setOrganization(res.data));
 
         } catch (error: any) {
-
-            dispatch(
-                setSnackBar({
-                    message: error?.message || "Something went wrong",
-                    type: "error",
-                })
-            );
-
+            setSnackbar({ message: error?.message || "Something went wrong", type: "error", });
         } finally {
             dispatch(setLoading(false));
         }
@@ -87,7 +74,7 @@ const AddOrganization = () => {
 
     const editableInitials = {
         legalName: organization?.legalName || '',
-        id: organization?.id || '',
+        organizationId: organization?.id || '',
         taxId: organization?.taxId || '',
         homeCurrency: organization?.homeCurrency || ''
     }
@@ -124,14 +111,6 @@ const AddOrganization = () => {
                     )}
                 </Formik>
             </View>
-
-            {snackbar?.message ? (
-                <SnackBar message={snackbar.message} type={snackbar.type} onDismiss={() => {
-                    dispatch(clearSnackBar());
-                    router.back()
-                }
-                } />
-            ) : null}
         </ScreenWrapper>
     )
 }

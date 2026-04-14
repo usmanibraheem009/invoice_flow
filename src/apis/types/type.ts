@@ -39,14 +39,54 @@ export interface User {
 };
 
 export interface OrganizationRequest {
-    id: string,
+    organizationId: string,
     legalName: string,
     taxId?: string,
     homeCurrency: string,
 };
 
-export interface OrganizationResponse{
+export interface OrganizationResponse {
     success: boolean,
     message: string,
     data: string[]
-}
+};
+
+export interface Client {
+    id: string,
+    name: string,
+    email?: string,
+    phone?: string,
+    addressLine1?: string,
+    city?: string,
+    state?: string,
+    country?: string,
+    postalCode?: string,
+    ceratedAt?: string,
+    updatedAt?: string,
+};
+
+export interface createClientPayload {
+    name: string;
+    email?: string;
+    phone?: string;
+    addressLine1?: string;
+    city?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+};
+
+export interface UpdateClientPayload
+    extends createClientPayload {
+    id: string;
+};
+
+export interface Product {
+    id: string;
+    name: string;
+    description?: string | '';
+    unitPrice: number;
+    unitCode?: string;
+    isActive: boolean;
+};
+

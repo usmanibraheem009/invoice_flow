@@ -1,3 +1,4 @@
+import { Product } from '@/src/apis/types/type'
 import { useTheme } from '@/src/hooks/useTheme'
 import { InvoiceItem } from '@/src/theme/types'
 import ErrorText from '@/src/ui/components/error-text'
@@ -25,7 +26,7 @@ interface modalProps extends InvoiceItem {
     visible: boolean,
     onClose: () => void,
     onSubmitItem: (item: any) => void,
-    editItem?: InvoiceItem | null,
+    editItem?: Product | null,
 }
 
 const ItemModal = ({ visible, onClose, onSubmitItem, editItem }: modalProps) => {
@@ -38,11 +39,9 @@ const ItemModal = ({ visible, onClose, onSubmitItem, editItem }: modalProps) => 
     const onSubmitFunc = (values: any, { resetForm }: any) => {
 
         const item = {
-            id: editItem?.id || Date.now().toString(),
             name: values.name,
             description: values.description,
-            price: parseFloat(values.unitPrice) || 0,
-            type: mode,
+            unitPrice: parseFloat(values.unitPrice) || 0,
             isActive: isActive
         };
 
@@ -59,11 +58,11 @@ const ItemModal = ({ visible, onClose, onSubmitItem, editItem }: modalProps) => 
                     <View style={[styles.modal, { backgroundColor: theme.background.secondary, borderColor: theme.border.secondary }]}>
                         <Ionicons name='close' color={theme.text.primary} size={24} onPress={onClose} style={styles.close} />
                         <Formik enableReinitialize validationSchema={validationSchema.productModal} onSubmit={onSubmitFunc}
-                        initialValues={{
-                            name: editItem?.name ? editItem?.name : '',
-                            description: editItem?.description ? String(editItem?.description) : '',
-                            unitPrice: editItem?.price ? String(editItem?.price) : '',
-                        }} >
+                            initialValues={{
+                                name: editItem?.name ? editItem?.name : '',
+                                description: editItem?.description ? String(editItem?.description) : '',
+                                unitPrice: editItem?.unitPrice ? String(editItem?.unitPrice) : '',
+                            }} >
 
                             {({ values, handleChange, handleSubmit, errors, touched }) => {
                                 return (
@@ -83,7 +82,7 @@ const ItemModal = ({ visible, onClose, onSubmitItem, editItem }: modalProps) => 
                                         {touched.unitPrice && errors.unitPrice && (<ErrorText errorText={errors.unitPrice} />)}
 
                                         <View style={styles.rememberContainer}>
-                                            <Text style={[styles.rememberText, {color: theme.text.secondary}]}>Active Product</Text>
+                                            <Text style={[styles.rememberText, { color: theme.text.secondary }]}>Active Product</Text>
                                             <Switch value={isActive} onValueChange={(value) => setIsActive(value)} />
                                         </View>
 
