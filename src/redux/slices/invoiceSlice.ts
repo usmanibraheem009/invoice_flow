@@ -23,9 +23,12 @@ const InvoiceSlice = createSlice({
         incrementInvoiceNumber: (state) => {
             const lastNumber = parseInt(state.currentInvoiceNumber.split('-')[1]);
             state.currentInvoiceNumber = generateInvoiceNumber(lastNumber);
+        },
+        clearInvoiceNumber: (state) => {
+            state.currentInvoiceNumber = 'INV-0001'
         }
     }
 });
 
-export const {setInvoiceNumber, incrementInvoiceNumber} = InvoiceSlice.actions;
+export const {setInvoiceNumber, incrementInvoiceNumber, clearInvoiceNumber} = InvoiceSlice.actions;
 export default InvoiceSlice.reducer;

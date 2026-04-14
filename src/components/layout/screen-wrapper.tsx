@@ -1,4 +1,4 @@
-import useTheme from '@/src/hooks/useTheme'
+import { useTheme } from '@/src/hooks/useTheme'
 import React, { ReactNode } from 'react'
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -41,6 +41,7 @@ const ScreenWrapper = ({
     if (scrollable) {
         const scrollContent = (
             <ScrollView style={[styles.scrollView, { backgroundColor: bgColor }]}
+            showsVerticalScrollIndicator={false}
                 contentContainerStyle={[styles.scrollContent, {
                     paddingHorizontal,
                     paddingTop: safeArea ? insets.top + paddingVertical : paddingVertical,

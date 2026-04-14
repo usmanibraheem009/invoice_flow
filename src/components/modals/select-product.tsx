@@ -1,9 +1,12 @@
+import { useTheme } from '@/src/hooks/useTheme'
+import { mVs } from '@/src/utils/scale'
 import { Formik } from 'formik'
 import React, { useEffect, useState } from 'react'
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useSelector } from 'react-redux'
 import ModalWrapper from '../layout/modal-wrapper'
 import InputTab from '../primitives/input-tab'
+import SimpleButton from '../primitives/simple-button'
 
 interface InvoiceItem {
   id: string
@@ -13,92 +16,77 @@ interface InvoiceItem {
   total: number
   type: 'Product' | 'Service'
   onDelete?: () => void
-  onEdit?: () => void
+  onEdit?: () => void,
 }
 
 interface ProductModal {
   visible: boolean
   onClose: () => void
   onSubmit: (item: InvoiceItem) => void
+  onSelectedItem?: InvoiceItem | null
 }
 
 const initialValues: InvoiceItem = {
   id: '',
-  quantity: 1,
+  quantity: 0 ,
   name: '',
   price: 0,
   total: 0,
   type: 'Product',
 }
 
-const SelectProduct = ({ visible, onClose, onSubmit }: ProductModal) => {
+const SelectProduct = ({ visible, onClose, onSubmit, onSelectedItem }: ProductModal) => {
+
   const products = useSelector((state: any) => state.productsReducer.products) 
   const [showDropdown, setShowDropdown] = useState(false)
+  const {theme} = useTheme();
 
   return (
     <ModalWrapper modalTitle="Products & Services" visible={visible} onClose={onClose} labelKey={'name'} valueKey={'id'}>
       <Formik
-        initialValues={initialValues}
+        initialValues={ onSelectedItem ?? initialValues}
+        enableReinitialize
         onSubmit={(values) => {
           onSubmit(values)
-          onClose()
-        }}
-      >
+          onClose()}}>
         {({ values, handleChange, setFieldValue, handleSubmit }) => {
-          // Recalculate total when quantity or price changes
+
           useEffect(() => {
-            setFieldValue('total', values.price * values.quantity)
+            setFieldValue('total', values.price * Number(values.quantity))
           }, [values.quantity, values.price])
 
           return (
             <View style={{ gap: 12 }}>
-              {/* Product Selection */}
+
               <Pressable onPress={() => setShowDropdown(!showDropdown)}>
-                <InputTab
-                  editable={false}
-                  placeholder="Select product/service"
-                  value={values.name}
-                />
+                <InputTab editable={false} placeholder="Select product/service" value={values.name} />
               </Pressable>
 
-              {/* Dropdown */}
               {showDropdown && (
                 <FlatList
                   data={products}
                   keyExtractor={(item) => item.id}
                   style={styles.dropdown}
                   renderItem={({ item }) => (
-                    <Pressable
-                      style={styles.dropdownItem}
+                    <Pressable style={styles.dropdownItem}
                       onPress={() => {
                         setFieldValue('id', item.id)
                         setFieldValue('name', item.name)
                         setFieldValue('price', item.price)
                         setShowDropdown(false)
-                      }}
-                    >
-                      <Text>{item.name}</Text>
-                      <Text>${item.price}</Text>
+                      }}>
+                      <Text style={[styles.product, {color: theme.text.primary}]}>{item.name}</Text>
+                      <Text style={[styles.product, {color: theme.text.primary}]}>${item.price}</Text>
                     </Pressable>
                   )}
                 />
               )}
 
-              {/* Quantity */}
-              <InputTab
-                placeholder="Quantity..."
-                value={values.quantity.toString()}
-                onChangeText={(text) => setFieldValue('quantity', Number(text))}
-                keyboardType="numeric"
-              />
+              <InputTab placeholder="Quantity..." value={values.quantity.toString()} onChangeText={(text) => setFieldValue('quantity', Number(text))} keyboardType="numeric" />
 
-              {/* Total */}
               <InputTab editable={false} placeholder="Total" value={values.total.toString()} />
 
-              {/* Submit */}
-              <Pressable onPress={() => handleSubmit} style={styles.submitBtn}>
-                <Text style={{ color: 'white' }}>Add Product</Text>
-              </Pressable>
+              <SimpleButton btnText='Add Product' onPress={handleSubmit} />
             </View>
           )
         }}
@@ -130,4 +118,8 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     alignItems: 'center',
   },
+  product: {
+    fontSize: mVs(16),
+    fontWeight: 400,
+  }
 })

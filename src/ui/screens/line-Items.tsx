@@ -1,13 +1,13 @@
-import ProductCard, { InvoiceItem } from '@/src/components/invoice/product-card'
+import ProductCard from '@/src/components/invoice/product-card'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import SelectProduct from '@/src/components/modals/select-product'
 import SimpleButton from '@/src/components/primitives/simple-button'
-import useTheme from '@/src/hooks/useTheme'
+import { useTheme } from '@/src/hooks/useTheme'
+import { InvoiceItem } from '@/src/theme/types'
 import { mVs } from '@/src/utils/scale'
 import { router, useLocalSearchParams } from 'expo-router'
 import React, { useState } from 'react'
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
-import { useSelector } from 'react-redux'
 import ScreenFooter from '../components/screen-footer'
 import AuthHeader from '../components/screen-header'
 
@@ -16,19 +16,29 @@ const LineItems = () => {
     const { theme } = useTheme();
     const { invoiceData } = useLocalSearchParams<{ invoiceData: any }>();
     const parsedInvoiceData = invoiceData ? JSON.parse(invoiceData) : null;
-    const products = useSelector((state: any) => state.productsReducer.products);
-    console.log(products)
 
     const [visible, setVisible] = useState(false);
     const [items, setItems] = useState<InvoiceItem[]>([]);
     const [selectedItem, setSelectedItem] = useState<InvoiceItem | null>(null);
 
-    const handleSubmitItem = (newItem: InvoiceItem) => {
-        if (selectedItem) {
-            setItems(prev => prev.map(item => item.id === selectedItem.id ? newItem : item))
+    const handleSubmitItem = (newItem: any) => {
+
+        console.log("Received item:", newItem);
+        const itemToAdd: any = {
+            id: newItem.id,
+            name: newItem.name,
+            price: newItem.price,
+            quantity: newItem.quantity ?? 0,
+            total: newItem.total,
+            type: newItem.type,
+            onEdit: newItem.onEdit,
+            onDelete: newItem.onDelete
+        };
+        if (selectedItem !== null) {
+            setItems(prev => prev.map(item => item.id === selectedItem.id ? itemToAdd : item))
         }
         else {
-            setItems((prev: any[]) => [...prev, newItem])
+            setItems((prev: any[]) => [...prev, itemToAdd])
         }
         setSelectedItem(null);
     };
@@ -102,7 +112,7 @@ const LineItems = () => {
                     <Text style={[styles.totalPrice]}>${subTotal}</Text>
                 </View>
 
-                <SelectProduct visible={visible} onClose={() => setVisible(false)} onSubmit={() => {}} />
+                <SelectProduct visible={visible} onClose={() => setVisible(false)} onSubmit={handleSubmitItem} onSelectedItem={selectedItem}/>
 
             </ScreenWrapper>
 

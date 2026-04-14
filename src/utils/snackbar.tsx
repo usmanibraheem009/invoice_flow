@@ -5,7 +5,7 @@ import { mVs } from './scale';
 interface snackbarProps {
     message: string,
     duration?: number,
-    type: 'success' | 'error' | 'info',
+    type: 'success' | 'error' | 'info' | 'null',
     onDismiss: () => void,
 }
 
@@ -13,6 +13,7 @@ const colors = {
     success: '#2DC653',
     info: '#F4A261',
     error: '#E63946',
+    null: '#3333'
 }
 
 const SnackBar = ({ message, onDismiss, duration = 3000, type }: snackbarProps) => {
@@ -63,7 +64,7 @@ export default SnackBar
 const styles = StyleSheet.create({
     container: {
         position: 'absolute',
-        bottom: mVs(70),
+        top: mVs(70),
         left: 20,
         right: 20,
         padding: 15,

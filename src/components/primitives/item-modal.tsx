@@ -1,4 +1,5 @@
-import useTheme from '@/src/hooks/useTheme'
+import { useTheme } from '@/src/hooks/useTheme'
+import { InvoiceItem } from '@/src/theme/types'
 import ErrorText from '@/src/ui/components/error-text'
 import { validationSchema } from '@/src/utils/auth-form'
 import { mVs } from '@/src/utils/scale'
@@ -16,12 +17,11 @@ import {
     View
 } from 'react-native'
 import { useDispatch } from 'react-redux'
-import { InvoiceItem } from '../invoice/product-card'
 import InputTab from './input-tab'
 import ItemModeToggle, { ItemMode } from './item-mode-toggle'
 import SimpleButton from './simple-button'
 
-interface modalProps {
+interface modalProps extends InvoiceItem {
     visible: boolean,
     onClose: () => void,
     onSubmitItem: (item: any) => void,

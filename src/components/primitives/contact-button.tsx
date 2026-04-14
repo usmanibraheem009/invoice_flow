@@ -1,6 +1,6 @@
 import React from 'react'
 import { Pressable, StyleSheet } from 'react-native'
-import useTheme from '../../hooks/useTheme'
+import { useTheme } from '../../hooks/useTheme'
 import { mVs } from '../../utils/scale'
 
 interface contactBtnProps{

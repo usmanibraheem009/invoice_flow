@@ -2,7 +2,7 @@ import InvoiceStatus from '@/src/components/invoice/invoice-status'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
-import useTheme from '@/src/hooks/useTheme'
+import { useTheme } from '@/src/hooks/useTheme'
 import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import { router, useLocalSearchParams } from 'expo-router'
@@ -22,8 +22,8 @@ const PreviewScreen = () => {
   const grandTotal = (parsedInvoice.subTotal + tax -discount).toFixed(2);
 
   return (
-    <>
-    <ScreenWrapper scrollable paddingVertical={10}>
+    <View style={{flexGrow: 1}}>
+    <ScreenWrapper scrollable paddingVertical={10} keyboardAvoidingView>
       <AuthHeader arrowBack title='Step 3 of 3' />
 
       <View style={[styles.container]}>
@@ -86,10 +86,10 @@ const PreviewScreen = () => {
           <InputTab icon={<Ionicons name='pencil' color={theme.text.secondary} size={24} />} placeholder='Add a note...' value={notes} onChangeText={setNotes}/>
         </View>
 
+        <View style={{height: 260}}></View>
       </View>
 
     </ScreenWrapper>
-
       <ScreenFooter backButton>
         <SimpleButton btnText='CONFIRM' onPress={() => { 
           const mergedData = {...parsedInvoice, tax, discount, grandTotal, notes};
@@ -97,11 +97,10 @@ const PreviewScreen = () => {
           pathname: '/screens/template-screen',
           params: {
             invoiceData: JSON.stringify(mergedData),
-          }
-          }) }} />
+          }})}} />
       </ScreenFooter>
 
-      </>
+      </View>
   )
 }
 
@@ -109,7 +108,7 @@ export default PreviewScreen
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     paddingHorizontal: 20,
   },
   title: {

@@ -7,7 +7,7 @@ interface TemplateState {
 };
 
 const initialState : TemplateState = {
-    selectedTemplateId: 'template1',
+    selectedTemplateId: null,
     rememberChoice: false
 }
 
@@ -33,7 +33,7 @@ export const persistTemplate = createAsyncThunk(
     async (state : TemplateState, thunkAPI) => {
         try{
             await AsyncStorage.setItem('@selectedTemplateId', state.selectedTemplateId ?? 'template1')
-            await AsyncStorage.setItem('@remeberChoice', state.rememberChoice.toString());
+            await AsyncStorage.setItem('@rememberChoice', state.rememberChoice.toString());
         }catch(error){
             console.log('Error persisting template', error);
         }

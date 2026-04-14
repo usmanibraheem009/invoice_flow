@@ -1,22 +1,25 @@
-import useTheme from '@/src/hooks/useTheme'
+import { useTheme } from '@/src/hooks/useTheme'
+import { RootState } from '@/src/redux/store/myStore'
 import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
+import { useSelector } from 'react-redux'
 import UserAvatar from '../client/user-avatar'
 
-const DashHeader = () => {
+const DashHeader = ({greeting}: {greeting: string}) => {
     const {theme} = useTheme();
+    const user = useSelector((state : RootState) => state.userReducer.user);
 
     return (
         <View style={styles.container}>
             <View>
-                <Text style={[styles.greeting, {color: theme.text.secondary}]}>GOOD MORNING,</Text>
-                <Text style={[styles.userName,{color: theme.text.primary}]}>Sarah Jenkins</Text>
+                <Text style={[styles.greeting, {color: theme.text.secondary}]}>{greeting},</Text>
+                <Text style={[styles.userName,{color: theme.text.primary}]}>{user?.fullName}</Text>
             </View>
            <View style={styles.rightContainer}>
              <Ionicons name='notifications-outline' size={mVs(30)} color={theme.text.primary}/>
-             <UserAvatar name={'usman'} />
+             <UserAvatar name={user?.fullName || 'NA'} />
            </View>
             
         </View>

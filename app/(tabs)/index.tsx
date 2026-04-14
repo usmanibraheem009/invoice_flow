@@ -3,29 +3,63 @@ import ReportCard from '@/src/components/invoice/report-card'
 import DashHeader from '@/src/components/layout/dash-header'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import FloatingButton from '@/src/components/primitives/floating-button'
-import useTheme from '@/src/hooks/useTheme'
+import { useTheme } from '@/src/hooks/useTheme'
 import { mVs } from '@/src/utils/scale'
 import { router } from 'expo-router'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 const index = () => {
 
-  const mode = useSelector((state: any) => state.themeReducer.currentMode);
   const dispatch = useDispatch();
   const { theme } = useTheme();
+  const [greetings, setGreetings] = useState('');
+
+  useEffect(() => {
+    setGreetings(getGreetings());
+  }, []);
+
+  useEffect(() => {
+
+    const updateGreeting = () => {
+      setGreetings(getGreetings());
+    };
+
+    updateGreeting();
+
+    const interval = setInterval(updateGreeting, 60000);
+
+    return () => clearInterval(interval);
+
+  }, []);
+
+  const getGreetings = () => {
+    const currentHour = new Date().getHours();
+    if (currentHour < 12) {
+      return 'GOOD MORNING ☀️';
+    } else if (currentHour < 16) {
+      return 'GOOD NOON 🌤️'
+    } else if (currentHour < 18) {
+      return 'GOOD AFTERNOON 🌤️'
+    } else if (currentHour > 18 && currentHour < 20) {
+      return 'GOOD EVENING 🌙';
+    } else {
+      'GOOD NIGHT 🌙';
+    }
+    return 'GREETINGS'
+  };
 
   const invoices = [
     { id: '1', title: 'Invoice #001', status: 'PAID', price: 3400, issueDate: '30-OCT-2024' },
     { id: '2', title: 'Invoice #002', status: 'PENDING', price: 3080, issueDate: '01-DEC-2024' },
     { id: '3', title: 'Invoice #003', status: 'OVERDUE', price: 2810, issueDate: '07-FEB-2025' },
-    
+
   ];
 
   return (
     <ScreenWrapper paddingHorizontal={16} safeArea>
-      <DashHeader />
+      <DashHeader greeting={greetings} />
 
       <View style={styles.scrollView}>
         <ScrollView
@@ -47,13 +81,13 @@ const index = () => {
       <FlatList
         data={invoices}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{gap: 12, marginTop: mVs(20)}}
+        contentContainerStyle={{ gap: 12, marginTop: mVs(20) }}
         renderItem={({ item }) => (
           <InvoiceCard title={item.title} status={item.status} price={item.price} issueDate={item.issueDate} />
         )}
       />
 
-      <FloatingButton icon='add' onPress={() => {router.push('/screens/add-invoice')}} />
+      <FloatingButton icon='add' onPress={() => { router.push('/screens/add-invoice') }} />
 
     </ScreenWrapper>
   )

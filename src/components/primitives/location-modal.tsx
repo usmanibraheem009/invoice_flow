@@ -1,4 +1,4 @@
-import useTheme from '@/src/hooks/useTheme'
+import { useTheme } from '@/src/hooks/useTheme'
 import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import React, { useEffect, useState } from 'react'

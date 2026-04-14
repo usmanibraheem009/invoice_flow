@@ -1,4 +1,4 @@
-import useTheme from '@/src/hooks/useTheme';
+import { useTheme } from '@/src/hooks/useTheme';
 import MyStore from '@/src/redux/store/myStore';
 import { mVs } from '@/src/utils/scale';
 import { Ionicons } from '@expo/vector-icons';

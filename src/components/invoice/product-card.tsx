@@ -1,23 +1,18 @@
-import useTheme from '@/src/hooks/useTheme';
+import { useTheme } from '@/src/hooks/useTheme';
+import { InvoiceItem } from '@/src/theme/types';
 import { mVs } from '@/src/utils/scale';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-export interface InvoiceItem {
-    id: string,
-    name: string,
-    description?: string,
-    unitPrice?: string,
-    price?: number,
-    quantity?: number,
-    total?: number,
-    type: 'Product' | 'Service',
+interface ProductCardProps extends InvoiceItem{
     onDelete: (id: string) => void,
-    onEdit: (item: InvoiceItem) => void
+    onEdit: (item : any) => void,
+    unitPrice?: number,
+    description?: string
 }
 
-const ProductCard = ({ name, price, quantity, total, type, id, onDelete, onEdit, unitPrice, description }: InvoiceItem) => {
+const ProductCard = ({ name, price, quantity, total, type, id, onDelete, onEdit, unitPrice, description }: ProductCardProps) => {
 
     const { theme } = useTheme();
 

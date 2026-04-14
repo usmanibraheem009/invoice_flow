@@ -57,3 +57,12 @@ export const darkSemanticColors: semanticColors = {
     tertiary: '#254A87',
   }
 };
+
+export interface ThemeColors extends semanticColors {
+  primary: string;
+  secondary: string;
+  neutral: string;
+  success: string;
+  warning: string;
+  error: string;
+};

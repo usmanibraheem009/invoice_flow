@@ -1,9 +1,10 @@
-import ProductCard, { InvoiceItem } from '@/src/components/invoice/product-card'
+import ProductCard from '@/src/components/invoice/product-card'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import FloatingButton from '@/src/components/primitives/floating-button'
 import ItemModal from '@/src/components/primitives/item-modal'
-import useTheme from '@/src/hooks/useTheme'
+import { useTheme } from '@/src/hooks/useTheme'
 import { addProduct, deleteProduct, updateProduct } from '@/src/redux/slices/productsSlice'
+import { InvoiceItem } from '@/src/theme/types'
 import AuthHeader from '@/src/ui/components/screen-header'
 import { mVs } from '@/src/utils/scale'
 import React, { useState } from 'react'
@@ -67,7 +68,7 @@ const Products = () => {
                 }}>
             </FlatList>
 
-            <ItemModal visible={visible} onClose={() => setVisible(false)} onSubmitItem={handleSubmitItem} editItem={selectedItem}/>
+            <ItemModal visible={visible} onClose={() => setVisible(false)} onSubmitItem={handleSubmitItem} editItem={selectedItem} />
         </ScreenWrapper>
     )
 }

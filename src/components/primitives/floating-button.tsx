@@ -1,4 +1,4 @@
-import useTheme from '@/src/hooks/useTheme'
+import { useTheme } from '@/src/hooks/useTheme'
 import { Ionicons } from '@expo/vector-icons'
 import React from 'react'
 import { StyleSheet, TouchableOpacity } from 'react-native'

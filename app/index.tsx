@@ -1,7 +1,7 @@
-import SignupScreen from "./screens/signup-screen";
+import SplashScreen from "@/src/ui/screens/splash-screen";
 
 export default function Index() {
   return (
-      <SignupScreen />
+      <SplashScreen />
   );
 }

@@ -1,20 +1,18 @@
-import { useColorScheme } from 'react-native';
-import { useSelector } from 'react-redux';
-import { darkSemanticColors, lightSemanticColors } from '../theme/colors';
+import { useColorScheme } from "react-native";
+import { useSelector } from "react-redux";
+import { darkSemanticColors, lightSemanticColors } from "../theme/colors";
 
-const useTheme = () => {
+export const useTheme = () => {
     const mode = useSelector((state: any) => state.themeReducer.currentMode);
     const systemTheme = useColorScheme();
 
     let activeTheme;
 
-    if(activeTheme === 'system'){
+    if(mode == 'system'){
         activeTheme = systemTheme == 'light'? lightSemanticColors : darkSemanticColors;
-    }else{
-        activeTheme = mode == 'light'? lightSemanticColors : darkSemanticColors;
+    }else {
+        activeTheme = mode == 'dark' ? darkSemanticColors : lightSemanticColors;
     }
 
-    return {mode, theme: activeTheme, isDark: activeTheme == darkSemanticColors}
+    return { mode, theme: activeTheme, isDark: activeTheme === darkSemanticColors};
 }
-
-export default useTheme;

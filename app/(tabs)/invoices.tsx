@@ -41,6 +41,11 @@ const Invoices = () => {
     }
   }, [activeFilter]);
 
+
+  const handleOnPress = () => {
+    router.push('/screens/invoice-details');
+  }
+
   return (
     <ScreenWrapper>
       <AuthHeader title='Invoices' trailingIcon='funnel-outline' />
@@ -66,7 +71,7 @@ const Invoices = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{gap: 12, paddingHorizontal: 20, paddingBottom: 10}}
         renderItem={({ item }) => (
-          <InvoiceCard title={item.title} status={item.status} price={item.price} issueDate={item.issueDate} />
+          <InvoiceCard title={item.title} status={item.status} price={item.price} issueDate={item.issueDate} onPress={handleOnPress}/>
         )}
       />
 

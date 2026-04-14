@@ -2,7 +2,7 @@ import { signupUser } from '@/src/apis/authApi'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
-import useTheme from '@/src/hooks/useTheme'
+import { useTheme } from '@/src/hooks/useTheme'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
 import { initialValues, validationSchema } from '@/src/utils/auth-form'
 import { mVs } from '@/src/utils/scale'
@@ -24,18 +24,18 @@ const SignupScreen = () => {
   const loading = useSelector((state: any) => state.loadingReducer.loading);
 
   const submitFunc = async (values: any) => {
-    if (!values.name || !values.email || !values.password) {
+    if (!values.fullName || !values.email || !values.password) {
       return setSnackbar({message: 'All fields are required', type: 'error'});
     }
 
     dispatch(setLoading(true));
     try{
-      const res = await signupUser({name: values.name, email: values.email, password: values.password});
+      const res = await signupUser({fullName: values.fullName, email: values.email, password: values.password});
       console.log('function triggered')
-      setSnackbar({message: `Welcome ${res.name}`, type: 'success'});
+      setSnackbar({message: `Welcome ${res.fullName}`, type: 'success'});
       router.push('/screens/login-screen');
     }catch(err : any){
-      console.log('error function triggered')
+      console.log('error function triggered', err)
       setSnackbar({message: err.message , type: 'error'});
     }finally{
       dispatch(setLoading(false));
@@ -51,8 +51,8 @@ const SignupScreen = () => {
           {({ errors, touched, handleChange, handleSubmit, values }: any) => (
             <View>
               <Text style={[styles.label, { color: theme.text.secondary }]}>USER NAME</Text>
-              <InputTab placeholder='user name' value={values.name} onChangeText={handleChange('name')} icon={<Ionicons name='person' size={mVs(22)} color={theme.text.secondary} />} />
-              {touched.name && errors.name && (<ErrorText errorText={errors.name} />)}
+              <InputTab placeholder='user name' value={values.fullName} onChangeText={handleChange('fullName')} icon={<Ionicons name='person' size={mVs(22)} color={theme.text.secondary} />} />
+              {touched.fullName && errors.fullName && (<ErrorText errorText={errors.fullName} />)}
 
               <Text style={[styles.label, { color: theme.text.secondary }]}>EMAIL</Text>
               <InputTab placeholder='email' value={values.email} onChangeText={handleChange('email')} icon={<Ionicons name='mail' size={mVs(22)} color={theme.text.secondary} />} />
@@ -70,7 +70,7 @@ const SignupScreen = () => {
               </TouchableOpacity>
 
               <View style={{ marginTop: 20 }} />
-              <SimpleButton btnText={loading? <ActivityIndicator color={theme.text.primary} size={40} /> : 'SIGN UP'} onPress={() => router.push('/(tabs)')} />
+              <SimpleButton btnText={loading? <ActivityIndicator color={theme.text.primary} size={40} /> : 'SIGN UP'} onPress={handleSubmit} />
 
             </View>
           )}

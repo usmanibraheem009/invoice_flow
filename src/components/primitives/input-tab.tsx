@@ -1,14 +1,15 @@
-import useTheme from '@/src/hooks/useTheme'
+import { useTheme } from '@/src/hooks/useTheme'
 import { mVs } from '@/src/utils/scale'
 import React, { useState } from 'react'
 import { StyleSheet, TextInput, TextInputProps, View } from 'react-native'
 
 interface InputTabProps extends TextInputProps{
     icon? : React.ReactNode,
-    onIconPress? : () => void
+    onIconPress? : () => void,
+    centerAlign?: boolean,
 };
 
-const InputTab = ({icon, placeholder, value, style, onIconPress, onChangeText, ...props} : InputTabProps) => {
+const InputTab = ({icon, placeholder, value, style, onIconPress, onChangeText, centerAlign, ...props} : InputTabProps) => {
     const {theme} = useTheme();
 
     const [isFocused, setIsFocused] = useState(false);
@@ -22,7 +23,7 @@ const InputTab = ({icon, placeholder, value, style, onIconPress, onChangeText, .
         placeholder={placeholder}
         placeholderTextColor={theme.text.secondary}
         cursorColor={'#B0B5BC'}
-        style={[styles.textInput, {color: theme.text.primary}]}
+        style={[styles.textInput, {color: theme.text.primary, textAlign: centerAlign? 'center': 'left'}]}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         {...props}

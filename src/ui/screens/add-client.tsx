@@ -2,7 +2,7 @@ import ScreenWrapper from '@/src/components/layout/screen-wrapper';
 import InputTab from '@/src/components/primitives/input-tab';
 import LocationModal from '@/src/components/primitives/location-modal';
 import SimpleButton from '@/src/components/primitives/simple-button';
-import useTheme from '@/src/hooks/useTheme';
+import { useTheme } from '@/src/hooks/useTheme';
 import { addClient } from '@/src/redux/slices/clientsSlice';
 import { clearProfileImage, setProfileImage } from '@/src/redux/slices/imageSlice';
 import { fetchCities, fetchCountries, fetchStates } from '@/src/redux/slices/locationSlice';

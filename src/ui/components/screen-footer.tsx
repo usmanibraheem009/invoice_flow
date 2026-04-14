@@ -1,4 +1,4 @@
-import useTheme from '@/src/hooks/useTheme';
+import { useTheme } from '@/src/hooks/useTheme';
 import { mVs } from '@/src/utils/scale';
 import { router } from 'expo-router';
 import React from 'react';

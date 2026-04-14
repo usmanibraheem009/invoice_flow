@@ -1,7 +1,7 @@
-import useTheme from '@/src/hooks/useTheme'
+import { useTheme } from '@/src/hooks/useTheme'
 import { mVs } from '@/src/utils/scale'
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 import InvoiceStatus from './invoice-status'
 
 interface invoiceCardProps {
@@ -10,15 +10,16 @@ interface invoiceCardProps {
     price?: number,
     status?: string,
     issueDate?: string,
-    totalPrice?: string
+    totalPrice?: string,
+    onPress?: () => void
 }
 
-const InvoiceCard = ({title, status, price, issueDate }: invoiceCardProps) => {
+const InvoiceCard = ({title, status, price, issueDate, onPress }: invoiceCardProps) => {
     // const InvoiceCard = ({invoiceNumber, title, issueDate, totalPrice}: invoiceCardProps) => {
 
     const { theme } = useTheme();
     return (
-        <View style={[styles.container, { backgroundColor: theme.background.secondary, borderColor: theme.border.primary }]}>
+        <Pressable style={[styles.container, { backgroundColor: theme.background.secondary, borderColor: theme.border.primary }]} onPress={onPress}>
             <View style={styles.leftContainer}>
                 <Text style={[styles.invoiceNo, {color: theme.text.secondary}]}>{title}</Text>
                 <Text style={[styles.title, { color: theme.text.primary }]}>Pied Piper</Text>
@@ -29,7 +30,7 @@ const InvoiceCard = ({title, status, price, issueDate }: invoiceCardProps) => {
                 <Text style={[styles.price, {color: theme.text.primary}]}>$ {price}</Text>
                 <InvoiceStatus status={status}/>
             </View>
-        </View>
+        </Pressable>
     )
 }
 

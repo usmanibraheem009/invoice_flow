@@ -1,4 +1,4 @@
-import useTheme from '@/src/hooks/useTheme'
+import { useTheme } from '@/src/hooks/useTheme'
 import { secondary } from '@/src/theme/colors'
 import { mVs } from '@/src/utils/scale'
 import React from 'react'

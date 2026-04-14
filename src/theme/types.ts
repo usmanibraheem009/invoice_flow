@@ -1,6 +1,6 @@
 export type ThemeMode = 'dark' | 'light' | 'system';
 
-export interface ColorScale{
+export interface ColorScale {
     50: string,
     100: string,
     200: string,
@@ -14,7 +14,7 @@ export interface ColorScale{
     950?: string,
 };
 
-export interface semanticColors{
+export interface semanticColors {
     background: {
         primary: string,
         secondary: string,
@@ -49,7 +49,7 @@ export interface themeColors extends semanticColors {
     option: string
 };
 
-export interface TextStyle{
+export interface TextStyle {
     fontSize: number,
     fontWeight: FontWeight,
     fontFamily: string,
@@ -77,10 +77,20 @@ export interface Typography {
     actionLarge: TextStyle,
 }
 
-export type FontWeight = 
+export type FontWeight =
     | 'regular'
     | 'medium'
     | 'bold'
     | 'semibold'
     | 'black'
 
+
+export interface InvoiceItem {
+    id: string
+    quantity?: number
+    name: string
+    price?: number
+    total?: number
+    type: 'Product' | 'Service',
+    description? : string,
+}
