@@ -1,58 +1,61 @@
 import ProductCard from '@/src/components/invoice/product-card'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
-import SelectProduct from '@/src/components/modals/select-product'
+import SelectProduct, { LineItemForm } from '@/src/components/modals/select-product'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
-import { InvoiceItem } from '@/src/theme/types'
+import { addLineItem, removeLineItem, updateLineItem } from '@/src/redux/slices/invoiceSlice'
+import { RootState } from '@/src/redux/store/myStore'
+import { selectInvoiceSubtotal } from '@/src/utils/invoiceSelectors'
 import { mVs } from '@/src/utils/scale'
-import { router, useLocalSearchParams } from 'expo-router'
+import { nanoid } from '@reduxjs/toolkit'
+import { router } from 'expo-router'
 import React, { useState } from 'react'
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 import ScreenFooter from '../components/screen-footer'
 import AuthHeader from '../components/screen-header'
 
 const LineItems = () => {
 
     const { theme } = useTheme();
-    const { invoiceData } = useLocalSearchParams<{ invoiceData: any }>();
-    const parsedInvoiceData = invoiceData ? JSON.parse(invoiceData) : null;
+    const draft = useSelector((state: RootState) => state.invoiceReducer.draft);
+    console.log('darft: ', draft)
+
+    const dispatch = useDispatch();
 
     const [visible, setVisible] = useState(false);
-    const [items, setItems] = useState<InvoiceItem[]>([]);
-    const [selectedItem, setSelectedItem] = useState<InvoiceItem | null>(null);
+    const [selectedItem, setSelectedItem] = useState<LineItemForm | null>(null);
+    const items = useSelector((state: RootState) => state.invoiceReducer.draft.lineItems);
+    const subTotal = useSelector(selectInvoiceSubtotal);
 
     const handleSubmitItem = (newItem: any) => {
-
-        console.log("Received item:", newItem);
-        const itemToAdd: any = {
-            id: newItem.id,
+        const quantity = Number(newItem.quantity ?? 1);
+        const unitPrice = Number(newItem.unitPrice);
+        const lineItem = {
+            id: newItem.id || nanoid(),
+            productId: newItem.productId,
             name: newItem.name,
-            price: newItem.price,
-            quantity: newItem.quantity ?? 0,
-            total: newItem.total,
-            type: newItem.type,
-            onEdit: newItem.onEdit,
-            onDelete: newItem.onDelete
-        };
-        if (selectedItem !== null) {
-            setItems(prev => prev.map(item => item.id === selectedItem.id ? itemToAdd : item))
+            description: newItem.description ?? '',
+            unitPrice,
+            quantity,
+            taxRate: newItem.taxRate ?? 0
         }
-        else {
-            setItems((prev: any[]) => [...prev, itemToAdd])
+        if (newItem.id) {
+            dispatch(updateLineItem(lineItem));
+        } else {
+            dispatch(addLineItem(lineItem))
         }
-        setSelectedItem(null);
+        setVisible(false);
     };
 
     const deleteItem = (id: string) => {
-        setItems((prev: any[]) => prev.filter(item => item.id !== id));
+        dispatch(removeLineItem((id)));
     };
 
-    const editItem = (item: InvoiceItem) => {
+    const editItem = (item: any) => {
         setSelectedItem(item);
         setVisible(true);
     }
-
-    const subTotal = items.reduce((sum, item) => sum + item.total!, 0);
 
     const previewInvoice = () => {
 
@@ -62,15 +65,11 @@ const LineItems = () => {
         };
 
         const fullInvoiceDate = {
-            ...parsedInvoiceData,
             items,
             subTotal
         };
-
-        router.push({
-            pathname: '/screens/preview-screen',
-            params: { invoiceData: JSON.stringify(fullInvoiceDate) }
-        });
+        // dispatch(setInvoiceDraft(fullInvoiceDate));
+        router.push('/screens/preview-screen');
     };
 
     return (
@@ -87,14 +86,16 @@ const LineItems = () => {
                         contentContainerStyle={{ gap: 12, marginTop: 20, paddingBottom: 20 }}
                         ListEmptyComponent={() => (<Text style={[styles.dummyText, { color: theme.text.secondary }]}> No items added yet </Text>)}
                         renderItem={({ item }) => {
+                            const total = item.quantity && item.unitPrice ? item.quantity * item.unitPrice : undefined;
                             return (
                                 <ProductCard
                                     id={item.id}
-                                    name={item.name}
-                                    price={item.price}
+                                    name={item.name || ''}
                                     quantity={item.quantity}
-                                    total={item.total}
-                                    type={item.type}
+                                    total={total || 1}
+                                    description={item.description}
+                                    type='Product'
+                                    mode='lineItem'
                                     onDelete={() => deleteItem(item.id)}
                                     onEdit={() => editItem(item)}
                                 />
@@ -112,7 +113,7 @@ const LineItems = () => {
                     <Text style={[styles.totalPrice]}>${subTotal}</Text>
                 </View>
 
-                <SelectProduct visible={visible} onClose={() => setVisible(false)} onSubmit={handleSubmitItem} onSelectedItem={selectedItem}/>
+                <SelectProduct visible={visible} onClose={() => setVisible(false)} onSubmit={handleSubmitItem} selectedItem={selectedItem} />
 
             </ScreenWrapper>
 

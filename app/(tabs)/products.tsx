@@ -6,7 +6,7 @@ import FloatingButton from '@/src/components/primitives/floating-button'
 import ItemModal from '@/src/components/primitives/item-modal'
 import { useTheme } from '@/src/hooks/useTheme'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
-import { addProduct, clearAllProducts, deleteStoredProduct, updateStoredProduct } from '@/src/redux/slices/productsSlice'
+import { addProduct, deleteStoredProduct, setProducts, updateStoredProduct } from '@/src/redux/slices/productsSlice'
 import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
 import { RootState } from '@/src/redux/store/myStore'
 import AuthHeader from '@/src/ui/components/screen-header'
@@ -38,7 +38,6 @@ const Products = () => {
 
     useEffect(() => {
         fetchAllProducts();
-        clearAllProducts();
     }, []);
 
     const handleSubmitItem = async (item: Product) => {
@@ -95,9 +94,9 @@ const Products = () => {
         dispatch(setLoading(true));
         try {
             const response = await fetchProducts();
-            const fetchedProducts = response.data;
-            const normalizedProducts = normalizeProduct(fetchedProducts);
-            dispatch(addProduct(normalizedProducts));
+            const fetchedProducts = response.data.data;
+            const normalizedProducts = fetchedProducts.map((product: any) => normalizeProduct(product));
+            dispatch(setProducts(normalizedProducts));
         } catch (error: any) {
             dispatch(showSnackbar({ message: error.message, type: 'error' }));
         } finally {
@@ -113,7 +112,7 @@ const Products = () => {
 
             <FlatList
                 data={products}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item.id.toString()}
                 contentContainerStyle={{ gap: 12, marginTop: 20, paddingBottom: 20, paddingHorizontal: mVs(20) }}
                 ListEmptyComponent={() => (<Text style={[styles.dummyText, { color: theme.text.secondary }]}> No items added yet </Text>)}
                 renderItem={({ item }) => {
@@ -124,10 +123,9 @@ const Products = () => {
                                 name={item.name}
                                 description={item.description}
                                 unitPrice={item.unitPrice}
-                                // type={item.type}
                                 onDelete={() => deleteItem(item.id)}
                                 onEdit={() => editAddedItem(item)}
-                            />
+                                mode={'product'} />
 
                         </>
                     )

@@ -46,7 +46,7 @@ axiosInstance.interceptors.response.use(
 
             try {
                 const newToken = await refreshAccessToken();
-                console.log('token: ', newToken);
+                console.log('new token: ', newToken);
 
                 if (!newToken) {
                     return Promise.reject(error);

@@ -2,11 +2,16 @@ import FilterButton from '@/src/components/invoice/filter-button'
 import InvoiceCard from '@/src/components/invoice/invoice-card'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import FloatingButton from '@/src/components/primitives/floating-button'
+import { fetchInvoices } from '@/src/redux/slices/invoiceListSlice'
+import { AppDispatch } from '@/src/redux/store/myStore'
 import AuthHeader from '@/src/ui/components/screen-header'
+import { dateformatter } from '@/src/utils/date-formatter'
+import { selectEnrichedInvoices } from '@/src/utils/invoiceSelectors'
 import { mVs } from '@/src/utils/scale'
 import { router } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 const Invoices = () => {
 
@@ -18,17 +23,15 @@ const Invoices = () => {
     { label: 'Drafts', value: 'DRAFT' },
   ];
 
-  const invoices = [
-    { id: '1', title: 'Invoice #001', status: 'PAID', price: 3400, issueDate: '30-OCT-2024' },
-    { id: '2', title: 'Invoice #002', status: 'PENDING', price: 3080, issueDate: '01-DEC-2024' },
-    { id: '3', title: 'Invoice #003', status: 'OVERDUE', price: 2810, issueDate: '07-FEB-2025' },
-    { id: '4', title: 'Invoice #004', status: 'DRAFT', price: 3570, issueDate: '16-NOV-2025' },
-    { id: '5', title: 'Invoice #005', status: 'DRAFT', price: 3570, issueDate: '16-NOV-2025' },
-    { id: '6', title: 'Invoice #006', status: 'PAID', price: 3570, issueDate: '16-NOV-2025' },
-  ];
 
   const [activeFilter, setActiveFilter] = useState('all');
-  const [filteredInvoices, setFilteredInvoices] = useState(invoices);
+  const [filteredInvoices, setFilteredInvoices] = useState<any[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
+  const invoices = useSelector(selectEnrichedInvoices);
+
+  useEffect(() => {
+    dispatch(fetchInvoices({ page: 1, limit: 10 }));
+  }, []);
 
   useEffect(() => {
     if (activeFilter === 'all') {
@@ -39,7 +42,19 @@ const Invoices = () => {
       );
       setFilteredInvoices(filtered);
     }
-  }, [activeFilter]);
+  }, [activeFilter, invoices]);
+
+  // const fetchInvoices = async ({ page, limit }: paginationResponse) => {
+  //   try {
+  //     const response = await getInvoices({ page, limit });
+  //     const invoicesList = response.data.data;
+  //     console.log("fetched lists: ", invoicesList);
+  //     setFilteredInvoices(invoicesList);
+  //     dispatch(showSnackbar({ message: response.message, type: 'success' }));
+  //   } catch (error: any) {
+  //     dispatch(showSnackbar({ message: error.message, type: 'error' }));
+  //   }
+  // }
 
 
   const handleOnPress = () => {
@@ -50,7 +65,7 @@ const Invoices = () => {
     <ScreenWrapper>
       <AuthHeader title='Invoices' trailingIcon='funnel-outline' />
 
-      <View style={{height: 70}}>
+      <View style={{ height: 70 }}>
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -69,13 +84,13 @@ const Invoices = () => {
       <FlatList
         data={filteredInvoices}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{gap: 12, paddingHorizontal: 20, paddingBottom: 10}}
+        contentContainerStyle={{ gap: 12, paddingHorizontal: 20, paddingBottom: 10 }}
         renderItem={({ item }) => (
-          <InvoiceCard title={item.title} status={item.status} price={item.price} issueDate={item.issueDate} onPress={handleOnPress}/>
+          <InvoiceCard title={item.clientName} status={item.status} price={item.price} issueDate={dateformatter(item.issueDate)} onPress={handleOnPress} />
         )}
       />
 
-      <FloatingButton icon='add' onPress={() => {router.push('/screens/add-invoice')}} />
+      <FloatingButton icon='add' onPress={() => { router.push('/screens/add-invoice') }} />
     </ScreenWrapper>
   )
 }

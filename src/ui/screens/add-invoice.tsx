@@ -3,7 +3,7 @@ import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
-import { setInvoiceNumber } from '@/src/redux/slices/invoiceSlice'
+import { generateInvoiceNumber, setInvoiceDraft, setInvoiceNumber } from '@/src/redux/slices/invoiceSlice'
 import { validationSchema } from '@/src/utils/auth-form'
 import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
@@ -20,18 +20,14 @@ import ScreenFooter from '../components/screen-footer'
 import AuthHeader from '../components/screen-header'
 
 
-const generateInvoiceNumber = (lastNumber: number = 0) => {
-    const nextNumber = lastNumber + 1;
-    return `INV-${String(nextNumber).padStart(4, '0')}`;
-}
-
 const AddInvoice = () => {
 
     const { theme } = useTheme();
     const formikRef = useRef<any>(null);
-    const paymentOptions = ['Due on Receipt', 'Net 7', 'Net 15', 'Net 30'];
+    const paymentOptions = ['Due on receipt', 'Net 7', 'Net 15', 'Net 30'];
     const invoiceNumber = useSelector((state: any) => state.invoiceReducer.currentInvoiceNumber);
     const clients = useSelector((state: any) => state.clientsReducer.clients);
+    console.log('clients: ', clients)
     const dispatch = useDispatch();
 
     const [issueDatePicker, setIssueDatePicker] = useState(false);
@@ -52,6 +48,7 @@ const AddInvoice = () => {
     }, []);
 
     const initialValues = {
+        clientId: '',
         clientName: '',
         invoiceNumber: invoiceNumber || 'INV-0001',
         issueDate: '',
@@ -100,11 +97,13 @@ const AddInvoice = () => {
                         enableReinitialize
                         validationSchema={validationSchema.clientDetails}
                         onSubmit={async (values: any) => {
-                            router.push({
-                                pathname: '/screens/line-items',
-                                params: { invoiceData: JSON.stringify(values) }
-                            });
-                            await AsyncStorage.setItem('lastInvoiceNumber', values.invoiceNumber);
+                            dispatch(setInvoiceDraft({
+                                clientId: values.clientId,
+                                issueDate: values.issueDate,
+                                dueDate: values.dueDate,
+                                invoiceNumber: values.invoiceNumber,
+                            }))
+                            router.push('/screens/line-items');
                         }} >
 
                         {({ errors, touched, setFieldValue, values }: any) => (
@@ -116,9 +115,9 @@ const AddInvoice = () => {
                                     <InputTab icon={<Ionicons name='people-outline' size={25} color={theme.text.secondary} />} placeholder='Select client...' value={values.clientName} editable={false} />
                                 </Pressable>
                                 {touched.clientName && errors.clientName && (<ErrorText errorText={errors.clientName} />)}
-                                <ModalWrapper visible={openClientModal} onClose={() => {setOpenClientModal(false)}} searchBar
-                                data={clients} labelKey='clientName' valueKey='id' modalTitle='Select Client' 
-                                onItemPress={(item) => setFieldValue('clientName', item.clientName)} />
+                                <ModalWrapper visible={openClientModal} onClose={() => { setOpenClientModal(false) }} searchBar
+                                    data={clients} labelKey='clientName' valueKey='id' modalTitle='Select Client'
+                                    onItemPress={(item) => { setFieldValue('clientId', item.id); setFieldValue('clientName', item.clientName) }} />
 
                                 <Text style={[styles.label, { color: theme.text.secondary }]}> INVOICE NUMBER </Text>
                                 <InputTab placeholder='Invoice Number' value={values.invoiceNumber} editable={false} />
@@ -140,7 +139,7 @@ const AddInvoice = () => {
                                                     setIssueDatePicker(false);
                                                     if (event.type === 'dismissed') return;
                                                     if (selectedDate) {
-                                                        setFieldValue('issueDate', selectedDate);
+                                                        setFieldValue('issueDate', format(new Date(selectedDate), 'yyyy-MM-dd'));
                                                     };
                                                 }}
                                             />
@@ -162,7 +161,7 @@ const AddInvoice = () => {
                                                     setDueDatePicker(false);
                                                     if (event.type === 'dismissed') return;
 
-                                                    if (selectedDate) setFieldValue('dueDate', selectedDate);
+                                                    if (selectedDate) setFieldValue('dueDate', format(new Date(selectedDate), 'yyyy-MM-dd'));
                                                 }}
                                             />
                                         )}
@@ -182,7 +181,7 @@ const AddInvoice = () => {
                                                 setOpenPaymentList(false);
                                                 setFieldValue('dueDate', handleAutoDueDate(values.issueDate, term))
                                             }}>
-                                                <Text style={[styles.terms, {color: theme.text.primary}]}>{term}</Text>
+                                                <Text style={[styles.terms, { color: theme.text.primary }]}>{term}</Text>
                                             </Pressable>
                                         ))}
                                     </View>

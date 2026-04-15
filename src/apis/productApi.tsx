@@ -3,20 +3,17 @@ import { Product } from "./types/type";
 
 export const createProduct = async (payload: Product) => {
     const res = await axiosInstance.post('/product', payload);
-    console.log('product created: ', res.data);
     return res.data;
 };
 
 export const fetchProducts = async (page: number = 1) => {
     const res = await axiosInstance.get(`/product?limit=10&page=${page}`);
 
-    console.log('fetched products: ', res.data)
     return res.data;
 };
 
 export const getProductById = async (id: string) => {
     const res = await axiosInstance.get(`/product/${id}`);
-    console.log('returned product: ', res.data)
     return res.data;
 };
 

@@ -51,6 +51,7 @@ const clients = () => {
     try {
       const response = await fetchClients();
       const apiClients = response.data.data;
+      console.log('fetched clients: ', apiClients)
 
       const mappedClients = apiClients.map((item: any) => ({
         id: item.id,

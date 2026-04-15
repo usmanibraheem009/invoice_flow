@@ -74,7 +74,7 @@ const ItemModal = ({ visible, onClose, onSubmitItem, editItem }: modalProps) => 
                                         {touched.name && errors.name && (<ErrorText errorText={errors.name} />)}
 
                                         <InputTab placeholder={'Description'}
-                                            value={values.description} onChangeText={handleChange('description')} />
+                                            value={values.description} onChangeText={handleChange('description')} multiline={true} numberOfLines={3} />
                                         {touched.description && errors.description && (<ErrorText errorText={errors.description} />)}
 
                                         <InputTab placeholder={mode === 'Product' ? 'Unit Price' : 'Price Per Hour'} keyboardType='numeric'

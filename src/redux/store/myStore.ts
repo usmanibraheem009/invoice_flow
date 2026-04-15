@@ -4,6 +4,7 @@ import { persistReducer, persistStore } from "redux-persist";
 import authReducer from "../slices/authSlice";
 import clientsReducer from "../slices/clientsSlice";
 import imageReducer from "../slices/imageSlice";
+import invoicesListReducer from "../slices/invoiceListSlice";
 import invoiceReducer from "../slices/invoiceSlice";
 import loadingReducer from "../slices/loadingSlice";
 import locationReducer from "../slices/locationSlice";
@@ -33,6 +34,7 @@ const rootReducer = combineReducers({
     userReducer,
     snackbarReducer,
     organizationReducer,
+    invoicesListReducer,
 });
 
 const persistedReducer =

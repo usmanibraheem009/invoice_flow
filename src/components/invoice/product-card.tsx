@@ -1,42 +1,57 @@
 import { useTheme } from '@/src/hooks/useTheme';
-import { InvoiceItem } from '@/src/theme/types';
 import { mVs } from '@/src/utils/scale';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-interface ProductCardProps extends InvoiceItem {
-    onDelete: (id: string) => void,
-    onEdit: (item: any) => void,
-    unitPrice?: number,
-    description?: string
+interface ProductCardProps {
+    id: string,
+    name: string,
+    quantity?: number;
+    unitPrice?: number;
+    total?: number;
+    description?: string;
+    type?: "Product" | "Service";
+    mode: "product" | "lineItem";
+    onDelete?: (id: string) => void;
+    onEdit?: (item: ProductCardProps) => void;
 }
 
-const ProductCard = ({ name, price, quantity, total, type, id, onDelete, onEdit, unitPrice, description }: ProductCardProps) => {
+const ProductCard = ({ id, name, unitPrice, quantity, total, description, mode, type, onDelete, onEdit }: ProductCardProps) => {
 
     const { theme } = useTheme();
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background.secondary, borderColor: theme.border.primary }]}>
             <View style={styles.leftContainer}>
+
                 <Text style={[styles.title, { color: theme.text.primary }]}>{name}</Text>
                 {description && (
                     <Text style={[styles.description, { color: theme.text.primary }]}>{description}</Text>
                 )}
-                {quantity ? (
-                    <Text style={[styles.date, { color: theme.text.secondary }]}>{type === 'Product' ? `${quantity} X ${price}` : `${quantity} h X ${price}`}</Text>
-                ) : (
+
+                {mode === 'lineItem' && quantity && unitPrice && (
+                    <Text style={[styles.date, { color: theme.text.secondary }]}>{type === 'Product' ? `${quantity} X ${unitPrice}` : `${quantity} h X ${unitPrice}`}</Text>
+                )}
+
+                {mode === 'product' && unitPrice && (
                     <Text style={[styles.price, { color: theme.text.secondary }]}>{type === 'Product' ? `unit price: $ ${unitPrice}` : `price per hour: $ ${unitPrice}`}</Text>
                 )}
 
-                {total && (
+                {total !== undefined && (
                     <Text style={[styles.price, { color: theme.text.primary }]}>${total}</Text>
                 )}
             </View>
 
             <View style={styles.rightContainer}>
-                <Ionicons name='trash-outline' color={'red'} size={20} onPress={() => onDelete(id)} />
-                <Ionicons name='pencil' color={theme.text.secondary} size={20} onPress={() => onEdit({ id, name, price, quantity, total, type, onDelete, onEdit, description, unitPrice })} />
+                {onDelete && (
+                    <Ionicons name="trash-outline" color="red" size={20} onPress={() => onDelete(id)} />
+                )}
+
+                {onEdit && (
+                    <Ionicons name='pencil' color={theme.text.secondary} size={20} onPress={() => onEdit({ id, name, quantity, total, type, description, unitPrice, mode })} />
+                )}
+
             </View>
         </View>
     )

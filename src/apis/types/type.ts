@@ -90,3 +90,64 @@ export interface Product {
     isActive: boolean;
 };
 
+export interface LineItemPayload {
+    productId: string;
+    description: string;
+    unitPrice: number;
+    taxRate: number;
+    quantity: number;
+};
+
+export interface createInvoicePayload {
+    clientId: string,
+    invoiceNumber: string,
+    issueDate: string,
+    dueDate: string,
+    currency: string,
+    notes: string,
+    status: "DRAFT" | "PAID" | "UNPAID",
+    lineItems: LineItemPayload[]
+};
+
+export interface LineItem {
+    id: string;
+    productId: string;
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    taxRate: number;
+    discount: number;
+    subtotal: number;
+    taxAmount: number;
+    total: number;
+};
+
+export type InvoiceStatus = "DRAFT" | "PAID" | "UNPAID" | "OVERDUE";
+
+export interface Invoice {
+    id: string;
+    userId: string;
+    clientId: string;
+    invoiceNumber: string;
+    issueDate: string;
+    dueDate: string;
+    currency: string;
+    notes: string;
+    status: InvoiceStatus;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface InvoiceMeta {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+}
+
+export interface PaginatedInvoicesResponse {
+    data: Invoice[];
+    meta: InvoiceMeta;
+}

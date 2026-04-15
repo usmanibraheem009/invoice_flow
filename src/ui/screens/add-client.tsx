@@ -139,7 +139,7 @@ const AddClient = () => {
     <ScreenWrapper scrollable keyboardAvoidingView>
       <AuthHeader arrowBack title="Client Details" />
 
-      <View style={{ paddingHorizontal: mVs(20) }}>
+      <View style={{ paddingHorizontal: mVs(20), flex: 1 }}>
         <Formik
           initialValues={editable === 'true' ? editableValues : initialValues.addNewClient}
           enableReinitialize={true}

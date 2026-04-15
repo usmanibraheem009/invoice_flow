@@ -11,7 +11,7 @@ import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import { router, useLocalSearchParams } from 'expo-router'
 import React, { useEffect, useState } from 'react'
-import { Linking, StyleSheet, Text, View } from 'react-native'
+import { Alert, Linking, StyleSheet, Text, View } from 'react-native'
 import { FlatList } from 'react-native-gesture-handler'
 import { useDispatch } from 'react-redux'
 import AuthHeader from '../components/screen-header'
@@ -95,20 +95,27 @@ const ClientProfile = () => {
   };
 
   const deleteClient = async (id: string) => {
-    dispatch(setLoading(true))
-    try {
-      await deleteExistingClient(id);
-      dispatch(showSnackbar({
-        message: 'Client deleted successfully', type: 'error'
-      }));
-      router.back();
-    } catch (error: any) {
-      dispatch(showSnackbar({
-        message: error.message, type: error.type
-      }))
-    } finally {
-      dispatch(setLoading(false))
-    }
+    Alert.alert('Warning', 'Delete client permanently?', [
+      { text: 'cancel', style: 'cancel' },
+      {
+        text: 'Yes', onPress: async () => {
+          dispatch(setLoading(true))
+          try {
+            await deleteExistingClient(id);
+            dispatch(showSnackbar({
+              message: 'Client deleted successfully', type: 'error'
+            }));
+            router.back();
+          } catch (error: any) {
+            dispatch(showSnackbar({
+              message: error.message, type: error.type
+            }))
+          } finally {
+            dispatch(setLoading(false))
+          }
+        }
+      }
+    ]);
   }
 
   return (

@@ -11,8 +11,6 @@ export const createClient = async (payload: createClientPayload): Promise<Client
 
 export const fetchClients = async (page: number = 1) => {
     const res = await axiosInstance.get(`/client?limit=10&page=${page}`);
-    console.log('fetch clients: ', res.data);
-
     return res.data;
 };
 

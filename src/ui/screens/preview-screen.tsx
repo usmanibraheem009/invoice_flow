@@ -1,13 +1,20 @@
+import { createInvoice } from '@/src/apis/invoiceApi'
 import InvoiceStatus from '@/src/components/invoice/invoice-status'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
+import { setLoading } from '@/src/redux/slices/loadingSlice'
+import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
+import { RootState } from '@/src/redux/store/myStore'
+import { getClientById, mapInvoiceToApi, selectInvoiceGrandTotal, selectInvoiceStatus, selectInvoiceSubtotal, selectInvoiceTaxTotal } from '@/src/utils/invoiceSelectors'
 import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
-import { router, useLocalSearchParams } from 'expo-router'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { router } from 'expo-router'
 import React, { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 import ScreenFooter from '../components/screen-footer'
 import AuthHeader from '../components/screen-header'
 
@@ -15,92 +22,119 @@ const PreviewScreen = () => {
 
   const { theme } = useTheme();
   const [notes, setNotes] = useState('');
-  const { invoiceData } = useLocalSearchParams<{ invoiceData: string }>();
-  const parsedInvoice = invoiceData ? JSON.parse(invoiceData) : null;
-  const tax = parsedInvoice.subTotal * 10 / 100;
-  const discount = parsedInvoice.subTotal > 1500? parsedInvoice.subTotal * 5 / 100 : 0;
-  const grandTotal = (parsedInvoice.subTotal + tax -discount).toFixed(2);
+  const draft = useSelector((state: RootState) => state.invoiceReducer.draft);
+  const finalData = mapInvoiceToApi(draft);
+  console.log('preview darft: ', draft);
+  const clientName = useSelector(getClientById);
+  const subTotal = useSelector(selectInvoiceSubtotal);
+  const taxRate = useSelector(selectInvoiceTaxTotal);
+  const grandTotal = useSelector(selectInvoiceGrandTotal);
+  const invoStatus = useSelector(selectInvoiceStatus)
+  const discount = subTotal > 1500 ? subTotal * 5 / 100 : 0;
+
+  const dispatch = useDispatch();
+
+  const handleSubmit = async (values: any) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await createInvoice(values);
+      const createdInvoice = response.data;
+      console.log('created invoice: ', createdInvoice);
+      dispatch(showSnackbar({ message: response.message, type: 'success' }));
+      router.replace('/(tabs)/invoices');
+      await AsyncStorage.setItem('lastInvoiceNumber', values.invoiceNumber)
+    } catch (error: any) {
+      dispatch(showSnackbar({ message: error.message, type: 'error' }));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
 
   return (
-    <View style={{flexGrow: 1}}>
-    <ScreenWrapper scrollable paddingVertical={10} keyboardAvoidingView>
-      <AuthHeader arrowBack title='Step 3 of 3' />
+    <View style={{ flexGrow: 1 }}>
+      <ScreenWrapper scrollable paddingVertical={10} keyboardAvoidingView>
+        <AuthHeader arrowBack title='Step 3 of 3' />
 
-      <View style={[styles.container]}>
-        <Text style={[styles.title, { color: theme.text.primary }]} >Review & Send</Text>
+        <View style={[styles.container]}>
+          <Text style={[styles.title, { color: theme.text.primary }]} >Review & Send</Text>
 
-        <View style={[styles.invoiceContainer, { backgroundColor: theme.background.secondary, borderColor: theme.border.secondary }]}>
-          <View style={[styles.insideContainer, { backgroundColor: theme.background.secondary, borderColor: theme.border.secondary }]}>
-            <View>
-              <Text style={[styles.invoiceNumber, { color: theme.text.primary }]}>{parsedInvoice.invoiceNumber}</Text>
-              <Text style={[styles.user, { color: theme.text.primary }]}>To: {parsedInvoice.clientName}</Text>
-            </View>
-            <View style={{ gap: 10, alignItems: 'flex-end' }}>
-              <InvoiceStatus status='DRAFT' />
-            </View>
-          </View>
-
-          <View style={[styles.invoiceTemp, {borderBottomColor: theme.border.secondary}]}>
-
-            <View style={{ flexDirection: 'row' }}>
-              <Text style={[styles.lineItems, styles.colItem, { color: theme.text.tertiary }]}>Item</Text>
-              <Text style={[styles.lineItems, styles.colQty, { color: theme.text.tertiary }]}>Qty</Text>
-              <Text style={[styles.lineItems, styles.colPrice, { color: theme.text.tertiary }]}>Price</Text>
-              <Text style={[styles.lineItems, styles.colTotal, { color: theme.text.tertiary }]}>Total</Text>
-            </View>
-
-            {parsedInvoice.items?.map((item: any) => (
-              <View key={item.id} style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, width: '100%' }}>
-                <Text style={[styles.item, styles.colItem, { color: theme.text.primary }]} numberOfLines={1} ellipsizeMode='tail'>{item.name}</Text>
-                <Text style={[styles.item, styles.colQty, { color: theme.text.primary }]}>{item.type === 'Product' ? `${item.quantity}` : `${item.quantity}h`}</Text>
-                <Text style={[styles.price, styles.colDataPrice, { color: theme.text.secondary }]}>{item.type === 'Product' ? `${item.price}$` : `${item.price}$ /h`}</Text>
-                <Text style={[styles.colPrice, { color: theme.text.primary }]}> ${item.total} </Text>
+          <View style={[styles.invoiceContainer, { backgroundColor: theme.background.secondary, borderColor: theme.border.secondary }]}>
+            <View style={[styles.insideContainer, { backgroundColor: theme.background.secondary, borderColor: theme.border.secondary }]}>
+              <View>
+                <Text style={[styles.invoiceNumber, { color: theme.text.primary }]}>{draft.invoiceNumber}</Text>
+                <Text style={[styles.user, { color: theme.text.primary }]}>To: {clientName}</Text>
               </View>
-            ))}
+              <View style={{ gap: 10, alignItems: 'flex-end' }}>
+                <InvoiceStatus status={invoStatus} />
+              </View>
+            </View>
+
+            <View style={[styles.invoiceTemp, { borderBottomColor: theme.border.secondary }]}>
+
+              <View style={{ flexDirection: 'row' }}>
+                <Text style={[styles.lineItems, styles.colItem, { color: theme.text.tertiary }]}>Item</Text>
+                <Text style={[styles.lineItems, styles.colQty, { color: theme.text.tertiary }]}>Qty</Text>
+                <Text style={[styles.lineItems, styles.colPrice, { color: theme.text.tertiary }]}>Price</Text>
+                <Text style={[styles.lineItems, styles.colTotal, { color: theme.text.tertiary }]}>Total</Text>
+              </View>
+
+              {draft.lineItems?.map((item: any) => (
+                <View key={item.id} style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, width: '100%' }}>
+                  <Text style={[styles.item, styles.colItem, { color: theme.text.primary }]} numberOfLines={1} ellipsizeMode='tail'>{item.name}</Text>
+                  <Text style={[styles.item, styles.colQty, { color: theme.text.primary }]}>{item.type === 'Product' ? `${item.quantity}` : `${item.quantity}h`}</Text>
+                  <Text style={[styles.price, styles.colDataPrice, { color: theme.text.secondary }]}>{item.type === 'Product' ? `${item.unitPrice}$` : `${item.unitPrice}$ /h`}</Text>
+                  <Text style={[styles.colPrice, { color: theme.text.primary }]}> ${Number(item.quantity) * Number(item.unitPrice)} </Text>
+                </View>
+              ))}
+            </View>
+
+            <View style={styles.billingBox}>
+              <Text style={[styles.item, { color: theme.text.secondary }]}>Subtotal</Text>
+              <Text style={[styles.amount, { color: theme.text.secondary }]}>$ {subTotal}</Text>
+            </View>
+
+            <View style={styles.billingBox}>
+              <Text style={[styles.item, { color: theme.text.secondary }]}>Tax (10%)</Text>
+              <Text style={[styles.amount, { color: theme.text.secondary }]}>$ {taxRate}</Text>
+            </View>
+
+            <View style={styles.billingBox}>
+              <Text style={[styles.item, { color: theme.text.secondary }]}>Discount</Text>
+              <Text style={[styles.amount, { color: theme.text.secondary }]}>$ {discount}</Text>
+            </View>
+
+            <View style={styles.billingBox}>
+              <Text style={[styles.item, { color: theme.text.secondary }]}>Grand Total</Text>
+              <Text style={[styles.amount, { color: theme.text.secondary }]}>$ {grandTotal}</Text>
+            </View>
+
           </View>
 
-          <View style={styles.billingBox}>
-            <Text style={[styles.item, { color: theme.text.secondary }]}>Subtotal</Text>
-            <Text style={[styles.amount, { color: theme.text.secondary }]}>$ {parsedInvoice.subTotal}</Text>
+          <View style={styles.notesContainer}>
+            <Text style={[styles.label, { color: theme.text.secondary }]}>NOTES TO CLIENT</Text>
+            <InputTab icon={<Ionicons name='pencil' color={theme.text.secondary} size={24} />} placeholder='Add a note...' value={notes} onChangeText={setNotes} />
           </View>
 
-          <View style={styles.billingBox}>
-            <Text style={[styles.item, { color: theme.text.secondary }]}>Tax (10%)</Text>
-            <Text style={[styles.amount, { color: theme.text.secondary }]}>$ {tax}</Text>
-          </View>
-
-          <View style={styles.billingBox}>
-            <Text style={[styles.item, { color: theme.text.secondary }]}>Discount</Text>
-            <Text style={[styles.amount, { color: theme.text.secondary }]}>$ {discount}</Text>
-          </View>
-
-          <View style={styles.billingBox}>
-            <Text style={[styles.item, { color: theme.text.secondary }]}>Grand Total</Text>
-            <Text style={[styles.amount, { color: theme.text.secondary }]}>$ {grandTotal}</Text>
-          </View>
-
+          <View style={{ height: 260 }}></View>
         </View>
 
-        <View style={styles.notesContainer}>
-          <Text style={[styles.label, { color: theme.text.secondary }]}>NOTES TO CLIENT</Text>
-          <InputTab icon={<Ionicons name='pencil' color={theme.text.secondary} size={24} />} placeholder='Add a note...' value={notes} onChangeText={setNotes}/>
-        </View>
-
-        <View style={{height: 260}}></View>
-      </View>
-
-    </ScreenWrapper>
+      </ScreenWrapper>
       <ScreenFooter backButton>
-        <SimpleButton btnText='CONFIRM' onPress={() => { 
-          const mergedData = {...parsedInvoice, tax, discount, grandTotal, notes};
-          router.replace({
-          pathname: '/screens/template-screen',
-          params: {
-            invoiceData: JSON.stringify(mergedData),
-          }})}} />
+        <SimpleButton btnText='CONFIRM'
+          // onPress={() => {
+          //   const mergedData = { ...draft, notes };
+          //   // tax, discount, grandTotal
+          //   router.replace({
+          //     pathname: '/screens/template-screen',
+          //     params: {
+          //       invoiceData: JSON.stringify(mergedData),
+          //     }
+          //   })
+          // }} 
+          onPress={() => { handleSubmit(finalData) }} />
       </ScreenFooter>
 
-      </View>
+    </View>
   )
 }
 

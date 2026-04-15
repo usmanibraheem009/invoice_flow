@@ -42,7 +42,7 @@ const index = () => {
       return 'GOOD NOON 🌤️'
     } else if (currentHour < 18) {
       return 'GOOD AFTERNOON 🌤️'
-    } else if (currentHour > 18 && currentHour < 20) {
+    } else if (currentHour >= 18 && currentHour < 20) {
       return 'GOOD EVENING 🌙';
     } else {
       return 'GOOD NIGHT 🌙';

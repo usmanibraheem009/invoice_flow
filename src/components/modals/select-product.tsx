@@ -1,62 +1,68 @@
 import { useTheme } from '@/src/hooks/useTheme'
 import { mVs } from '@/src/utils/scale'
 import { Formik } from 'formik'
-import React, { useEffect, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useSelector } from 'react-redux'
 import ModalWrapper from '../layout/modal-wrapper'
 import InputTab from '../primitives/input-tab'
 import SimpleButton from '../primitives/simple-button'
 
-interface InvoiceItem {
-  id: string
+export interface LineItemForm {
+  id: string,
+  name: string,
+  productId: string
+  description: string
+  unitPrice: number
   quantity: number
-  name: string
-  price: number
-  total: number
-  type: 'Product' | 'Service'
-  onDelete?: () => void
-  onEdit?: () => void,
+  taxRate: number
 }
 
 interface ProductModal {
   visible: boolean
   onClose: () => void
-  onSubmit: (item: InvoiceItem) => void
-  onSelectedItem?: InvoiceItem | null
+  onSubmit: (item: LineItemForm) => void
+  selectedItem?: LineItemForm | null
 }
 
-const initialValues: InvoiceItem = {
-  id: '',
-  quantity: 0 ,
-  name: '',
-  price: 0,
-  total: 0,
-  type: 'Product',
+const initialValues: LineItemForm = {
+  id: "",
+  name: "",
+  productId: "",
+  description: "",
+  unitPrice: 0,
+  quantity: 0,
+  taxRate: 0
 }
 
-const SelectProduct = ({ visible, onClose, onSubmit, onSelectedItem }: ProductModal) => {
+const SelectProduct = ({ visible, onClose, onSubmit, selectedItem }: ProductModal) => {
 
-  const products = useSelector((state: any) => state.productsReducer.products) 
+  const { theme } = useTheme();
+  const products = useSelector((state: any) => state.productsReducer.products);
   const [showDropdown, setShowDropdown] = useState(false)
-  const {theme} = useTheme();
+  const [search, setSearch] = useState("");
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((prod: any) => prod.name.toLowerCase().includes(search.toLowerCase()))
+  }, [products, search]);
 
   return (
     <ModalWrapper modalTitle="Products & Services" visible={visible} onClose={onClose} labelKey={'name'} valueKey={'id'}>
-      <Formik
-        initialValues={ onSelectedItem ?? initialValues}
-        enableReinitialize
+      <Formik initialValues={selectedItem ?? initialValues} enableReinitialize
         onSubmit={(values) => {
-          onSubmit(values)
-          onClose()}}>
-        {({ values, handleChange, setFieldValue, handleSubmit }) => {
+          console.log('values: ', values)
+          const payload = {
+            ...values,
+            productId: values.productId
+          };
+          onSubmit(payload)
+          onClose()
+        }}>
+        {({ values, setFieldValue, handleSubmit }) => {
 
-          useEffect(() => {
-            setFieldValue('total', values.price * Number(values.quantity))
-          }, [values.quantity, values.price])
-
+          const total = Number(values.quantity) * Number(values.unitPrice);
           return (
-            <View style={{ gap: 12 }}>
+            <View style={{ gap: mVs(15) }}>
 
               <Pressable onPress={() => setShowDropdown(!showDropdown)}>
                 <InputTab editable={false} placeholder="Select product/service" value={values.name} />
@@ -64,29 +70,35 @@ const SelectProduct = ({ visible, onClose, onSubmit, onSelectedItem }: ProductMo
 
               {showDropdown && (
                 <FlatList
-                  data={products}
+                  data={filteredProducts}
                   keyExtractor={(item) => item.id}
-                  style={styles.dropdown}
+                  style={[styles.dropdown, { borderColor: theme.border.secondary }]}
                   renderItem={({ item }) => (
-                    <Pressable style={styles.dropdownItem}
+                    <Pressable style={[styles.dropdownItem, { borderColor: theme.border.secondary }]}
                       onPress={() => {
-                        setFieldValue('id', item.id)
+                        setFieldValue('productId', item.id)
                         setFieldValue('name', item.name)
-                        setFieldValue('price', item.price)
-                        setShowDropdown(false)
+                        setFieldValue('description', item.description)
+                        setFieldValue('unitPrice', item.unitPrice)
+                        setShowDropdown(false);
                       }}>
-                      <Text style={[styles.product, {color: theme.text.primary}]}>{item.name}</Text>
-                      <Text style={[styles.product, {color: theme.text.primary}]}>${item.price}</Text>
+                      <Text style={[styles.product, { color: theme.text.primary }]}>{item.name}</Text>
+                      <Text style={[styles.product, { color: theme.text.primary }]}>$ {item.unitPrice}</Text>
                     </Pressable>
                   )}
-                />
-              )}
+                />)}
 
-              <InputTab placeholder="Quantity..." value={values.quantity.toString()} onChangeText={(text) => setFieldValue('quantity', Number(text))} keyboardType="numeric" />
+              <InputTab placeholder="Quantity..." value={values.quantity.toString()} keyboardType="numeric"
+                onChangeText={(text) => {
+                  const qty = Number(text);
+                  if (qty <= 0) return;
+                  setFieldValue('quantity', qty)
+                }
+                } />
 
-              <InputTab editable={false} placeholder="Total" value={values.total.toString()} />
+              <InputTab editable={false} placeholder="Total" value={total.toFixed(2)} onChangeText={(text) => setFieldValue('total', total)} />
 
-              <SimpleButton btnText='Add Product' onPress={handleSubmit} />
+              <SimpleButton btnText={selectedItem ? 'Update Product' : 'Add Product'} onPress={handleSubmit} />
             </View>
           )
         }}
@@ -101,13 +113,11 @@ const styles = StyleSheet.create({
   dropdown: {
     maxHeight: 200,
     borderWidth: 1,
-    borderColor: '#ccc',
     borderRadius: 6,
   },
   dropdownItem: {
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
