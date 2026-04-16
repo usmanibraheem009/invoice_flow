@@ -20,17 +20,17 @@ const userSlice = createSlice({
     reducers: {},
     extraReducers: (buidler) => {
         buidler.addCase(fetchCurrentUser.pending, state => {
-            state.loading = true,
-            state.error = null
+            state.loading = true;
+            state.error = null;
         })
-        .addCase(fetchCurrentUser.fulfilled , (state, action) => {
-            state.loading = false,
-            state.user = action.payload
-        })
-        .addCase(fetchCurrentUser.rejected, (state , action) => {
-            state.loading = false,
-            state.error = action.payload || 'something went wrong'
-        })
+            .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+                state.loading = false;
+                state.user = action.payload;
+            })
+            .addCase(fetchCurrentUser.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload || 'something went wrong';
+            })
     }
 });
 

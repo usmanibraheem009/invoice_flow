@@ -1,16 +1,18 @@
-import { signupUser } from '@/src/apis/authApi'
-import ScreenWrapper from '@/src/components/layout/screen-wrapper'
+import { fetchCurrentUser, signupUser } from '@/src/apis/authApi'
+import { KeyboardScreen } from '@/src/components/layout'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
+import { saveSessionToStore, setSession } from '@/src/redux/slices/authSlice'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
+import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
+import { AppDispatch } from '@/src/redux/store/myStore'
 import { initialValues, validationSchema } from '@/src/utils/auth-form'
 import { mVs } from '@/src/utils/scale'
-import SnackBar from '@/src/utils/snackbar'
 import { Ionicons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { Formik } from 'formik'
-import React, { useState } from 'react'
+import React from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { ActivityIndicator } from 'react-native-paper'
 import { useDispatch, useSelector } from 'react-redux'
@@ -19,32 +21,56 @@ import ErrorText from '../../components/error-text'
 const SignupScreen = () => {
 
   const { theme } = useTheme();
-  const dispatch = useDispatch();
-  const [snackbar, setSnackbar] = useState<{message: string, type: 'info'| 'success' | 'error'} | null>(null)
+  const dispatch = useDispatch<AppDispatch>();
   const loading = useSelector((state: any) => state.loadingReducer.loading);
 
   const submitFunc = async (values: any) => {
     if (!values.fullName || !values.email || !values.password) {
-      return setSnackbar({message: 'All fields are required', type: 'error'});
+      return dispatch(showSnackbar({ message: 'All fields are required', type: 'error' }));
     }
 
     dispatch(setLoading(true));
-    try{
-      const res = await signupUser({fullName: values.fullName, email: values.email, password: values.password});
-      console.log('function triggered')
-      setSnackbar({message: `Welcome ${res.fullName}`, type: 'success'});
-      router.push('/screens/login-screen');
-    }catch(err : any){
+    try {
+      const res = await signupUser({
+        fullName: values.fullName,
+        email: values.email,
+        password: values.password
+      });
+      console.log('payload being sent: ', values);
+      dispatch(showSnackbar({ message: res.message, type: 'success' }));
+      dispatch(setSession({
+        accessToken: res.data.accessToken,
+        refreshToken: res.data.refreshToken,
+        expiresAt: res.data.expiresAt,
+        sessionId: res.data.sessionId,
+        isLoggedIn: true
+      }));
+
+      await saveSessionToStore({
+        accessToken: res.data.accessToken,
+        refreshToken: res.data.refreshToken,
+        expiresAt: res.data.expiresAt,
+        sessionId: res.data.sessionId,
+        isLoggedIn: true
+      });
+
+      await new Promise(r => setTimeout(r, 100));
+
+      await dispatch(fetchCurrentUser());
+      if (res?.data.accessToken) {
+        router.replace('/(tabs)');
+      }
+    } catch (err: any) {
       console.log('error function triggered', err)
-      setSnackbar({message: err.message , type: 'error'});
-    }finally{
+      dispatch(showSnackbar({ message: err.message, type: 'error' }));
+    } finally {
       dispatch(setLoading(false));
     }
   };
 
 
   return (
-    <ScreenWrapper scrollable keyboardAvoidingView paddingHorizontal={20}>
+    <KeyboardScreen paddingHorizontal={20}>
       <View style={styles.container}>
         <Image source={require('../../../../assets/images/icon.png')} style={styles.logo} />
         <Formik initialValues={initialValues.signup} validationSchema={validationSchema.signup} onSubmit={submitFunc}>
@@ -70,17 +96,14 @@ const SignupScreen = () => {
               </TouchableOpacity>
 
               <View style={{ marginTop: 20 }} />
-              <SimpleButton btnText={loading? <ActivityIndicator color={theme.text.primary} size={40} /> : 'SIGN UP'} onPress={handleSubmit} />
+              <SimpleButton btnText={loading ? <ActivityIndicator color={theme.text.primary} size={40} /> : 'SIGN UP'} onPress={handleSubmit} />
 
             </View>
           )}
 
         </Formik>
       </View>
-      {snackbar &&(
-        <SnackBar message={snackbar.message} type={snackbar.type} onDismiss={() => setSnackbar(null)} />
-      )}
-    </ScreenWrapper>
+    </KeyboardScreen>
   )
 }
 

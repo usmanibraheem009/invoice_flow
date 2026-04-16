@@ -51,15 +51,21 @@ const AppContent = () => {
     useEffect(() => {
         const loadOrganization = async () => {
             try {
-                const res = await fetchOrganization(organization?.id!);
-                dispatch(setOrganization(res.data))
+                if (!organization?.id) return; // ✅ GUARD
+
+                const res = await fetchOrganization(organization.id);
+
+                if (res?.data) {
+                    dispatch(setOrganization(res.data));
+                }
+
             } catch (error: any) {
-                console.log('Error loading org: ', error);
+                console.log("Error loading org: ", error);
             }
         };
 
         loadOrganization();
-    }, []);
+    }, [organization?.id]);
 
     return (
         <GestureHandlerRootView>

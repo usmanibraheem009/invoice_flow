@@ -1,7 +1,7 @@
 import { createProduct, deleteProduct, fetchProducts, updateProduct } from '@/src/apis/productApi'
 import { Product } from '@/src/apis/types/type'
 import ProductCard from '@/src/components/invoice/product-card'
-import ScreenWrapper from '@/src/components/layout/screen-wrapper'
+import { Screen } from '@/src/components/layout'
 import FloatingButton from '@/src/components/primitives/floating-button'
 import ItemModal from '@/src/components/primitives/item-modal'
 import { useTheme } from '@/src/hooks/useTheme'
@@ -106,7 +106,7 @@ const Products = () => {
     }
 
     return (
-        <ScreenWrapper>
+        <Screen>
             <AuthHeader title='Products' />
             <FloatingButton icon='add' onPress={() => { setVisible(true) }} />
 
@@ -133,7 +133,7 @@ const Products = () => {
             </FlatList>
 
             <ItemModal visible={visible} onClose={() => setVisible(false)} onSubmitItem={handleSubmitItem} editItem={selectedItem} id={''} name={''} type={'Product'} />
-        </ScreenWrapper>
+        </Screen>
     )
 }
 

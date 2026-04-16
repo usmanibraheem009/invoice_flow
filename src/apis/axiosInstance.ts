@@ -2,7 +2,7 @@ import axios from 'axios';
 import * as Application from 'expo-application';
 import * as Device from 'expo-device';
 import * as SecureStore from 'expo-secure-store';
-import { refreshAccessToken } from '../services/tokenService';
+import { getStoredToken, refreshAccessToken } from '../services/tokenService';
 import { getDeviceType } from '../utils/device-type';
 
 const deviceName = Device.deviceName || 'expo-device';
@@ -23,7 +23,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
     async (config) => {
 
-        const token = await SecureStore.getItemAsync('accessToken');
+        const token = await getStoredToken();
 
         if (token) { config.headers.Authorization = `Bearer ${token}` }
         console.log('token: ', token);

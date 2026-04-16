@@ -27,6 +27,7 @@ const InputTab = ({ icon, placeholder, value, multiline = false, numberOfLines, 
                 placeholder={placeholder}
                 placeholderTextColor={theme.text.secondary}
                 cursorColor={'#B0B5BC'}
+
                 style={[styles.textInput, { color: theme.text.primary, textAlign: centerAlign ? 'center' : 'left' }]}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 10,
         paddingHorizontal: mVs(12),
-        // height: mVs(55),
+        paddingVertical: mVs(3)
     },
     textInput: {
         flex: 1,

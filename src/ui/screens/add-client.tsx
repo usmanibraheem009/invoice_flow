@@ -1,8 +1,9 @@
 import { createClient, updateClient } from '@/src/apis/clientApi';
-import ScreenWrapper from '@/src/components/layout/screen-wrapper';
+import { KeyboardScreen } from '@/src/components/layout';
 import InputTab from '@/src/components/primitives/input-tab';
 import LocationModal from '@/src/components/primitives/location-modal';
 import SimpleButton from '@/src/components/primitives/simple-button';
+import { useTheme } from '@/src/hooks/useTheme';
 import { addClient, updateExistingClient } from '@/src/redux/slices/clientsSlice';
 import { setLoading } from '@/src/redux/slices/loadingSlice';
 import { fetchCities, fetchCountries, fetchStates } from '@/src/redux/slices/locationSlice';
@@ -12,7 +13,7 @@ import { mVs } from '@/src/utils/scale';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import ErrorText from '../components/error-text';
 import AuthHeader from '../components/screen-header';
@@ -23,6 +24,7 @@ const AddClient = () => {
   const dispatch = useDispatch<any>();
   const { countries, states, cities } = useSelector((state: any) => state.locationReducer);
   const isEdit = editable === 'true' && parsedClientData?.id;
+  const { theme } = useTheme();
 
   const [showCountry, setShowCountry] = useState(false);
   const [showState, setShowState] = useState(false);
@@ -136,7 +138,7 @@ const AddClient = () => {
   }
 
   return (
-    <ScreenWrapper scrollable keyboardAvoidingView>
+    <KeyboardScreen >
       <AuthHeader arrowBack title="Client Details" />
 
       <View style={{ paddingHorizontal: mVs(20), flex: 1 }}>
@@ -147,26 +149,33 @@ const AddClient = () => {
           onSubmit={onSubmitFunc}
         >
           {({ errors, values, touched, handleSubmit, handleChange, setFieldValue }: any) => (
-            <View style={{ gap: 12, paddingBottom: 20 }}>
+            <View style={{ paddingBottom: 20 }}>
 
-              <InputTab placeholder="Enter your name" value={values.clientName} onChangeText={handleChange('clientName')} />
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}>CLIENT NAME</Text>
+              <InputTab placeholder="Client Name" value={values.clientName} onChangeText={handleChange('clientName')} />
               {touched.clientName && errors.clientName && <ErrorText errorText={errors.clientName} />}
 
-              <InputTab placeholder="Enter your Email" value={values.clientEmail} onChangeText={handleChange('clientEmail')} />
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}>CLIENT EMAIL</Text>
+              <InputTab placeholder="Email" value={values.clientEmail} onChangeText={handleChange('clientEmail')} />
               {touched.clientEmail && errors.clientEmail && <ErrorText errorText={errors.clientEmail} />}
 
-              <InputTab placeholder="Enter your phone" value={values.phone} onChangeText={handleChange('phone')} />
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}>PHONE NUMBER</Text>
+              <InputTab placeholder="Phone Number" value={values.phone} onChangeText={handleChange('phone')} />
               {touched.phone && errors.phone && <ErrorText errorText={errors.phone} />}
 
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}>ADDRESSLINE 1</Text>
               <InputTab placeholder="Address Line 1" value={values.addressLine1} onChangeText={handleChange('addressLine1')} />
               {touched.addressLine1 && errors.addressLine1 && <ErrorText errorText={errors.addressLine1} />}
 
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}>ADDRESSLINE 2</Text>
               <InputTab placeholder="Address Line 2" value={values.addressLine2} onChangeText={handleChange('addressLine2')} />
               {touched.addressLine2 && errors.addressLine2 && <ErrorText errorText={errors.addressLine2} />}
 
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}>ORGANIZATION NAME</Text>
               <InputTab placeholder="Organization Name" value={values.orgName} onChangeText={handleChange('orgName')} />
               {touched.orgName && errors.orgName && <ErrorText errorText={errors.orgName} />}
 
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}>COUNTRY</Text>
               <Pressable onPress={() => setShowCountry(true)}>
                 <InputTab placeholder="Select your country" value={values.country} editable={false} />
                 {touched.country && errors.country && <ErrorText errorText={errors.country} />}
@@ -188,7 +197,7 @@ const AddClient = () => {
                 />
               )}
 
-              {/* State Selector */}
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}>STATE</Text>
               <Pressable onPress={() => values.country && setShowState(true)}>
                 <InputTab placeholder="Select your state" value={values.state} editable={false} />
                 {touched.state && errors.state && <ErrorText errorText={errors.state} />}
@@ -203,15 +212,14 @@ const AddClient = () => {
                   onSelected={(state: any) => {
                     setFieldValue('state', state.label);
                     setFieldValue('city', '');
-                    dispatch(fetchCities({ country: values.country, state: state.label })).then((res: any) => {
-                      if (res?.payload?.length) setShowCity(true); // automatically open city modal if cities exist
-                    });
+                    dispatch(fetchCities({ country: values.country, state: state.label }));
                     setShowState(false);
                   }}
                 />
               )}
 
-              {/* City Selector */}
+
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}>CITY</Text>
               <Pressable onPress={() => cities?.length && setShowCity(true)}>
                 <InputTab placeholder="Select your city" value={values.city} editable={false} />
                 {touched.city && errors.city && <ErrorText errorText={errors.city} />}
@@ -230,15 +238,18 @@ const AddClient = () => {
                 />
               )}
 
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}>POSTAL CODE</Text>
               <InputTab placeholder="Postal Code" value={values.postalCode} onChangeText={handleChange('postalCode')} />
               {touched.postalCode && errors.postalCode && <ErrorText errorText={errors.postalCode} />}
 
-              <SimpleButton btnText={editable === 'true' ? "Update Client" : "Add Client"} onPress={handleSubmit} />
+              <View style={{ marginTop: mVs(40) }}>
+                <SimpleButton btnText={editable === 'true' ? "Update Client" : "Add Client"} onPress={handleSubmit} />
+              </View>
             </View>
           )}
         </Formik>
       </View>
-    </ScreenWrapper>
+    </KeyboardScreen>
   );
 };
 
@@ -259,4 +270,10 @@ const styles = StyleSheet.create({
     width: mVs(100),
     borderRadius: mVs(50),
   },
+  labelText: {
+    fontSize: mVs(14),
+    fontWeight: 500,
+    marginTop: mVs(15),
+    marginBottom: mVs(5)
+  }
 });

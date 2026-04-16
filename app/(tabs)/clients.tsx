@@ -1,6 +1,6 @@
 import { fetchClients } from '@/src/apis/clientApi'
 import ClientCard from '@/src/components/client/client-card'
-import ScreenWrapper from '@/src/components/layout/screen-wrapper'
+import { Screen } from '@/src/components/layout'
 import FloatingButton from '@/src/components/primitives/floating-button'
 import InputTab from '@/src/components/primitives/input-tab'
 import { useTheme } from '@/src/hooks/useTheme'
@@ -73,7 +73,7 @@ const clients = () => {
   };
 
   return (
-    <ScreenWrapper keyboardAvoidingView>
+    <Screen>
       <AuthHeader title='Clients' />
       <FloatingButton icon='person-add' onPress={() => { router.push('/screens/add-client') }} />
       <View style={{ paddingHorizontal: mVs(20), paddingBottom: mVs(20), flex: 1 }}>
@@ -93,7 +93,7 @@ const clients = () => {
           )} />
       </View>
 
-    </ScreenWrapper>
+    </Screen>
   )
 }
 

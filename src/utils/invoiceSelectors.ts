@@ -76,28 +76,113 @@ const selectInvoices = (state: RootState) =>
     state.invoicesListReducer.invoices;
 
 const selectClients = (state: RootState) =>
-    state.clientsReducer.clients; // adjust if reducer name differs
+    state.clientsReducer.clients;
 
-/**
- * Memoized enriched selector
- */
+const selectProducts = (state: RootState) =>
+    state.productsReducer.products;
+
 
 export const selectEnrichedInvoices = createSelector(
-    [selectInvoices, selectClients],
-    (invoices, clients) => {
+    [selectInvoices, selectClients, selectProducts],
+    (invoices, clients, products) => {
 
         const clientsMap: Record<string, any> = {};
-
         clients?.forEach((client: any) => {
             clientsMap[client.id] = client;
         });
 
-        return invoices.map((invoice: any) => ({
-            ...invoice,
+        const productsMap: Record<string, any> = {};
+        products?.forEach((prod: any) => {
+            productsMap[prod.id] = prod;
+        });
 
-            clientName:
-                clientsMap[invoice.clientId]?.clientName ??
-                "Unknown Client",
-        }));
+        return invoices.map((invoice: any) => {
+
+            const client = clientsMap[invoice.clientId];
+
+            return {
+                ...invoice,
+                clientName: client?.clientName ?? "Deleted Client",
+                clientEmail: client?.clientEmail ?? "Deleted email",
+                clientPhone: client?.phone ?? "",
+                clientCountry: client?.country ?? "",
+                clientState: client?.state ?? "",
+                clientCity: client?.city ?? "",
+                clientAddress: client?.addressLine1 ?? "",
+
+                lineItems: invoice.lineItems?.map((item: any) => {
+                    const product = productsMap[item.productId];
+                    const quantity = Number(item.quantity ?? 0);
+                    const unitPrice = Number(item.unitPrice ?? 0);
+
+                    return {
+                        ...item,
+                        productName: product?.name ?? 'unknown product',
+                        productDescription: product?.description ?? 'N/A',
+
+                        quantity,
+                        unitPrice,
+                        total: quantity * unitPrice
+                    }
+                }) ?? [],
+
+                currency: invoice.currency ?? "USD",
+                invoiceNumber: invoice.invoiceNumber ?? "",
+                status: invoice.status ?? "draft",
+
+                subtotal: invoice.lineItems?.reduce(
+                    (sum: number, item: any) =>
+                        sum + (item.quantity ?? 0) * (item.unitPrice ?? 0), 0) ?? 0,
+
+                taxTotal:
+                    invoice.lineItems?.reduce((sum: number, item: any) =>
+                        sum + ((item.quantity ?? 0) *
+                            (item.unitPrice ?? 0) *
+                            (item.taxRate ?? 0)) / 100,
+                        0) ?? 0,
+            };
+        });
     }
 );
+
+export const selectEnrichedInvoiceById = (invoiceId: string) =>
+    createSelector(
+        [
+            (state: RootState) => state.invoicesListReducer.selectedInvoice,
+            (state: RootState) => state.clientsReducer.clients,
+            (state: RootState) => state.productsReducer.products,
+        ],
+        (invoice, clients, products) => {
+            // const invoice = invoices.find((inv: any) => inv.id === invoiceId);
+
+            if (!invoice) return null;
+
+            const clientMap = Object.fromEntries(
+                clients.map((c: any) => [c.id, c])
+            );
+
+            const productMap = Object.fromEntries(
+                products.map((p: any) => [p.id, p])
+            );
+
+            const client = clientMap[invoice.clientId];
+
+            return {
+                ...invoice,
+
+                clientName: client?.clientName ?? "Unknown Client",
+                clientEmail: client?.clientEmail ?? "",
+
+                lineItems: invoice.lineItems?.map((item: any) => {
+                    const product = productMap[item.productId];
+
+                    return {
+                        ...item,
+                        productName: product?.name ?? "Unknown Product",
+                        lineTotal: item.quantity * item.unitPrice,
+                    };
+                }) ?? [],
+            };
+        }
+    );
+

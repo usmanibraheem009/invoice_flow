@@ -10,10 +10,11 @@ interface AuthHeaderProps {
   arrowBack?: boolean,
   subtitle?: string,
   trailingIcon?: keyof typeof Ionicons.glyphMap;
-  onIconPress?: () => void
+  onIconPress?: () => void,
+  trailingComponent?: React.ReactNode
 }
 
-const AuthHeader = ({ title, arrowBack, trailingIcon, onIconPress }: AuthHeaderProps) => {
+const AuthHeader = ({ title, arrowBack, trailingIcon, onIconPress, trailingComponent }: AuthHeaderProps) => {
 
   const { theme } = useTheme();
 
@@ -33,9 +34,10 @@ const AuthHeader = ({ title, arrowBack, trailingIcon, onIconPress }: AuthHeaderP
       </View>
 
       <View style={styles.rightIcon}>
-        {trailingIcon && (
+        {trailingIcon ? (
           <Ionicons name={trailingIcon} size={24} color={theme.text.primary} onPress={onIconPress} />
-        )}
+        ) :
+          (trailingComponent)}
       </View>
     </View>
   )

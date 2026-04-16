@@ -1,13 +1,14 @@
-import { loginUser } from '@/src/apis/authApi'
-import ScreenWrapper from '@/src/components/layout/screen-wrapper'
+import { fetchCurrentUser, loginUser } from '@/src/apis/authApi'
+import { KeyboardScreen } from '@/src/components/layout'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
 import { saveSessionToStore, setSession } from '@/src/redux/slices/authSlice'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
+import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
+import { AppDispatch } from '@/src/redux/store/myStore'
 import { initialValues, validationSchema } from '@/src/utils/auth-form'
 import { mVs } from '@/src/utils/scale'
-import SnackBar from '@/src/utils/snackbar'
 import { Ionicons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { Formik } from 'formik'
@@ -18,7 +19,7 @@ import ErrorText from '../../components/error-text'
 
 const LoginScreen = () => {
   const { theme } = useTheme();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const [snackbar, setSnackbar] = useState<{ message: string, type: 'info' | 'success' | 'error' } | null>(null)
 
   const submitFunc = async (values: any) => {
@@ -29,11 +30,9 @@ const LoginScreen = () => {
     dispatch(setLoading(true))
     try {
       const res = await loginUser({ email: values.email, password: values.password });
-      setSnackbar({ message: `Welcome back!`, type: 'success' });
+      dispatch(showSnackbar({ message: 'Welcome Back', type: 'success' }));
+      console.log("user logged in successfully");
 
-      if (res?.accessToken) {
-        router.replace('/(tabs)');
-      }
 
       dispatch(setSession({
         accessToken: res.accessToken,
@@ -50,15 +49,22 @@ const LoginScreen = () => {
         sessionId: res.sessionId,
         isLoggedIn: true
       });
+
+      await new Promise(r => setTimeout(r, 100));
+
+      await dispatch(fetchCurrentUser());
+      if (res?.accessToken) {
+        router.replace('/(tabs)');
+      }
     } catch (error: any) {
-      setSnackbar({ message: error.message, type: 'error' })
+      dispatch(showSnackbar({ message: error.message, type: 'error' }))
     } finally {
       dispatch(setLoading(false));
     }
   };
 
   return (
-    <ScreenWrapper paddingHorizontal={20}>
+    <KeyboardScreen paddingHorizontal={20}>
       <View style={styles.container}>
         <Image source={require('../../../../assets/images/icon.png')} style={styles.logo} />
         <Formik initialValues={initialValues.login} validationSchema={validationSchema.login} onSubmit={submitFunc}>
@@ -84,10 +90,7 @@ const LoginScreen = () => {
           )}
         </Formik>
       </View>
-      {snackbar && (
-        <SnackBar message={snackbar.message} type={snackbar.type} onDismiss={() => setSnackbar(null)} />
-      )}
-    </ScreenWrapper>
+    </KeyboardScreen>
   )
 }
 

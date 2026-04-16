@@ -1,16 +1,16 @@
 import { classicTemplate } from '@/src/components/invoice/templates/classicTemplate';
-import { modernTemplate } from '@/src/components/invoice/templates/modernTemplate';
 import ScreenWrapper from '@/src/components/layout/screen-wrapper';
 import SimpleButton from '@/src/components/primitives/simple-button';
 import { useTheme } from '@/src/hooks/useTheme';
+import { showSnackbar } from '@/src/redux/slices/snackbarSlice';
 import { loadPersistedTemp, persistTemplate, setRememberChoice, setTemplateId } from '@/src/redux/slices/templateSlice';
 import { AppDispatch, RootState } from '@/src/redux/store/myStore';
+import { selectEnrichedInvoiceById } from '@/src/utils/invoiceSelectors';
 import { mVs } from '@/src/utils/scale';
-import SnackBar from '@/src/utils/snackbar';
 import * as Print from 'expo-print';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Sharing from 'expo-sharing';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,8 +27,8 @@ const TemplateScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { selectedTemplateId, rememberChoice } = useSelector((state: RootState) => state.templateReducer);
   const { theme } = useTheme();
-  const params = useLocalSearchParams();
-  const [snackbar, setSnackbar] = useState<{ message: string, type: 'info' | 'success' | 'error' } | null>(null);
+  const { invoiceId } = useLocalSearchParams();
+  const invoiceData = useSelector(selectEnrichedInvoiceById(invoiceId as string));
 
   useEffect(() => {
     dispatch(loadPersistedTemp());
@@ -46,20 +46,7 @@ const TemplateScreen = () => {
 
 
 
-  const parsedInvoiceData = useMemo(() => {
-    try {
-      if (params.invoiceData) {
-        return JSON.parse(params.invoiceData as string);
-      }
-      return null;
-    } catch (error) {
-      console.log('Invoice parse error:', error);
-      return null;
-    }
-  }, [params.invoiceData]);
-
-
-  if (!parsedInvoiceData) {
+  if (!invoiceData) {
     return (
       <View style={styles.center}>
         <Text>No invoice data available</Text>
@@ -99,13 +86,13 @@ const TemplateScreen = () => {
       const { uri } = await Print.printToFileAsync({ html, });
       alert(`PDF saved at ${uri}`);
     } catch (error: any) {
-      setSnackbar({ message: error, type: 'error' })
+      dispatch(showSnackbar({ message: error, type: 'error' }))
     }
   };
 
   const handleSharePDF = async () => {
     try {
-      const html = getTemplateHtml(selectedTemplateId!, parsedInvoiceData);
+      const html = getTemplateHtml(selectedTemplateId!, invoiceData);
       const { uri } = await Print.printToFileAsync({ html, });
 
       const available = await Sharing.isAvailableAsync();
@@ -115,7 +102,7 @@ const TemplateScreen = () => {
         Alert.alert('Sharing not available')
       }
     } catch (error: any) {
-      setSnackbar({ message: error, type: 'error' })
+      dispatch(showSnackbar({ message: error, type: 'error' }))
     }
   };
 
@@ -128,7 +115,7 @@ const TemplateScreen = () => {
         return classicTemplate(data);
 
       case 'template2':
-        return modernTemplate(data);
+      // return modernTemplate(data);
 
       case 'template3':
       default:
@@ -154,7 +141,7 @@ const TemplateScreen = () => {
             <View style={[styles.invoicePreview, { borderColor: selectedTemplateId === item.id ? theme.border.tertiary : '#cccc', }]}>
               <Pressable style={{ flex: 1 }} disabled={rememberChoice} onPress={() => handleSelectTemplate(item.id)}>
                 <WebView originWhitelist={['*']}
-                  source={{ html: getTemplateHtml(item.id, parsedInvoiceData) }}
+                  source={{ html: getTemplateHtml(item.id, invoiceData) }}
                   style={{ height: 400, }} />
               </Pressable>
             </View>
@@ -169,7 +156,7 @@ const TemplateScreen = () => {
             <Switch value={rememberChoice} onValueChange={handleToggleRemember} />
           </View>
         ) : (
-          <Pressable style={styles.rememberContainer} onPress={() => { router.push({ pathname: '/screens/invoice-defaults', params: { invoiceData: JSON.stringify(parsedInvoiceData) } }) }}>
+          <Pressable style={styles.rememberContainer} onPress={() => { router.push({ pathname: '/screens/invoice-defaults', params: { invoiceData: JSON.stringify(invoiceData) } }) }}>
             <Text style={[styles.rememberText, { color: theme.text.primary }]}>Selected another template</Text>
           </Pressable>
 
@@ -183,9 +170,6 @@ const TemplateScreen = () => {
           <SimpleButton btnText='Done' onPress={() => router.replace('/(tabs)')} />
         </View>
       </View>
-      {snackbar && (
-        <SnackBar message={snackbar.message} type={snackbar.type} onDismiss={() => setSnackbar(null)} />
-      )}
     </ScreenWrapper>
   );
 };

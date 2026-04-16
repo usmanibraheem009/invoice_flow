@@ -1,5 +1,6 @@
 import { deleteOrganization } from '@/src/apis/organizationApi'
 import UserAvatar from '@/src/components/client/user-avatar'
+import { Screen } from '@/src/components/layout'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
@@ -19,7 +20,6 @@ const OrganizationSettings = () => {
 
     const organization = useSelector((state: RootState) => state.organizationReducer.data);
     const [edit, setEdit] = useState(false);
-    const [snackbar, setSnackbar] = useState<{ message: string, type: 'info' | 'success' | 'error' } | null>(null)
     const { theme } = useTheme();
     const dispatch = useDispatch();
 
@@ -48,7 +48,7 @@ const OrganizationSettings = () => {
 
     if (!organization) {
         return (
-            <ScreenWrapper>
+            <Screen>
                 <AuthHeader arrowBack title="Organization" />
 
                 <Pressable onPress={() => router.push('/screens/add-organization')} style={{ paddingHorizontal: mVs(20) }}>
@@ -58,7 +58,7 @@ const OrganizationSettings = () => {
                         centerAlign
                     />
                 </Pressable>
-            </ScreenWrapper>
+            </Screen>
         );
     }
 

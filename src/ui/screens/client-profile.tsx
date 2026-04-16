@@ -1,7 +1,7 @@
 import { deleteExistingClient, getClientById } from '@/src/apis/clientApi'
 import RevenueCard from '@/src/components/client/revenue-card'
 import InvoiceCard from '@/src/components/invoice/invoice-card'
-import ScreenWrapper from '@/src/components/layout/screen-wrapper'
+import { ScrollScreen } from '@/src/components/layout'
 import ContactButton from '@/src/components/primitives/contact-button'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
@@ -107,6 +107,7 @@ const ClientProfile = () => {
             }));
             router.back();
           } catch (error: any) {
+            console.log('delete error: ', error)
             dispatch(showSnackbar({
               message: error.message, type: error.type
             }))
@@ -119,7 +120,7 @@ const ClientProfile = () => {
   }
 
   return (
-    <ScreenWrapper>
+    <ScrollScreen>
       <AuthHeader arrowBack title='Profile' trailingIcon='pencil' onIconPress={() => {
         router.push({ pathname: '/screens/add-client', params: { editable: 'true', clientData: JSON.stringify(client) } });
       }} />
@@ -160,7 +161,7 @@ const ClientProfile = () => {
           <InvoiceCard title={item.title} issueDate={item.issueDate} status={item.status} price={item.price} invoiceNumber={item.title} />
         )} />
 
-    </ScreenWrapper>
+    </ScrollScreen>
   )
 }
 

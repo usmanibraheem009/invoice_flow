@@ -1,14 +1,18 @@
 export const classicTemplate = (data: any) => {
 
-  const itemsHtml = data.items
+  const itemsHtml = (data.lineItems || [])
     .map((item: any) => `
       <tr>
-        <td>${item.name}</td>
-        <td style="text-align: right;">
-          ${item.quantity}
+        <td>
+          ${item.productName || item.description || ""}
         </td>
+
         <td style="text-align: right;">
-          $ ${item.total}
+          ${item.quantity || 0}
+        </td>
+
+        <td style="text-align: right;">
+          $ ${item.lineTotal || 0}
         </td>
       </tr>
     `)
@@ -85,24 +89,24 @@ export const classicTemplate = (data: any) => {
       <div>
         <div>
           <strong>Invoice #:</strong>
-          ${data.invoiceNumber}
+          ${data.invoiceNumber || ""}
         </div>
 
         <div>
           <strong>Date:</strong>
-          ${data.issueDate}
+          ${data.issueDate || ""}
         </div>
 
         <div>
           <strong>Due:</strong>
-          ${data.dueDate}
+          ${data.dueDate || ""}
         </div>
       </div>
     </div>
 
     <div>
       <strong>Client:</strong>
-      ${data.clientName}
+      ${data.clientName || ""}
     </div>
 
     <table>
@@ -130,28 +134,28 @@ export const classicTemplate = (data: any) => {
       <tr>
         <td>Subtotal:</td>
         <td style="text-align:right">
-          $ ${data.subTotal}
+          $ ${data.subTotal || 0}
         </td>
       </tr>
 
       <tr>
         <td>Tax:</td>
         <td style="text-align:right">
-          $ ${data.tax}
+          $ ${data.tax || 0}
         </td>
       </tr>
 
       <tr>
         <td>Discount:</td>
         <td style="text-align:right">
-          $ ${data.discount}
+          $ ${data.discount || 0}
         </td>
       </tr>
 
       <tr class="total-row">
         <td>Total:</td>
         <td style="text-align:right">
-          $ ${data.grandTotal}
+          $ ${data.grandTotal || 0}
         </td>
       </tr>
 

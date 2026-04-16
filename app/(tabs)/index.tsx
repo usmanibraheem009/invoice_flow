@@ -1,23 +1,31 @@
 import InvoiceCard from '@/src/components/invoice/invoice-card'
 import ReportCard from '@/src/components/invoice/report-card'
+import { Screen } from '@/src/components/layout'
 import DashHeader from '@/src/components/layout/dash-header'
-import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import FloatingButton from '@/src/components/primitives/floating-button'
 import { useTheme } from '@/src/hooks/useTheme'
+import { fetchInvoices } from '@/src/redux/slices/invoiceListSlice'
+import { AppDispatch } from '@/src/redux/store/myStore'
+import { dateformatter } from '@/src/utils/date-formatter'
+import { selectEnrichedInvoices } from '@/src/utils/invoiceSelectors'
 import { mVs } from '@/src/utils/scale'
 import { router } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 const index = () => {
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { theme } = useTheme();
   const [greetings, setGreetings] = useState('');
 
   useEffect(() => {
     setGreetings(getGreetings());
+  }, []);
+
+  useEffect(() => {
+    dispatch(fetchInvoices({ page: 1, limit: 3 }));
   }, []);
 
   useEffect(() => {
@@ -49,15 +57,18 @@ const index = () => {
     }
   };
 
-  const invoices = [
-    { id: '1', title: 'Invoice #001', status: 'PAID', price: 3400, issueDate: '30-OCT-2024' },
-    { id: '2', title: 'Invoice #002', status: 'PENDING', price: 3080, issueDate: '01-DEC-2024' },
-    { id: '3', title: 'Invoice #003', status: 'OVERDUE', price: 2810, issueDate: '07-FEB-2025' },
+  const invoices = useSelector(selectEnrichedInvoices);
 
-  ];
+  const handleOnPress = (invoiceId: string) => {
+    router.push({
+      pathname: '/screens/invoice-details',
+      params: { invoiceId: invoiceId }
+    });
+  };
+
 
   return (
-    <ScreenWrapper paddingHorizontal={16} safeArea>
+    <Screen paddingHorizontal={16} >
       <DashHeader greeting={greetings} />
 
       <View style={styles.scrollView}>
@@ -82,13 +93,13 @@ const index = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ gap: 12, marginTop: mVs(20) }}
         renderItem={({ item }) => (
-          <InvoiceCard title={item.title} status={item.status} price={item.price} issueDate={item.issueDate} />
+          <InvoiceCard title={item.clientName} invoiceNumber={item.invoiceNumber} status={item.status} price={item.price} issueDate={dateformatter(item.issueDate)} onPress={() => handleOnPress(item.id)} />
         )}
       />
 
       <FloatingButton icon='add' onPress={() => { router.push('/screens/add-invoice') }} />
 
-    </ScreenWrapper>
+    </Screen>
   )
 }
 

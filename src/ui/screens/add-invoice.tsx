@@ -1,5 +1,5 @@
+import { Screen } from '@/src/components/layout'
 import ModalWrapper from '@/src/components/layout/modal-wrapper'
-import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
@@ -85,7 +85,7 @@ const AddInvoice = () => {
 
     return (
         <>
-            <ScreenWrapper scrollable keyboardAvoidingView >
+            <Screen >
 
                 <AuthHeader arrowBack title='Step 1 of 3' />
 
@@ -192,7 +192,7 @@ const AddInvoice = () => {
                         )}
                     </Formik>
                 </View>
-            </ScreenWrapper>
+            </Screen>
             <ScreenFooter>
                 <SimpleButton btnText='NEXT STEP' onPress={() => { formikRef.current?.handleSubmit() }} />
             </ScreenFooter>

@@ -1,5 +1,5 @@
 import ProductCard from '@/src/components/invoice/product-card'
-import ScreenWrapper from '@/src/components/layout/screen-wrapper'
+import { Screen } from '@/src/components/layout'
 import SelectProduct, { LineItemForm } from '@/src/components/modals/select-product'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
@@ -74,7 +74,7 @@ const LineItems = () => {
 
     return (
         <>
-            <ScreenWrapper keyboardAvoidingView >
+            <Screen >
                 <AuthHeader arrowBack title='Step 2 of 3' />
 
                 <View style={{ flex: 1, backgroundColor: theme.background.primary, paddingHorizontal: 20, maxHeight: 500 }}>
@@ -115,9 +115,9 @@ const LineItems = () => {
 
                 <SelectProduct visible={visible} onClose={() => setVisible(false)} onSubmit={handleSubmitItem} selectedItem={selectedItem} />
 
-            </ScreenWrapper>
+            </Screen>
 
-            <ScreenFooter backButton>
+            <ScreenFooter leadingButton>
                 <SimpleButton btnText='NEXT STEP' onPress={() => { previewInvoice() }} />
             </ScreenFooter>
         </>

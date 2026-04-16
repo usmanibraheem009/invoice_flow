@@ -1,6 +1,10 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
+export const getStoredToken = async () => {
+    return await SecureStore.getItemAsync('accessToken');
+};
+
 export const refreshAccessToken = async () => {
     try {
         const sessionId = await SecureStore.getItemAsync('sessionId');

@@ -1,5 +1,7 @@
 import FilterButton from '@/src/components/invoice/filter-button'
 import InvoiceCard from '@/src/components/invoice/invoice-card'
+import { Screen } from '@/src/components/layout'
+import LoadingIndicator from '@/src/components/layout/loading-indicator'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import FloatingButton from '@/src/components/primitives/floating-button'
 import { fetchInvoices } from '@/src/redux/slices/invoiceListSlice'
@@ -29,6 +31,7 @@ const Invoices = () => {
   const dispatch = useDispatch<AppDispatch>();
   const invoices = useSelector(selectEnrichedInvoices);
 
+
   useEffect(() => {
     dispatch(fetchInvoices({ page: 1, limit: 10 }));
   }, []);
@@ -44,25 +47,23 @@ const Invoices = () => {
     }
   }, [activeFilter, invoices]);
 
-  // const fetchInvoices = async ({ page, limit }: paginationResponse) => {
-  //   try {
-  //     const response = await getInvoices({ page, limit });
-  //     const invoicesList = response.data.data;
-  //     console.log("fetched lists: ", invoicesList);
-  //     setFilteredInvoices(invoicesList);
-  //     dispatch(showSnackbar({ message: response.message, type: 'success' }));
-  //   } catch (error: any) {
-  //     dispatch(showSnackbar({ message: error.message, type: 'error' }));
-  //   }
-  // }
+  const handleOnPress = (invoiceId: string) => {
+    router.push({
+      pathname: '/screens/invoice-details',
+      params: { invoiceId: invoiceId }
+    });
+  };
 
-
-  const handleOnPress = () => {
-    router.push('/screens/invoice-details');
+  if (!invoices) {
+    return (
+      <ScreenWrapper>
+        <LoadingIndicator />
+      </ScreenWrapper>
+    );
   }
 
   return (
-    <ScreenWrapper>
+    <Screen>
       <AuthHeader title='Invoices' trailingIcon='funnel-outline' />
 
       <View style={{ height: 70 }}>
@@ -86,12 +87,12 @@ const Invoices = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ gap: 12, paddingHorizontal: 20, paddingBottom: 10 }}
         renderItem={({ item }) => (
-          <InvoiceCard title={item.clientName} status={item.status} price={item.price} issueDate={dateformatter(item.issueDate)} onPress={handleOnPress} />
+          <InvoiceCard title={item.clientName} invoiceNumber={item.invoiceNumber} status={item.status} price={item.price} issueDate={dateformatter(item.issueDate)} onPress={() => handleOnPress(item.id)} />
         )}
       />
 
       <FloatingButton icon='add' onPress={() => { router.push('/screens/add-invoice') }} />
-    </ScreenWrapper>
+    </Screen>
   )
 }
 

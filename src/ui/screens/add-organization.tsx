@@ -1,6 +1,6 @@
 import { createOrganization, updateOrganization } from '@/src/apis/organizationApi'
+import { ScrollScreen } from '@/src/components/layout'
 import ModalWrapper from '@/src/components/layout/modal-wrapper'
-import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
@@ -80,7 +80,7 @@ const AddOrganization = () => {
     }
 
     return (
-        <ScreenWrapper scrollable>
+        <ScrollScreen >
             <AuthHeader title={editable ? 'Edit Organization' : 'Add Organization'} arrowBack />
 
             <View>
@@ -111,7 +111,7 @@ const AddOrganization = () => {
                     )}
                 </Formik>
             </View>
-        </ScreenWrapper>
+        </ScrollScreen>
     )
 }
 

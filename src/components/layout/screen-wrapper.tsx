@@ -1,6 +1,7 @@
 import { useTheme } from '@/src/hooks/useTheme'
 import React, { ReactNode } from 'react'
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export interface screenWrapperProps {
@@ -22,60 +23,43 @@ const ScreenWrapper = ({
     keyboardAvoidingView = true
 }: screenWrapperProps) => {
 
-    const {theme} = useTheme();
-    
-    const bgColor = backgroundColor || theme.background.primary;
-    const insets = useSafeAreaInsets()
+    const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
 
-    const content = (
-        <View style={[styles.container, {
-            backgroundColor: bgColor,
-            paddingHorizontal,
-            paddingTop: safeArea ? insets.top + paddingVertical : paddingVertical,
-            paddingBottom: safeArea ? insets.bottom + paddingVertical : paddingVertical
-        }]}>
+    const bgColor = backgroundColor || theme.background.primary;
+
+    const containerPadding = {
+        paddingHorizontal,
+        paddingTop: safeArea ? insets.top + paddingVertical : paddingVertical,
+        paddingBottom: safeArea ? insets.bottom + paddingVertical : paddingVertical,
+    };
+
+    if (scrollable || keyboardAvoidingView) {
+        return (
+            <KeyboardAwareScrollView
+                style={{ flex: 1, backgroundColor: bgColor }}
+                contentContainerStyle={[
+                    {
+                        flexGrow: 1,
+                        ...containerPadding,
+                    }
+                ]}
+                enableOnAndroid
+                keyboardShouldPersistTaps="handled"
+                extraScrollHeight={20}
+                showsVerticalScrollIndicator={false}
+            >
+                {children}
+            </KeyboardAwareScrollView>
+        );
+    }
+
+    return (
+        <View style={[{ flex: 1, backgroundColor: bgColor }, containerPadding]}>
             {children}
         </View>
     );
-
-    if (scrollable) {
-        const scrollContent = (
-            <ScrollView style={[styles.scrollView, { backgroundColor: bgColor }]}
-            showsVerticalScrollIndicator={false}
-                contentContainerStyle={[styles.scrollContent, {
-                    paddingHorizontal,
-                    paddingTop: safeArea ? insets.top + paddingVertical : paddingVertical,
-                    paddingBottom: safeArea ? insets.bottom + paddingVertical : paddingVertical,
-                    flexGrow: 1
-                }]}
-                showsHorizontalScrollIndicator={false}
-                keyboardShouldPersistTaps='handled'>
-                {children}
-            </ScrollView>
-        );
-
-        if (keyboardAvoidingView) {
-            return (
-                <KeyboardAvoidingView style={[styles.keyboardAvoiding, { backgroundColor: bgColor }]}
-                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-                    {scrollContent}
-                </KeyboardAvoidingView>
-            )
-        };
-        return scrollContent;
-    }
-
-    if (keyboardAvoidingView) {
-        return (
-            <KeyboardAvoidingView style={[styles.keyboardAvoiding, { backgroundColor: bgColor }]}
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-                    {content}
-            </KeyboardAvoidingView>
-        )
-    };
-
-    return content;
-}
+};
 
 export default ScreenWrapper
 
@@ -89,7 +73,7 @@ const styles = StyleSheet.create({
     scrollView: {
         flexGrow: 1,
     },
-    scrollContent:{ 
+    scrollContent: {
         flexGrow: 1
     }
 });

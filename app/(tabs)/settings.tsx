@@ -1,5 +1,5 @@
 import UserAvatar from '@/src/components/client/user-avatar'
-import ScreenWrapper from '@/src/components/layout/screen-wrapper'
+import { ScrollScreen } from '@/src/components/layout'
 import SettingsCard from '@/src/components/primitives/settings-card'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import ThemeButton from '@/src/components/primitives/theme-button'
@@ -40,7 +40,7 @@ const settings = () => {
   };
 
   return (
-    <ScreenWrapper safeArea scrollable>
+    <ScrollScreen>
 
       <AuthHeader title='Settings' />
 
@@ -71,7 +71,7 @@ const settings = () => {
         <View style={{ marginTop: 20 }} />
         <SimpleButton btnText='Logout' onPress={handleLogout} backgroundColor={theme.surface.tertiary} />
       </View>
-    </ScreenWrapper>
+    </ScrollScreen>
   )
 }
 

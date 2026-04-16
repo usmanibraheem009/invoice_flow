@@ -7,6 +7,7 @@ import { useTheme } from '@/src/hooks/useTheme'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
 import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
 import { RootState } from '@/src/redux/store/myStore'
+import { formatCurrency } from '@/src/utils/helper'
 import { getClientById, mapInvoiceToApi, selectInvoiceGrandTotal, selectInvoiceStatus, selectInvoiceSubtotal, selectInvoiceTaxTotal } from '@/src/utils/invoiceSelectors'
 import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
@@ -83,7 +84,7 @@ const PreviewScreen = () => {
                   <Text style={[styles.item, styles.colItem, { color: theme.text.primary }]} numberOfLines={1} ellipsizeMode='tail'>{item.name}</Text>
                   <Text style={[styles.item, styles.colQty, { color: theme.text.primary }]}>{item.type === 'Product' ? `${item.quantity}` : `${item.quantity}h`}</Text>
                   <Text style={[styles.price, styles.colDataPrice, { color: theme.text.secondary }]}>{item.type === 'Product' ? `${item.unitPrice}$` : `${item.unitPrice}$ /h`}</Text>
-                  <Text style={[styles.colPrice, { color: theme.text.primary }]}> ${Number(item.quantity) * Number(item.unitPrice)} </Text>
+                  <Text style={[styles.colPrice, { color: theme.text.primary }]}> {formatCurrency(Number(item.quantity) * Number(item.unitPrice), draft.currency)} </Text>
                 </View>
               ))}
             </View>
@@ -112,25 +113,14 @@ const PreviewScreen = () => {
 
           <View style={styles.notesContainer}>
             <Text style={[styles.label, { color: theme.text.secondary }]}>NOTES TO CLIENT</Text>
-            <InputTab icon={<Ionicons name='pencil' color={theme.text.secondary} size={24} />} placeholder='Add a note...' value={notes} onChangeText={setNotes} />
+            <InputTab icon={<Ionicons name='pencil' color={theme.text.secondary} size={24} />} numberOfLines={2} multiline placeholder='Add a note...' value={notes} onChangeText={setNotes} />
           </View>
 
-          <View style={{ height: 260 }}></View>
         </View>
 
       </ScreenWrapper>
-      <ScreenFooter backButton>
+      <ScreenFooter leadingButton>
         <SimpleButton btnText='CONFIRM'
-          // onPress={() => {
-          //   const mergedData = { ...draft, notes };
-          //   // tax, discount, grandTotal
-          //   router.replace({
-          //     pathname: '/screens/template-screen',
-          //     params: {
-          //       invoiceData: JSON.stringify(mergedData),
-          //     }
-          //   })
-          // }} 
           onPress={() => { handleSubmit(finalData) }} />
       </ScreenFooter>
 
