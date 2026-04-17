@@ -19,14 +19,14 @@ const ScreenFooter = ({ children, leadingButton, downloadBtn, handleDownload }: 
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background.secondary, borderTopColor: theme.border.primary }]}>
-      {leadingButton ?? (
+      {leadingButton && (
         <TouchableOpacity style={[styles.leadingButton, { borderColor: theme.text.primary }]} onPress={() => { router.back() }}>
           <Text style={[styles.back, { color: theme.text.primary }]}>Back</Text>
         </TouchableOpacity>
       )}
 
-      {downloadBtn ?? (
-        <TouchableOpacity style={[styles.leadingButton, { borderColor: theme.border.secondary, backgroundColor: secondary[50] }]} onPress={handleDownload}>
+      {downloadBtn && (
+        <TouchableOpacity style={[styles.downloadingButton, { borderColor: theme.border.secondary, backgroundColor: secondary[50] }]} onPress={handleDownload}>
           <Ionicons name='arrow-down' size={mVs(30)} color={theme.text.primary} />
           <Text style={[styles.pdf, { color: theme.text.primary }]}>PDF</Text>
         </TouchableOpacity>
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12
   },
-  leadingButton: {
+  downloadingButton: {
     height: mVs(70),
     width: mVs(70),
     borderRadius: 50,
@@ -72,5 +72,14 @@ const styles = StyleSheet.create({
   pdf: {
     fontSize: mVs(12),
     fontWeight: 500
+  },
+  leadingButton: {
+    height: mVs(50),
+    width: mVs(90),
+    borderRadius: 30,
+    borderWidth: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
   }
 })

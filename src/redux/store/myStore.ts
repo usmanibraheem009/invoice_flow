@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
 import authReducer from "../slices/authSlice";
+import clientsInvoicesReducer from "../slices/clientInvoices";
 import clientsReducer from "../slices/clientsSlice";
 import imageReducer from "../slices/imageSlice";
 import invoicesListReducer from "../slices/invoiceListSlice";
@@ -35,6 +36,7 @@ const rootReducer = combineReducers({
     snackbarReducer,
     organizationReducer,
     invoicesListReducer,
+    clientsInvoicesReducer
 });
 
 const persistedReducer =

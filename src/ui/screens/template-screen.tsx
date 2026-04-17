@@ -1,5 +1,5 @@
 import { classicTemplate } from '@/src/components/invoice/templates/classicTemplate';
-import ScreenWrapper from '@/src/components/layout/screen-wrapper';
+import { Screen } from '@/src/components/layout';
 import SimpleButton from '@/src/components/primitives/simple-button';
 import { useTheme } from '@/src/hooks/useTheme';
 import { showSnackbar } from '@/src/redux/slices/snackbarSlice';
@@ -106,6 +106,17 @@ const TemplateScreen = () => {
     }
   };
 
+  const subTotal = invoiceData.lineItems.reduce(
+    (sum: number, item: any) =>
+      sum + Number(item.quantity) * Number(item.unitPrice),
+    0
+  );
+
+  const mergedData = {
+    ...invoiceData,
+    subTotal: subTotal,
+  }
+
   const getTemplateHtml = (
     templateId: string,
     data: any
@@ -124,7 +135,7 @@ const TemplateScreen = () => {
   };
 
   return (
-    <ScreenWrapper>
+    <Screen>
       <AuthHeader arrowBack title='Invoice Template' />
 
       <Text style={[styles.heading, { color: theme.text.primary }]}>Preview</Text>
@@ -141,7 +152,7 @@ const TemplateScreen = () => {
             <View style={[styles.invoicePreview, { borderColor: selectedTemplateId === item.id ? theme.border.tertiary : '#cccc', }]}>
               <Pressable style={{ flex: 1 }} disabled={rememberChoice} onPress={() => handleSelectTemplate(item.id)}>
                 <WebView originWhitelist={['*']}
-                  source={{ html: getTemplateHtml(item.id, invoiceData) }}
+                  source={{ html: getTemplateHtml(item.id, mergedData) }}
                   style={{ height: 400, }} />
               </Pressable>
             </View>
@@ -166,11 +177,9 @@ const TemplateScreen = () => {
           <SimpleButton btnText='Download PDF' onPress={handleDownloadPDF} />
           <View style={{ height: mVs(10) }} />
           <SimpleButton btnText='Share PDF' onPress={handleSharePDF} />
-          <View style={{ height: mVs(10) }} />
-          <SimpleButton btnText='Done' onPress={() => router.replace('/(tabs)')} />
         </View>
       </View>
-    </ScreenWrapper>
+    </Screen>
   );
 };
 

@@ -10,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { addDays, format } from 'date-fns'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import { Formik } from 'formik'
 import React, { useEffect, useRef, useState } from 'react'
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
@@ -29,6 +29,9 @@ const AddInvoice = () => {
     const clients = useSelector((state: any) => state.clientsReducer.clients);
     console.log('clients: ', clients)
     const dispatch = useDispatch();
+    const { editable, invoiceData } = useLocalSearchParams();
+    const isEditable = editable === 'true';
+    const parsedInvoiceData = invoiceData ? JSON.parse(invoiceData as string) : null;
 
     const [issueDatePicker, setIssueDatePicker] = useState(false);
     const [dueDatePicker, setDueDatePicker] = useState(false);
@@ -48,12 +51,12 @@ const AddInvoice = () => {
     }, []);
 
     const initialValues = {
-        clientId: '',
-        clientName: '',
-        invoiceNumber: invoiceNumber || 'INV-0001',
-        issueDate: '',
-        dueDate: '',
-        paymentTerms: '',
+        clientId: isEditable ? parsedInvoiceData?.clientId || '' : '',
+        clientName: isEditable ? parsedInvoiceData?.client?.clientName || '' : '',
+        invoiceNumber: isEditable ? parsedInvoiceData?.invoiceNumber || invoiceNumber || 'INV-0001' : invoiceNumber || 'INV-0001',
+        issueDate: isEditable ? parsedInvoiceData?.issueDate || '' : '',
+        dueDate: isEditable ? parsedInvoiceData?.dueDate || '' : '',
+        paymentTerms: isEditable ? parsedInvoiceData?.paymentTerms || '' : '',
     };
 
     const handleAutoDueDate = (issueDateIso: string, paymentTerm: string) => {

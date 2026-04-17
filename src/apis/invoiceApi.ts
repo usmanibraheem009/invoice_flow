@@ -24,3 +24,15 @@ export const getInvoiceById = async (id: string) => {
 
     return response.data;
 }
+
+export const updateInvoice = async (id: string, payload: any) => {
+    const res = await axiosInstance.put(`/invoice/${id}`, payload);
+    console.log('invoice updated: ', res.data);
+    return res.data;
+};
+
+export const deleteInvoice = async (id: string) => {
+    const res = await axiosInstance.delete(`/invoice/${id}`);
+    console.log('invoice deleted: ', res.data);
+    return res.data;
+};

@@ -4,21 +4,21 @@ import { mVs } from '@/src/utils/scale'
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 
-interface revenueCardProps{
+interface revenueCardProps {
     title?: string,
     amount?: number,
     status?: string,
 }
 
-const RevenueCard = ({title, amount, status}: revenueCardProps) => {
-    const {theme} = useTheme();
+const RevenueCard = ({ title, amount, status }: revenueCardProps) => {
+    const { theme } = useTheme();
 
-  return (
-    <View style={[ styles.container,{backgroundColor: theme.background.secondary, borderColor: theme.border.primary}]}>
-      <Text style={[styles.title,{color: theme.text.secondary}]}>{title}</Text>
-      <Text style={[styles.price, {color: status=== 'PAID'? secondary[50] : secondary[200]}]}>$ {amount}</Text>
-    </View>
-  )
+    return (
+        <View style={[styles.container, { backgroundColor: theme.background.secondary, borderColor: theme.border.primary }]}>
+            <Text style={[styles.title, { color: theme.text.secondary }]}>{title}</Text>
+            <Text style={[styles.price, { color: status === 'PAID' ? secondary[50] : secondary[200] }]}>$ {amount}</Text>
+        </View>
+    )
 }
 
 export default RevenueCard
@@ -26,7 +26,7 @@ export default RevenueCard
 const styles = StyleSheet.create({
     container: {
         height: 'auto',
-        width: 'auto',
+        width: mVs(100),
         padding: 20,
         borderRadius: 10,
         borderWidth: 1,

@@ -1,19 +1,21 @@
 import { deleteExistingClient, getClientById } from '@/src/apis/clientApi'
 import RevenueCard from '@/src/components/client/revenue-card'
 import InvoiceCard from '@/src/components/invoice/invoice-card'
-import { ScrollScreen } from '@/src/components/layout'
+import { Screen } from '@/src/components/layout'
 import ContactButton from '@/src/components/primitives/contact-button'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
 import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
+import { dateformatter } from '@/src/utils/date-formatter'
+import { selectClientInvoiceSummary } from '@/src/utils/invoiceSelectors'
 import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import { router, useLocalSearchParams } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import { Alert, Linking, StyleSheet, Text, View } from 'react-native'
 import { FlatList } from 'react-native-gesture-handler'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import AuthHeader from '../components/screen-header'
 
 const invoices = [
@@ -26,6 +28,8 @@ const ClientProfile = () => {
 
   const { theme } = useTheme();
   const { clientId } = useLocalSearchParams();
+  const { totalInvoices, mappedInvoices, paidAmount, unpaidAmount } = useSelector(selectClientInvoiceSummary(clientId as string));
+
   const [client, setClient] = useState<any>(null);
   const dispatch = useDispatch();
 
@@ -57,22 +61,6 @@ const ClientProfile = () => {
     return (
       nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
   }
-
-  const { paidAmount, unpaidAmount } = invoices.reduce(
-    (acc, invoice) => {
-      if (invoice.status === 'PAID') {
-        acc.paidAmount += invoice.price;
-      } else {
-        acc.unpaidAmount += invoice.price;
-      }
-
-      return acc;
-    },
-    {
-      paidAmount: 0,
-      unpaidAmount: 0,
-    }
-  );
 
   const handleEmail = async (email: string) => {
     if (!email) return;
@@ -117,15 +105,15 @@ const ClientProfile = () => {
         }
       }
     ]);
-  }
+  };
 
   return (
-    <ScrollScreen>
+    <Screen>
       <AuthHeader arrowBack title='Profile' trailingIcon='pencil' onIconPress={() => {
         router.push({ pathname: '/screens/add-client', params: { editable: 'true', clientData: JSON.stringify(client) } });
       }} />
 
-      <FlatList data={invoices} keyExtractor={(item) => item.id} style={{ flex: 1 }} contentContainerStyle={styles.invoiceList} showsVerticalScrollIndicator={false}
+      <FlatList data={mappedInvoices} keyExtractor={(item: any) => item.id} style={{ flex: 1 }} contentContainerStyle={styles.invoiceList} showsVerticalScrollIndicator={false}
         ListFooterComponent={
           <>
             <SimpleButton btnText='Delete client' onPress={() => { deleteClient(clientId as string) }} backgroundColor={theme.surface.tertiary} />
@@ -139,7 +127,7 @@ const ClientProfile = () => {
 
             <View style={styles.userDetails}>
               <Text style={[styles.name, { color: theme.text.primary }]}>{client?.name || 'John'}</Text>
-              <Text style={[styles.orgName, { color: theme.text.secondary }]}>Doe Labs Inc.</Text>
+              <Text style={[styles.orgName, { color: theme.text.secondary }]}>{client?.email}</Text>
               <View style={styles.contactInfo}>
                 <ContactButton icon={<Ionicons name='mail-outline' size={mVs(30)} color={theme.text.primary} />} onPress={() => { handleEmail(client?.email) }} />
                 <ContactButton icon={<Ionicons name='call-outline' size={mVs(30)} color={theme.text.primary} />} onPress={() => { handlePhone(client?.phone) }} />
@@ -148,7 +136,7 @@ const ClientProfile = () => {
             </View>
 
             <View style={{ flexDirection: 'row', marginHorizontal: mVs(20), gap: mVs(15), marginTop: mVs(20), alignItems: 'center', justifyContent: 'center' }}>
-              <RevenueCard title='Invoices' amount={unpaidAmount} />
+              <RevenueCard title='Invoices' amount={totalInvoices} />
               <RevenueCard title='Paid' amount={paidAmount} status={'PAID'} />
               <RevenueCard title='Due' amount={unpaidAmount} status='UNPAID' />
             </View>
@@ -158,10 +146,10 @@ const ClientProfile = () => {
           </>
         }
         renderItem={({ item }) => (
-          <InvoiceCard title={item.title} issueDate={item.issueDate} status={item.status} price={item.price} invoiceNumber={item.title} />
+          <InvoiceCard title={item.clientName} issueDate={dateformatter(item.issueDate)} status={item.status} price={item.totalAmount} invoiceNumber={item.invoiceNumber} />
         )} />
 
-    </ScrollScreen>
+    </Screen>
   )
 }
 
@@ -208,7 +196,7 @@ const styles = StyleSheet.create({
     fontSize: mVs(26),
     fontWeight: 'bold',
     paddingHorizontal: mVs(20),
-    marginBottom: mVs(15),
+    marginBottom: mVs(10),
     marginTop: mVs(10),
   },
   invoiceList: {

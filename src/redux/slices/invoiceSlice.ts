@@ -17,7 +17,7 @@ interface InvoiceDraft {
     dueDate: string;
     currency: string;
     notes: string;
-    status: "DRAFT" | "PAID" | "UNPAID";
+    status: "DRAFT" | "PAID" | "OVERDUE";
     lineItems: LineItem[];
 };
 
@@ -97,9 +97,15 @@ const InvoiceSlice = createSlice({
         ) => {
             const index = state.draft.lineItems.findIndex(item => item.id === action.payload.id);
             if (index !== -1) { state.draft.lineItems[index] = action.payload }
-        }
+        },
+        setInvoiceStatus: (state, action: PayloadAction<"DRAFT" | "PAID" | "OVERDUE">) => {
+            state.draft.status = action.payload;
+        },
+        setNotes: (state, action: PayloadAction<string>) => {
+            state.draft.notes = action.payload;
+        },
     }
 });
 
-export const { setInvoiceNumber, incrementInvoiceNumber, clearInvoiceNumber, updateLineItem, setInvoiceDraft, addLineItem, clearInvoiceDraft, removeLineItem, setClient, setInvoiceField } = InvoiceSlice.actions;
+export const { setNotes, setInvoiceNumber, incrementInvoiceNumber, clearInvoiceNumber, updateLineItem, setInvoiceDraft, addLineItem, clearInvoiceDraft, removeLineItem, setClient, setInvoiceField, setInvoiceStatus } = InvoiceSlice.actions;
 export default InvoiceSlice.reducer;

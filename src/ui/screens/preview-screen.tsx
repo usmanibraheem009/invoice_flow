@@ -1,9 +1,11 @@
 import { createInvoice } from '@/src/apis/invoiceApi'
 import InvoiceStatus from '@/src/components/invoice/invoice-status'
+import ModalWrapper from '@/src/components/layout/modal-wrapper'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
+import { setInvoiceStatus, setNotes } from '@/src/redux/slices/invoiceSlice'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
 import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
 import { RootState } from '@/src/redux/store/myStore'
@@ -14,24 +16,32 @@ import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { router } from 'expo-router'
 import React, { useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import ScreenFooter from '../components/screen-footer'
 import AuthHeader from '../components/screen-header'
 
+const status = [
+  { name: 'PAID', value: 'PAID' },
+  { name: 'OVERDUE', value: 'OVERDUE' },
+  { name: 'DRAFT', value: 'DRAFT' },
+]
+
 const PreviewScreen = () => {
 
   const { theme } = useTheme();
-  const [notes, setNotes] = useState('');
+  const notes = useSelector((state: RootState) => state.invoiceReducer.draft.notes);
   const draft = useSelector((state: RootState) => state.invoiceReducer.draft);
-  const finalData = mapInvoiceToApi(draft);
-  console.log('preview darft: ', draft);
+  const finalData = React.useMemo(() => mapInvoiceToApi(draft), [draft]);
+  console.log("final data: ", finalData);
+
   const clientName = useSelector(getClientById);
   const subTotal = useSelector(selectInvoiceSubtotal);
   const taxRate = useSelector(selectInvoiceTaxTotal);
   const grandTotal = useSelector(selectInvoiceGrandTotal);
   const invoStatus = useSelector(selectInvoiceStatus)
   const discount = subTotal > 1500 ? subTotal * 5 / 100 : 0;
+  const [statusModal, setStatusModal] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -108,14 +118,20 @@ const PreviewScreen = () => {
               <Text style={[styles.item, { color: theme.text.secondary }]}>Grand Total</Text>
               <Text style={[styles.amount, { color: theme.text.secondary }]}>$ {grandTotal}</Text>
             </View>
-
           </View>
 
           <View style={styles.notesContainer}>
             <Text style={[styles.label, { color: theme.text.secondary }]}>NOTES TO CLIENT</Text>
-            <InputTab icon={<Ionicons name='pencil' color={theme.text.secondary} size={24} />} numberOfLines={2} multiline placeholder='Add a note...' value={notes} onChangeText={setNotes} />
+            <InputTab icon={<Ionicons name='pencil' color={theme.text.secondary} size={24} />} numberOfLines={2} multiline placeholder='Add a note...' value={notes} onChangeText={(text) => dispatch(setNotes(text))} />
           </View>
 
+          <Text style={[styles.label, { color: theme.text.secondary }]}>INVOICE STATUS</Text>
+          <Pressable onPress={() => setStatusModal(true)}>
+            <InputTab placeholder='Select Status' value={invoStatus} editable={false} />
+          </Pressable>
+
+          <ModalWrapper visible={statusModal} modalTitle='Select status' data={status} labelKey='name' valueKey='value' onClose={() => setStatusModal(false)}
+            onItemPress={(item) => { setStatusModal(false); dispatch(setInvoiceStatus(item.value)) }} />
         </View>
 
       </ScreenWrapper>
@@ -216,5 +232,9 @@ const styles = StyleSheet.create({
     marginTop: 30,
     borderBottomWidth: 1,
     paddingBottom: 20,
+  },
+  statusButton: {
+    height: mVs(80),
+    borderWidth: 1,
   }
 })

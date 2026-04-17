@@ -12,7 +12,7 @@ interface InvoiceState {
 
 const initialState: InvoiceState = {
     invoices: [],
-    selectedInvoice: null,
+    selectedInvoice: {} as Record<string, any>,
     meta: null,
     loading: false,
     error: null,

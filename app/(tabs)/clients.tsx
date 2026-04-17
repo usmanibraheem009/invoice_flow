@@ -84,7 +84,7 @@ const clients = () => {
         <FlatList data={filteredItems} refreshing={refreshing} onRefresh={onRefresh} keyExtractor={(item: any) => item.id} showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <ClientCard clientName={item.clientName} organizationName={item.addressLine1} createdAt={dateformatter(item.createdAt)}
-              totalRevenue={'34.2k'} onPressed={() => router.push({
+              totalRevenue={''} onPressed={() => router.push({
                 pathname: '/screens/client-profile',
                 params: {
                   clientId: item.id

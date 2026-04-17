@@ -5,13 +5,12 @@ import LoadingIndicator from '@/src/components/layout/loading-indicator'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import FloatingButton from '@/src/components/primitives/floating-button'
 import { fetchInvoices } from '@/src/redux/slices/invoiceListSlice'
-import { AppDispatch } from '@/src/redux/store/myStore'
+import { AppDispatch, RootState } from '@/src/redux/store/myStore'
 import AuthHeader from '@/src/ui/components/screen-header'
 import { dateformatter } from '@/src/utils/date-formatter'
-import { selectEnrichedInvoices } from '@/src/utils/invoiceSelectors'
 import { mVs } from '@/src/utils/scale'
 import { router } from 'expo-router'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -27,25 +26,24 @@ const Invoices = () => {
 
 
   const [activeFilter, setActiveFilter] = useState('all');
-  const [filteredInvoices, setFilteredInvoices] = useState<any[]>([]);
   const dispatch = useDispatch<AppDispatch>();
-  const invoices = useSelector(selectEnrichedInvoices);
+  const invoices = useSelector((state: RootState) => state.invoicesListReducer.invoices);
 
 
   useEffect(() => {
     dispatch(fetchInvoices({ page: 1, limit: 10 }));
   }, []);
 
-  useEffect(() => {
+  const filteredInvoices = useMemo(() => {
+    if (!invoices) return;
+
     if (activeFilter === 'all') {
-      setFilteredInvoices(invoices);
-    } else {
-      const filtered = invoices.filter(
-        item => item.status === activeFilter
-      );
-      setFilteredInvoices(filtered);
+      return invoices;
     }
-  }, [activeFilter, invoices]);
+    return invoices.filter((invoice) => invoice.status === activeFilter)
+  }, [invoices, activeFilter]);
+
+
 
   const handleOnPress = (invoiceId: string) => {
     router.push({
@@ -87,7 +85,7 @@ const Invoices = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ gap: 12, paddingHorizontal: 20, paddingBottom: 10 }}
         renderItem={({ item }) => (
-          <InvoiceCard title={item.clientName} invoiceNumber={item.invoiceNumber} status={item.status} price={item.price} issueDate={dateformatter(item.issueDate)} onPress={() => handleOnPress(item.id)} />
+          <InvoiceCard title={item.client?.name || 'Deleted Client'} invoiceNumber={item.invoiceNumber} status={item.status} price={Number(item.totalAmount)} issueDate={dateformatter(item.issueDate)} onPress={() => handleOnPress(item.id)} />
         )}
       />
 

@@ -1,3 +1,5 @@
+import { dateformatter } from "@/src/utils/date-formatter";
+
 export const classicTemplate = (data: any) => {
 
   const itemsHtml = (data.lineItems || [])
@@ -94,12 +96,12 @@ export const classicTemplate = (data: any) => {
 
         <div>
           <strong>Date:</strong>
-          ${data.issueDate || ""}
+          ${dateformatter(data.issueDate) || ""}
         </div>
 
         <div>
           <strong>Due:</strong>
-          ${data.dueDate || ""}
+          ${dateformatter(data.dueDate) || ""}
         </div>
       </div>
     </div>
@@ -141,7 +143,7 @@ export const classicTemplate = (data: any) => {
       <tr>
         <td>Tax:</td>
         <td style="text-align:right">
-          $ ${data.tax || 0}
+          $ ${data.taxRate || 0}
         </td>
       </tr>
 
@@ -155,7 +157,7 @@ export const classicTemplate = (data: any) => {
       <tr class="total-row">
         <td>Total:</td>
         <td style="text-align:right">
-          $ ${data.grandTotal || 0}
+          $ ${data.subTotal || 0}
         </td>
       </tr>
 

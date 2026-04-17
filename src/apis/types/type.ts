@@ -126,7 +126,6 @@ export type InvoiceStatus = "DRAFT" | "PAID" | "UNPAID" | "OVERDUE";
 
 export interface Invoice {
     id: string;
-    userId: string;
     clientId: string;
     invoiceNumber: string;
     issueDate: string;
@@ -136,6 +135,8 @@ export interface Invoice {
     status: InvoiceStatus;
     createdAt: string;
     updatedAt: string;
+    client: Client;
+    totalAmount: string
 }
 
 export interface InvoiceMeta {

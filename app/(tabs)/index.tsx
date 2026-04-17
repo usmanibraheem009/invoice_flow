@@ -57,7 +57,7 @@ const index = () => {
     }
   };
 
-  const invoices = useSelector(selectEnrichedInvoices);
+  const invoices = useSelector(selectEnrichedInvoices).slice(0, 3);
 
   const handleOnPress = (invoiceId: string) => {
     router.push({
@@ -93,7 +93,7 @@ const index = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ gap: 12, marginTop: mVs(20) }}
         renderItem={({ item }) => (
-          <InvoiceCard title={item.clientName} invoiceNumber={item.invoiceNumber} status={item.status} price={item.price} issueDate={dateformatter(item.issueDate)} onPress={() => handleOnPress(item.id)} />
+          <InvoiceCard title={item.clientName} invoiceNumber={item.invoiceNumber} status={item.status} price={item.totalAmount} issueDate={dateformatter(item.issueDate)} onPress={() => handleOnPress(item.id)} />
         )}
       />
 

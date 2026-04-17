@@ -1,3 +1,4 @@
+import { deleteInvoice } from '@/src/apis/invoiceApi'
 import UserAvatar from '@/src/components/client/user-avatar'
 import InvoiceStatus from '@/src/components/invoice/invoice-status'
 import { Screen, ScrollScreen } from '@/src/components/layout'
@@ -5,9 +6,10 @@ import LoadingIndicator from '@/src/components/layout/loading-indicator'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
 import { fetchInvoiceById } from '@/src/redux/slices/invoiceListSlice'
+import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
 import { RootState } from '@/src/redux/store/myStore'
+import { secondary } from '@/src/theme/colors'
 import { dateformatter } from '@/src/utils/date-formatter'
-import { formatCurrency } from '@/src/utils/helper'
 import { selectEnrichedInvoiceById } from '@/src/utils/invoiceSelectors'
 import { mVs } from '@/src/utils/scale'
 import { router, useLocalSearchParams } from 'expo-router'
@@ -23,6 +25,8 @@ const InvoiceDetails = () => {
 
     const { theme } = useTheme();
     const { invoiceId } = useLocalSearchParams();
+    console.log("invoiceId: ", invoiceId);
+
     const dispatch = useDispatch<any>();
     const selectedInvoice = useSelector((state: RootState) => state.invoicesListReducer.selectedInvoice);
     const enrichedInvoice = useSelector(selectEnrichedInvoiceById(invoiceId as string));
@@ -48,11 +52,19 @@ const InvoiceDetails = () => {
     }, [invoiceId]);
 
     const onEdit = async () => {
-
+        router.push({ pathname: '/screens/add-invoice', params: { editable: 'true', invoiceData: JSON.stringify(enrichedInvoice) } });
     };
 
     const onDelete = async () => {
-
+        if (invoiceId) {
+            try {
+                await deleteInvoice(invoiceId as string);
+                router.back();
+                dispatch(showSnackbar({ message: 'Invoice deleted successfully', type: 'success' }));
+            } catch (error: any) {
+                dispatch(showSnackbar({ message: error?.message || 'Error deleting invoice', type: 'error' }));
+            }
+        }
     };
 
     if (!selectedInvoice) {
@@ -102,26 +114,29 @@ const InvoiceDetails = () => {
                             <View key={item.id} style={styles.itemRow}>
                                 <Text style={[styles.lineItem, { color: theme.text.secondary }]}>{item.productName} ({item.quantity})</Text>
                                 <Text style={[styles.lineItem, { color: theme.text.secondary }]}></Text>
-                                <Text style={[styles.lineItem, { color: theme.text.secondary }]}>{formatCurrency(item.amount, enrichedInvoice?.currency)}</Text>
+                                {/* <Text style={[styles.lineItem, { color: theme.text.secondary }]}>{formatCurrency(item.amount, enrichedInvoice?.currency)}</Text> */}
+                                <Text style={[styles.lineItem, { color: theme.text.secondary }]}>{(item.amount)}</Text>
                             </View>
                         ))}
                     </View>
 
                     <View style={styles.totalContainer}>
                         <Text style={[styles.totalText, { color: theme.text.primary }]}>Total</Text>
-                        <Text style={[styles.totalText, { color: theme.surface.primary }]}>{formatCurrency(total, enrichedInvoice?.currency)}</Text>
+                        {/* <Text style={[styles.totalText, { color: theme.surface.primary }]}>{formatCurrency(total, enrichedInvoice?.currency)}</Text> */}
+                        <Text style={[styles.totalText, { color: theme.surface.primary }]}>{(total)}</Text>
                     </View>
                 </View>
 
             </ScrollScreen>
 
-            <ScreenFooter leadingButton handleDownload={() => {
-                router.push({
-                    pathname: '/screens/template-screen',
-                    params: { invoiceId: enrichedInvoice.id }
-                })
+            <ScreenFooter handleDownload={() => {
             }}>
-                <SimpleButton btnText='SEND NOW' onPress={() => { }} />
+                <SimpleButton btnText='Download PDF' onPress={() => {
+                    router.push({
+                        pathname: '/screens/template-screen',
+                        params: { invoiceId: enrichedInvoice.id }
+                    })
+                }} backgroundColor={secondary[50]} />
             </ScreenFooter>
         </>
     )

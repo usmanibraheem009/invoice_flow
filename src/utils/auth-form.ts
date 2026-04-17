@@ -27,7 +27,6 @@ export const initialValues = {
         state: '',
         postalCode: '',
         country: '',
-        orgName: '',
     },
     addOrganization: {
         legalName: '',
@@ -52,7 +51,6 @@ export const validationSchema = {
         invoiceNumber: Yup.string().required('Invoice Number is required'),
         issueDate: Yup.string().required('Issue Date is required'),
         dueDate: Yup.string().required('Due Date is required'),
-        paymentTerms: Yup.string().required('Payment Terms is required'),
     }),
     productModal: Yup.object({
         name: Yup.string().required('Item name required'),
@@ -68,7 +66,6 @@ export const validationSchema = {
         city: Yup.string().required('City name is required'),
         state: Yup.string().required('state is required'),
         postalCode: Yup.string().required('Postal code is required'),
-        orgName: Yup.string().required('Organisation name is required'),
     }),
 
     addOrganization: Yup.object({

@@ -73,13 +73,13 @@ export interface EnrichedInvoice {
     grandTotal: string;
 };
 const selectInvoices = (state: RootState) =>
-    state.invoicesListReducer.invoices;
+    state.invoicesListReducer.invoices ?? [];
 
 const selectClients = (state: RootState) =>
-    state.clientsReducer.clients;
+    state.clientsReducer.clients ?? [];
 
 const selectProducts = (state: RootState) =>
-    state.productsReducer.products;
+    state.productsReducer.products ?? [];
 
 
 export const selectEnrichedInvoices = createSelector(
@@ -153,7 +153,6 @@ export const selectEnrichedInvoiceById = (invoiceId: string) =>
             (state: RootState) => state.productsReducer.products,
         ],
         (invoice, clients, products) => {
-            // const invoice = invoices.find((inv: any) => inv.id === invoiceId);
 
             if (!invoice) return null;
 
@@ -186,3 +185,52 @@ export const selectEnrichedInvoiceById = (invoiceId: string) =>
         }
     );
 
+export const selectInvoicesByClientId =
+    (clientId: string) => createSelector(
+        [selectEnrichedInvoices],
+        (invoices) => invoices.filter((inv: any) => inv.clientId === clientId)
+    );
+export const selectClientInvoiceSummary =
+    (clientId: string) =>
+        createSelector(
+            [
+                selectInvoicesByClientId(clientId),
+                (state: RootState) => state.invoicesListReducer.selectedInvoice
+            ],
+            (invoices, detailsById) => {
+
+                let paidAmount = 0;
+                let unpaidAmount = 0;
+
+                const mappedInvoices = invoices?.map((inv: any) => {
+
+                    const fullInvoice = detailsById[inv.id];
+
+                    const lineItems = fullInvoice?.lineItems ?? [];
+
+                    const total = lineItems.reduce(
+                        (sum: number, item: any) =>
+                            sum + Number(item.quantity) * Number(item.unitPrice),
+                        0
+                    );
+
+                    if (inv.status === "PAID") {
+                        paidAmount += total;
+                    } else {
+                        unpaidAmount += total;
+                    }
+
+                    return {
+                        ...inv,
+                        totalAmount: total,
+                    };
+                });
+
+                return {
+                    totalInvoices: invoices.length,
+                    paidAmount,
+                    unpaidAmount,
+                    mappedInvoices,
+                };
+            }
+        );
