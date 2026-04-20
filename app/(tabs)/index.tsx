@@ -5,9 +5,8 @@ import DashHeader from '@/src/components/layout/dash-header'
 import FloatingButton from '@/src/components/primitives/floating-button'
 import { useTheme } from '@/src/hooks/useTheme'
 import { fetchInvoices } from '@/src/redux/slices/invoiceListSlice'
-import { AppDispatch } from '@/src/redux/store/myStore'
+import { AppDispatch, RootState } from '@/src/redux/store/myStore'
 import { dateformatter } from '@/src/utils/date-formatter'
-import { selectEnrichedInvoices } from '@/src/utils/invoiceSelectors'
 import { mVs } from '@/src/utils/scale'
 import { router } from 'expo-router'
 import React, { useEffect, useState } from 'react'
@@ -57,7 +56,7 @@ const index = () => {
     }
   };
 
-  const invoices = useSelector(selectEnrichedInvoices).slice(0, 3);
+  const invoices = useSelector((state: RootState) => state.invoicesListReducer.invoices).slice(0, 3);
 
   const handleOnPress = (invoiceId: string) => {
     router.push({
@@ -93,7 +92,7 @@ const index = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ gap: 12, marginTop: mVs(20) }}
         renderItem={({ item }) => (
-          <InvoiceCard title={item.clientName} invoiceNumber={item.invoiceNumber} status={item.status} price={item.totalAmount} issueDate={dateformatter(item.issueDate)} onPress={() => handleOnPress(item.id)} />
+          <InvoiceCard title={item.client.name} invoiceNumber={item.invoiceNumber} status={item.status} price={Number(item.totalAmount)} issueDate={dateformatter(item.issueDate)} onPress={() => handleOnPress(item.id)} />
         )}
       />
 

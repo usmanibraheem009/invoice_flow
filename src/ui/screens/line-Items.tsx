@@ -7,7 +7,6 @@ import { addLineItem, removeLineItem, updateLineItem } from '@/src/redux/slices/
 import { RootState } from '@/src/redux/store/myStore'
 import { selectInvoiceSubtotal } from '@/src/utils/invoiceSelectors'
 import { mVs } from '@/src/utils/scale'
-import { nanoid } from '@reduxjs/toolkit'
 import { router } from 'expo-router'
 import React, { useState } from 'react'
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
@@ -19,7 +18,7 @@ const LineItems = () => {
 
     const { theme } = useTheme();
     const draft = useSelector((state: RootState) => state.invoiceReducer.draft);
-    console.log('darft: ', draft)
+    console.log('darft: ', draft.invoiceId)
 
     const dispatch = useDispatch();
 
@@ -32,7 +31,7 @@ const LineItems = () => {
         const quantity = Number(newItem.quantity ?? 1);
         const unitPrice = Number(newItem.unitPrice);
         const lineItem = {
-            id: newItem.id || nanoid(),
+            id: newItem.id || Math.random().toString(36).substr(2, 9),
             productId: newItem.productId,
             name: newItem.name,
             description: newItem.description ?? '',
@@ -62,14 +61,11 @@ const LineItems = () => {
         if (items.length === 0) {
             Alert.alert('Warning', 'Please add at least one item');
             return;
-        };
-
-        const fullInvoiceDate = {
-            items,
-            subTotal
-        };
-        // dispatch(setInvoiceDraft(fullInvoiceDate));
-        router.push('/screens/preview-screen');
+        } else {
+            router.push({
+                pathname: '/screens/preview-screen'
+            })
+        }
     };
 
     return (

@@ -1,6 +1,6 @@
 import { getInvoiceById, getInvoices } from "@/src/apis/invoiceApi";
 import { Invoice, InvoiceMeta } from "@/src/apis/types/type";
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface InvoiceState {
     invoices: Invoice[],
@@ -41,7 +41,16 @@ export const fetchInvoiceById = createAsyncThunk(
 const invoicesList = createSlice({
     name: 'invoicesList',
     initialState,
-    reducers: {},
+    reducers: {
+        removeInvoice: (
+            state,
+            action: PayloadAction<string>
+        ) => {
+            state.invoices = state.invoices.filter(
+                inv => inv.id !== action.payload
+            );
+        }
+    },
     extraReducers: (builder) => {
         builder.addCase(fetchInvoices.pending, (state) => {
             state.loading = true
@@ -60,7 +69,7 @@ const invoicesList = createSlice({
             })
             .addCase(fetchInvoiceById.fulfilled, (state, action) => {
                 state.loading = false;
-                state.selectedInvoice = action.payload
+                state.selectedInvoice = action.payload;
             })
             .addCase(fetchInvoiceById.rejected, (state, action) => {
                 state.loading = false;
@@ -70,3 +79,4 @@ const invoicesList = createSlice({
 });
 
 export default invoicesList.reducer;
+export const { removeInvoice } = invoicesList.actions;

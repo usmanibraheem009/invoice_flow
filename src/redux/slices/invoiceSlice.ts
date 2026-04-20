@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface LineItem {
-    id: string,
+    id: string;
+    productId: string,
     name?: string,
-    productId: string;
     description: string;
     unitPrice: number;
     quantity: number;
@@ -11,6 +11,8 @@ interface LineItem {
 };
 
 interface InvoiceDraft {
+    id: string;
+    invoiceId?: string;
     clientId: string | null;
     invoiceNumber: string;
     issueDate: string;
@@ -29,6 +31,7 @@ interface InvoiceState {
 const initialState: InvoiceState = {
     currentInvoiceNumber: 'INV-0001',
     draft: {
+        id: '',
         clientId: null,
         invoiceNumber: "INV-0001",
         issueDate: "",
@@ -78,6 +81,7 @@ const InvoiceSlice = createSlice({
         },
         clearInvoiceDraft: (state) => {
             state.draft = {
+                id: '',
                 clientId: null,
                 invoiceNumber: state.currentInvoiceNumber,
                 issueDate: "",
@@ -95,7 +99,7 @@ const InvoiceSlice = createSlice({
             state,
             action: PayloadAction<LineItem>
         ) => {
-            const index = state.draft.lineItems.findIndex(item => item.id === action.payload.id);
+            const index = state.draft.lineItems.findIndex(item => item.id === action.payload.productId);
             if (index !== -1) { state.draft.lineItems[index] = action.payload }
         },
         setInvoiceStatus: (state, action: PayloadAction<"DRAFT" | "PAID" | "OVERDUE">) => {

@@ -136,7 +136,8 @@ export interface Invoice {
     createdAt: string;
     updatedAt: string;
     client: Client;
-    totalAmount: string
+    totalAmount: string;
+    lineItems: string[];
 }
 
 export interface InvoiceMeta {

@@ -4,6 +4,7 @@ import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
 import { generateInvoiceNumber, setInvoiceDraft, setInvoiceNumber } from '@/src/redux/slices/invoiceSlice'
+import { RootState } from '@/src/redux/store/myStore'
 import { validationSchema } from '@/src/utils/auth-form'
 import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
@@ -27,11 +28,10 @@ const AddInvoice = () => {
     const paymentOptions = ['Due on receipt', 'Net 7', 'Net 15', 'Net 30'];
     const invoiceNumber = useSelector((state: any) => state.invoiceReducer.currentInvoiceNumber);
     const clients = useSelector((state: any) => state.clientsReducer.clients);
-    console.log('clients: ', clients)
     const dispatch = useDispatch();
-    const { editable, invoiceData } = useLocalSearchParams();
+    const { editable } = useLocalSearchParams();
     const isEditable = editable === 'true';
-    const parsedInvoiceData = invoiceData ? JSON.parse(invoiceData as string) : null;
+    const invoice = useSelector((state: RootState) => state.invoicesListReducer.selectedInvoice);
 
     const [issueDatePicker, setIssueDatePicker] = useState(false);
     const [dueDatePicker, setDueDatePicker] = useState(false);
@@ -39,6 +39,7 @@ const AddInvoice = () => {
     const [openClientModal, setOpenClientModal] = useState(false);
 
     useEffect(() => {
+        if (editable) return;
         const fetchLastInvoiceNumber = async () => {
             const lastInvoice = await AsyncStorage.getItem('lastInvoiceNumber');
             const lastNumber = lastInvoice ? parseInt(lastInvoice.split('-')[1]) : 0;
@@ -48,15 +49,15 @@ const AddInvoice = () => {
         };
 
         fetchLastInvoiceNumber();
-    }, []);
+    }, [editable]);
 
     const initialValues = {
-        clientId: isEditable ? parsedInvoiceData?.clientId || '' : '',
-        clientName: isEditable ? parsedInvoiceData?.client?.clientName || '' : '',
-        invoiceNumber: isEditable ? parsedInvoiceData?.invoiceNumber || invoiceNumber || 'INV-0001' : invoiceNumber || 'INV-0001',
-        issueDate: isEditable ? parsedInvoiceData?.issueDate || '' : '',
-        dueDate: isEditable ? parsedInvoiceData?.dueDate || '' : '',
-        paymentTerms: isEditable ? parsedInvoiceData?.paymentTerms || '' : '',
+        clientId: isEditable ? invoice?.client?.id || '' : '',
+        clientName: isEditable ? invoice?.client?.name || '' : '',
+        invoiceNumber: isEditable ? invoice?.invoiceNumber || invoiceNumber || 'INV-0001' : invoiceNumber || 'INV-0001',
+        issueDate: isEditable ? invoice?.issueDate || '' : '',
+        dueDate: isEditable ? invoice?.dueDate || '' : '',
+        paymentTerms: isEditable ? invoice?.paymentTerms || '' : '',
     };
 
     const handleAutoDueDate = (issueDateIso: string, paymentTerm: string) => {

@@ -1,4 +1,4 @@
-import { createInvoice } from '@/src/apis/invoiceApi'
+import { createInvoice, updateInvoice } from '@/src/apis/invoiceApi'
 import InvoiceStatus from '@/src/components/invoice/invoice-status'
 import ModalWrapper from '@/src/components/layout/modal-wrapper'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
@@ -30,8 +30,12 @@ const status = [
 const PreviewScreen = () => {
 
   const { theme } = useTheme();
-  const notes = useSelector((state: RootState) => state.invoiceReducer.draft.notes);
   const draft = useSelector((state: RootState) => state.invoiceReducer.draft);
+  console.log("draft from preview screen: ", draft);
+
+  const notes = draft.notes;
+  const isEditMode = Boolean(draft.invoiceId);
+  console.log('is edit mode: ', isEditMode);
   const finalData = React.useMemo(() => mapInvoiceToApi(draft), [draft]);
   console.log("final data: ", finalData);
 
@@ -48,9 +52,15 @@ const PreviewScreen = () => {
   const handleSubmit = async (values: any) => {
     dispatch(setLoading(true));
     try {
-      const response = await createInvoice(values);
-      const createdInvoice = response.data;
-      console.log('created invoice: ', createdInvoice);
+
+      let response;
+      if (isEditMode === true) {
+        console.log('invoice id: ', draft.invoiceId);
+        response = await updateInvoice(draft.invoiceId!, draft);
+        console.log("edit method hit: ", draft.invoiceId);
+      } else {
+        response = await createInvoice(finalData);
+      }
       dispatch(showSnackbar({ message: response.message, type: 'success' }));
       router.replace('/(tabs)/invoices');
       await AsyncStorage.setItem('lastInvoiceNumber', values.invoiceNumber)
@@ -125,7 +135,7 @@ const PreviewScreen = () => {
             <InputTab icon={<Ionicons name='pencil' color={theme.text.secondary} size={24} />} numberOfLines={2} multiline placeholder='Add a note...' value={notes} onChangeText={(text) => dispatch(setNotes(text))} />
           </View>
 
-          <Text style={[styles.label, { color: theme.text.secondary }]}>INVOICE STATUS</Text>
+          <Text style={[styles.statusLabel, { color: theme.text.secondary }]}>INVOICE STATUS</Text>
           <Pressable onPress={() => setStatusModal(true)}>
             <InputTab placeholder='Select Status' value={invoStatus} editable={false} />
           </Pressable>
@@ -185,6 +195,11 @@ const styles = StyleSheet.create({
   label: {
     fontSize: mVs(14),
     fontWeight: 500,
+  },
+  statusLabel: {
+    fontSize: mVs(14),
+    fontWeight: 500,
+    marginTop: mVs(20)
   },
   lineItems: {
     fontSize: mVs(18),

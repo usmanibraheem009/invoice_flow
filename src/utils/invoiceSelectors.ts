@@ -111,7 +111,7 @@ export const selectEnrichedInvoices = createSelector(
                 clientAddress: client?.addressLine1 ?? "",
 
                 lineItems: invoice.lineItems?.map((item: any) => {
-                    const product = productsMap[item.productId];
+                    const product = productsMap[item.id];
                     const quantity = Number(item.quantity ?? 0);
                     const unitPrice = Number(item.unitPrice ?? 0);
 

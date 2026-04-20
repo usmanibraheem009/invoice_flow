@@ -5,16 +5,17 @@ import { Screen, ScrollScreen } from '@/src/components/layout'
 import LoadingIndicator from '@/src/components/layout/loading-indicator'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
-import { fetchInvoiceById } from '@/src/redux/slices/invoiceListSlice'
+import { fetchInvoiceById, removeInvoice } from '@/src/redux/slices/invoiceListSlice'
+import { setInvoiceDraft } from '@/src/redux/slices/invoiceSlice'
 import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
-import { RootState } from '@/src/redux/store/myStore'
+import { AppDispatch, RootState } from '@/src/redux/store/myStore'
 import { secondary } from '@/src/theme/colors'
 import { dateformatter } from '@/src/utils/date-formatter'
-import { selectEnrichedInvoiceById } from '@/src/utils/invoiceSelectors'
+import { formatCurrency } from '@/src/utils/helper'
 import { mVs } from '@/src/utils/scale'
 import { router, useLocalSearchParams } from 'expo-router'
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { Alert, StyleSheet, Text, View } from 'react-native'
 import { IconButton, Menu } from 'react-native-paper'
 import { useDispatch, useSelector } from 'react-redux'
 import ScreenFooter from '../components/screen-footer'
@@ -25,12 +26,12 @@ const InvoiceDetails = () => {
 
     const { theme } = useTheme();
     const { invoiceId } = useLocalSearchParams();
-    console.log("invoiceId: ", invoiceId);
+    console.log("invoice id: ", invoiceId);
 
-    const dispatch = useDispatch<any>();
+
+    const dispatch = useDispatch<AppDispatch>();
     const selectedInvoice = useSelector((state: RootState) => state.invoicesListReducer.selectedInvoice);
-    const enrichedInvoice = useSelector(selectEnrichedInvoiceById(invoiceId as string));
-    console.log('enriched invoice data: ', enrichedInvoice);
+    console.log("selected invoice: ", selectedInvoice);
 
 
     const [showDropDown, setShowDropDown] = useState(false);
@@ -51,20 +52,53 @@ const InvoiceDetails = () => {
         return;
     }, [invoiceId]);
 
+    const mapInvoiceToDraft = (invoice: any) => ({
+        invoiceId: invoice.id,
+        clientId: invoice.client?.id,
+        clientName: invoice.client?.name || '',
+        clientEmail: invoice.client?.email || '',
+        invoiceNumber: invoice.invoiceNumber,
+        issueDate: invoice.issueDate,
+        dueDate: invoice.dueDate,
+        currency: invoice.currency,
+        notes: invoice.notes || "",
+        status: invoice.status,
+        lineItems: invoice.lineItems?.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            unitPrice: Number(item.unitPrice),
+            quantity: Number(item.quantity),
+            taxRate: Number(item.taxRate ?? 0),
+        })) || []
+    });
+
     const onEdit = async () => {
-        router.push({ pathname: '/screens/add-invoice', params: { editable: 'true', invoiceData: JSON.stringify(enrichedInvoice) } });
+        const mappedDraft = mapInvoiceToDraft(selectedInvoice);
+        dispatch(setInvoiceDraft(mappedDraft));
+        router.push({ pathname: '/screens/add-invoice', params: { editable: 'true' } });
     };
 
     const onDelete = async () => {
-        if (invoiceId) {
-            try {
-                await deleteInvoice(invoiceId as string);
-                router.back();
-                dispatch(showSnackbar({ message: 'Invoice deleted successfully', type: 'success' }));
-            } catch (error: any) {
-                dispatch(showSnackbar({ message: error?.message || 'Error deleting invoice', type: 'error' }));
-            }
-        }
+        Alert.alert('Warning', 'Are you sure you want to delete this item',
+            [
+                { text: 'Cancel', style: 'cancel', },
+                {
+                    text: 'Yes', style: 'destructive', onPress: async () => {
+                        if (invoiceId) {
+                            try {
+                                await deleteInvoice(invoiceId as string);
+                                router.back();
+                                dispatch(removeInvoice(selectedInvoice.id as string));
+                                dispatch(showSnackbar({ message: 'Invoice deleted successfully', type: 'success' }));
+                            } catch (error: any) {
+                                dispatch(showSnackbar({ message: error?.message || 'Error deleting invoice', type: 'error' }));
+                            }
+                        }
+                    }
+                }
+            ]
+        )
     };
 
     if (!selectedInvoice) {
@@ -87,10 +121,10 @@ const InvoiceDetails = () => {
                 <View style={[styles.container, { borderColor: theme.border.secondary, backgroundColor: theme.background.secondary }]}>
 
                     <View style={[styles.header, { borderBottomColor: theme.border.secondary }]}>
-                        <UserAvatar name={enrichedInvoice?.clientName} />
+                        <UserAvatar name={selectedInvoice?.client?.name} />
                         <View style={{ maxWidth: mVs(150) }}>
-                            <Text style={[styles.clientName, { color: theme.text.primary }]}>{enrichedInvoice?.clientName || 'dummy user'}</Text>
-                            <Text style={[styles.clientEmail, { color: theme.text.secondary }]}>{enrichedInvoice?.clientEmail || 'billing@acme.com'}</Text>
+                            <Text style={[styles.clientName, { color: theme.text.primary }]}>{selectedInvoice?.client?.name || 'dummy user'}</Text>
+                            <Text style={[styles.clientEmail, { color: theme.text.secondary }]}>{selectedInvoice?.client?.email || 'billing@acme.com'}</Text>
                         </View>
                         <InvoiceStatus status={selectedInvoice.status} />
                     </View>
@@ -110,20 +144,18 @@ const InvoiceDetails = () => {
 
 
                     <View style={[styles.lineItemsContainer, { borderBottomColor: theme.border.secondary }]}>
-                        {enrichedInvoice.lineItems?.map((item: any) => (
+                        {selectedInvoice.lineItems?.map((item: any) => (
                             <View key={item.id} style={styles.itemRow}>
                                 <Text style={[styles.lineItem, { color: theme.text.secondary }]}>{item.productName} ({item.quantity})</Text>
                                 <Text style={[styles.lineItem, { color: theme.text.secondary }]}></Text>
-                                {/* <Text style={[styles.lineItem, { color: theme.text.secondary }]}>{formatCurrency(item.amount, enrichedInvoice?.currency)}</Text> */}
-                                <Text style={[styles.lineItem, { color: theme.text.secondary }]}>{(item.amount)}</Text>
+                                <Text style={[styles.lineItem, { color: theme.text.secondary }]}>{formatCurrency(item.amount, selectedInvoice?.currency)}</Text>
                             </View>
                         ))}
                     </View>
 
                     <View style={styles.totalContainer}>
                         <Text style={[styles.totalText, { color: theme.text.primary }]}>Total</Text>
-                        {/* <Text style={[styles.totalText, { color: theme.surface.primary }]}>{formatCurrency(total, enrichedInvoice?.currency)}</Text> */}
-                        <Text style={[styles.totalText, { color: theme.surface.primary }]}>{(total)}</Text>
+                        <Text style={[styles.totalText, { color: theme.surface.primary }]}>{formatCurrency(total, selectedInvoice?.currency)}</Text>
                     </View>
                 </View>
 
@@ -134,7 +166,7 @@ const InvoiceDetails = () => {
                 <SimpleButton btnText='Download PDF' onPress={() => {
                     router.push({
                         pathname: '/screens/template-screen',
-                        params: { invoiceId: enrichedInvoice.id }
+                        params: { invoiceId: selectedInvoice.id }
                     })
                 }} backgroundColor={secondary[50]} />
             </ScreenFooter>
