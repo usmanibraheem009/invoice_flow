@@ -1,3 +1,6 @@
+import { dateformatter } from "@/src/utils/date-formatter";
+import { formatCurrency } from "@/src/utils/helper";
+
 // src/components/invoice/templates/modernTemplate.ts
 export const modernTemplate = (data: any) => {
   const {
@@ -11,19 +14,19 @@ export const modernTemplate = (data: any) => {
     tax,
     taxAmount,
     total,
-    currency = '$',
+    currency,
     footerText,
     footerText2,
   } = data;
 
   // Generate table rows for items
-  const itemsRows = items
+  const itemsRows = (data.lineItems ?? [])
     .map(
       (item: any) => `
     <tr>
       <td>${item.description}</td>
       <td style="text-align: right;">${item.hours ?? item.quantity ?? 0}</td>
-      <td style="text-align: right;">${currency} ${item.price}</td>
+      <td style="text-align: right;">${formatCurrency(item.unitPrice, currency)}</td>
     </tr>`
     )
     .join('');
@@ -46,8 +49,8 @@ export const modernTemplate = (data: any) => {
       th { background: #667eea; color: white; padding: 15px; text-align: left; font-weight: 600; }
       td { padding: 15px; border-bottom: 1px solid #e9ecef; }
       .totals { width: 350px; margin-left: auto; background: #f8f9fa; padding: 20px; border-radius: 12px; }
-      .totals tr td { border: none; padding: 10px 0; }
-      .total-row { font-weight: bold; font-size: 20px; color: #667eea; border-top: 2px solid #667eea; padding-top: 15px !important; }
+      .totals tr td { border: none; padding: 13px 13px; }
+      .total-row { font-weight: bold; font-size: 20px; color: #667eea; padding: 25px !important; }
       .notes { margin-top: 40px; padding: 25px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; }
     </style>
   </head>
@@ -56,8 +59,8 @@ export const modernTemplate = (data: any) => {
       <div class="invoice-title">INVOICE</div>
       <div class="invoice-meta">
         <div><strong>Invoice #:</strong> ${invoiceNumber}</div>
-        <div><strong>Date:</strong> ${issueDate}</div>
-        <div><strong>Due:</strong> ${dueDate}</div>
+        <div><strong>Date:</strong> ${dateformatter(issueDate)}</div>
+        <div><strong>Due:</strong> ${dateformatter(dueDate)}</div>
       </div>
     </div>
     
@@ -65,18 +68,17 @@ export const modernTemplate = (data: any) => {
       <div class="parties">
         <div class="party">
           <h3>FROM</h3>
-          <strong>${data.clientName}</strong><br>
-          <strong>${data.clientName}</strong><br>
-          // ${data.address1 ?? ''}<br>
-          // ${data.address2 ?? ''}<br>
-          ${data.tax}
+          <strong>${data.client.name}</strong><br>
+          ${data.client.addressLine1 ?? ''}<br>
+          ${data.client.addressLine2 ?? ''}<br>
+          ${data.lineItems.taxRate ?? 'No tax rate specified'}
         </div>
         <div class="party" style="text-align: right;">
           <h3>TO</h3>
-          <strong>${data.name}</strong><br>
-          // ${data.address1?? ''}<br>
-          // ${data.address2 ?? ''}<br>
-          ${data.tax}
+          <strong>${data.client.name}</strong><br>
+          ${data.client.addressLine1 ?? ''}<br>
+          ${data.client.addressLine2 ?? ''}<br>
+          ${data.taxRate ?? 'No tax rate specified'}
         </div>
       </div>
       
@@ -84,7 +86,7 @@ export const modernTemplate = (data: any) => {
         <thead>
           <tr>
             <th>Description</th>
-            <th style="text-align: right;">Hours</th>
+            <th style="text-align: right;">Hours/Quantity</th>
             <th style="text-align: right;">Amount</th>
           </tr>
         </thead>
@@ -94,14 +96,12 @@ export const modernTemplate = (data: any) => {
       </table>
       
       <table class="totals">
-        <tr><td>Subtotal:</td><td style="text-align: right;"> ${subTotal}</td></tr>
-        <tr class="total-row"><td>Total:</td><td style="text-align: right;">${data.grandTotal}</td></tr>
+        <tr class="total-row"><td>Total:</td><td style="text-align: right;">${data.totalAmount}</td></tr>
       </table>
       
       <div class="notes">
         <strong style="color: #667eea;">Notes:</strong><br>
         ${data.notes}<br>
-        // ${footerText2}
       </div>
     </div>
   </body>

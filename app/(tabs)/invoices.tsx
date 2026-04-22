@@ -4,6 +4,7 @@ import { Screen } from '@/src/components/layout'
 import LoadingIndicator from '@/src/components/layout/loading-indicator'
 import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import FloatingButton from '@/src/components/primitives/floating-button'
+import { useTheme } from '@/src/hooks/useTheme'
 import { fetchInvoices } from '@/src/redux/slices/invoiceListSlice'
 import { AppDispatch, RootState } from '@/src/redux/store/myStore'
 import AuthHeader from '@/src/ui/components/screen-header'
@@ -11,7 +12,7 @@ import { dateformatter } from '@/src/utils/date-formatter'
 import { mVs } from '@/src/utils/scale'
 import { router } from 'expo-router'
 import React, { useEffect, useMemo, useState } from 'react'
-import { FlatList, StyleSheet, View } from 'react-native'
+import { FlatList, StyleSheet, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 const Invoices = () => {
@@ -28,6 +29,7 @@ const Invoices = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const dispatch = useDispatch<AppDispatch>();
   const invoices = useSelector((state: RootState) => state.invoicesListReducer.invoices);
+  const { theme } = useTheme();
 
 
   useEffect(() => {
@@ -84,6 +86,11 @@ const Invoices = () => {
         data={filteredInvoices}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ gap: 12, paddingHorizontal: 20, paddingBottom: 10 }}
+        ListEmptyComponent={() => (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: mVs(50) }}>
+            <Text style={{ color: theme.text.primary, fontSize: mVs(16) }}>No invoices found. Tap + to add one</Text>
+          </View>
+        )}
         renderItem={({ item }) => (
           <InvoiceCard title={item.client?.name || 'Deleted Client'} invoiceNumber={item.invoiceNumber} status={item.status} price={Number(item.totalAmount)} issueDate={dateformatter(item.issueDate)} onPress={() => handleOnPress(item.id)} />
         )}

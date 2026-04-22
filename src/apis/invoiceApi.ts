@@ -36,3 +36,8 @@ export const deleteInvoice = async (id: string) => {
     console.log('invoice deleted: ', res.data);
     return res.data;
 };
+
+export const getInvoicesByClientId = async (clientId: string) => {
+    const res = await axiosInstance.get(`/invoice?limit=50&page=1&clientId=${clientId}`);
+    return res.data;
+};

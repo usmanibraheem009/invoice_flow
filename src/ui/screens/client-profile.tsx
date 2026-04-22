@@ -1,4 +1,5 @@
 import { deleteExistingClient, getClientById } from '@/src/apis/clientApi'
+import { getInvoicesByClientId } from '@/src/apis/invoiceApi'
 import RevenueCard from '@/src/components/client/revenue-card'
 import InvoiceCard from '@/src/components/invoice/invoice-card'
 import { Screen } from '@/src/components/layout'
@@ -8,27 +9,40 @@ import { useTheme } from '@/src/hooks/useTheme'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
 import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
 import { dateformatter } from '@/src/utils/date-formatter'
-import { selectClientInvoiceSummary } from '@/src/utils/invoiceSelectors'
 import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import { router, useLocalSearchParams } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import { Alert, Linking, StyleSheet, Text, View } from 'react-native'
 import { FlatList } from 'react-native-gesture-handler'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import AuthHeader from '../components/screen-header'
 
-const invoices = [
-  { id: '1', title: 'Invoice #001', status: 'PAID', price: 3400, issueDate: '30-OCT-2024' },
-  { id: '2', title: 'Invoice #002', status: 'PENDING', price: 3080, issueDate: '01-DEC-2024' },
-  { id: '3', title: 'Invoice #003', status: 'OVERDUE', price: 2810, issueDate: '07-FEB-2025' },
-];
 
 const ClientProfile = () => {
 
   const { theme } = useTheme();
   const { clientId } = useLocalSearchParams();
-  const { totalInvoices, mappedInvoices, paidAmount, unpaidAmount } = useSelector(selectClientInvoiceSummary(clientId as string));
+  const [invoices, setInvoices] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!clientId) return;
+    fetchClient();
+    fetchClientInvoices();
+  }, []);
+
+  const fetchClientInvoices = async () => {
+    try {
+      const response = await getInvoicesByClientId(clientId as string);
+      setInvoices(response.data.data);
+    } catch (error: any) {
+      console.log('error fetching client invoices:', error);
+    }
+  };
+
+  const totalInvoices = invoices.length;
+  const paidAmount = invoices.filter(inv => inv.status === 'PAID').reduce((sum, inv) => sum + (inv.totalAmount ?? 0), 0);
+  const unpaidAmount = invoices.filter(inv => inv.status !== 'PAID').reduce((sum, inv) => sum + (inv.totalAmount ?? 0), 0);
 
   const [client, setClient] = useState<any>(null);
   const dispatch = useDispatch();
@@ -113,7 +127,7 @@ const ClientProfile = () => {
         router.push({ pathname: '/screens/add-client', params: { editable: 'true', clientData: JSON.stringify(client) } });
       }} />
 
-      <FlatList data={mappedInvoices} keyExtractor={(item: any) => item.id} style={{ flex: 1 }} contentContainerStyle={styles.invoiceList} showsVerticalScrollIndicator={false}
+      <FlatList data={invoices} keyExtractor={(item: any) => item.id} style={{ flex: 1 }} contentContainerStyle={styles.invoiceList} showsVerticalScrollIndicator={false}
         ListFooterComponent={
           <>
             <SimpleButton btnText='Delete client' onPress={() => { deleteClient(clientId as string) }} backgroundColor={theme.surface.tertiary} />
@@ -121,7 +135,7 @@ const ClientProfile = () => {
         }
         ListHeaderComponent={
           <>
-            <View style={[styles.avatar, { borderColor: theme.surface.primary, backgroundColor: theme.background.secondary }]}>
+            <View style={[styles.avatar, { borderColor: theme.surface.primary, backgroundColor: theme.surface.secondary }]}>
               <Text style={styles.clientName}>{getInitials(client?.name)}</Text>
             </View>
 
@@ -145,8 +159,13 @@ const ClientProfile = () => {
 
           </>
         }
+        ListEmptyComponent={() => (
+          <View style={styles.emptyText}>
+            <Text style={{ color: theme.text.primary, fontSize: mVs(16) }}>No invoice history</Text>
+          </View>
+        )}
         renderItem={({ item }) => (
-          <InvoiceCard title={item.clientName} issueDate={dateformatter(item.issueDate)} status={item.status} price={item.totalAmount} invoiceNumber={item.invoiceNumber} />
+          <InvoiceCard title={item.client.name} issueDate={dateformatter(item.issueDate)} status={item.status} price={item.totalAmount} invoiceNumber={item.invoiceNumber} />
         )} />
 
     </Screen>
@@ -203,5 +222,11 @@ const styles = StyleSheet.create({
     gap: mVs(15),
     paddingHorizontal: mVs(20),
     paddingBottom: mVs(20)
+  },
+  emptyText: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: mVs(50)
   }
 })

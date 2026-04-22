@@ -11,7 +11,7 @@ import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import React, { useEffect, useState } from 'react'
-import { FlatList, StyleSheet, View } from 'react-native'
+import { FlatList, StyleSheet, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 const clients = () => {
@@ -82,6 +82,11 @@ const clients = () => {
         />
 
         <FlatList data={filteredItems} refreshing={refreshing} onRefresh={onRefresh} keyExtractor={(item: any) => item.id} showsVerticalScrollIndicator={false}
+          ListEmptyComponent={() => (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: mVs(50) }}>
+              <Text style={{ color: theme.text.primary, fontSize: mVs(16) }}>No Clients found. Tap + to add one</Text>
+            </View>
+          )}
           renderItem={({ item }) => (
             <ClientCard clientName={item.clientName} organizationName={item.addressLine1} createdAt={dateformatter(item.createdAt)}
               totalRevenue={''} onPressed={() => router.push({

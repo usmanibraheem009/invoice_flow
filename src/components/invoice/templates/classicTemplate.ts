@@ -108,7 +108,7 @@ export const classicTemplate = (data: any) => {
 
     <div>
       <strong>Client:</strong>
-      ${data.clientName || ""}
+      ${data.client.name || ""}
     </div>
 
     <table>

@@ -19,7 +19,7 @@ interface InvoiceDraft {
     dueDate: string;
     currency: string;
     notes: string;
-    status: "DRAFT" | "PAID" | "OVERDUE";
+    status: "DRAFT" | "PAID" | "OVERDUE" | "PENDING";
     lineItems: LineItem[];
 };
 
@@ -102,7 +102,7 @@ const InvoiceSlice = createSlice({
             const index = state.draft.lineItems.findIndex(item => item.id === action.payload.productId);
             if (index !== -1) { state.draft.lineItems[index] = action.payload }
         },
-        setInvoiceStatus: (state, action: PayloadAction<"DRAFT" | "PAID" | "OVERDUE">) => {
+        setInvoiceStatus: (state, action: PayloadAction<"DRAFT" | "PAID" | "OVERDUE" | "PENDING">) => {
             state.draft.status = action.payload;
         },
         setNotes: (state, action: PayloadAction<string>) => {

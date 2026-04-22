@@ -1,12 +1,15 @@
 import { classicTemplate } from '@/src/components/invoice/templates/classicTemplate';
+import { modernTemplate } from '@/src/components/invoice/templates/modernTemplate';
 import { Screen } from '@/src/components/layout';
 import SimpleButton from '@/src/components/primitives/simple-button';
 import { useTheme } from '@/src/hooks/useTheme';
 import { showSnackbar } from '@/src/redux/slices/snackbarSlice';
 import { loadPersistedTemp, persistTemplate, setRememberChoice, setTemplateId } from '@/src/redux/slices/templateSlice';
 import { AppDispatch, RootState } from '@/src/redux/store/myStore';
+import { secondary } from '@/src/theme/colors';
 import { selectEnrichedInvoiceById } from '@/src/utils/invoiceSelectors';
 import { mVs } from '@/src/utils/scale';
+import { Ionicons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Sharing from 'expo-sharing';
@@ -126,7 +129,7 @@ const TemplateScreen = () => {
         return classicTemplate(data);
 
       case 'template2':
-      // return modernTemplate(data);
+        return modernTemplate(data);
 
       case 'template3':
       default:
@@ -167,16 +170,17 @@ const TemplateScreen = () => {
             <Switch value={rememberChoice} onValueChange={handleToggleRemember} />
           </View>
         ) : (
-          <Pressable style={styles.rememberContainer} onPress={() => { router.push({ pathname: '/screens/invoice-defaults', params: { invoiceData: JSON.stringify(invoiceData) } }) }}>
+          <Pressable style={[styles.rememberContainer, { borderColor: theme.border.secondary, backgroundColor: theme.background.secondary }]} onPress={() => { router.push({ pathname: '/screens/invoice-defaults', params: { invoiceData: JSON.stringify(invoiceData) } }) }}>
             <Text style={[styles.rememberText, { color: theme.text.primary }]}>Selected another template</Text>
+            <Ionicons name='chevron-forward' size={mVs(25)} color={theme.text.primary} />
           </Pressable>
 
         )}
 
         <View style={styles.buttons}>
-          <SimpleButton btnText='Download PDF' onPress={handleDownloadPDF} />
-          <View style={{ height: mVs(10) }} />
           <SimpleButton btnText='Share PDF' onPress={handleSharePDF} />
+          <View style={{ height: mVs(10) }} />
+          <SimpleButton btnText='Download PDF' onPress={handleDownloadPDF} backgroundColor={secondary[50]} />
         </View>
       </View>
     </Screen>
@@ -205,9 +209,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: mVs(16),
     justifyContent: 'space-between',
+    borderWidth: 1.5,
+    padding: mVs(10),
+    borderRadius: mVs(15)
   },
   rememberText: {
-    fontSize: 16,
+    fontSize: mVs(18),
+    fontWeight: 400
   },
   buttons: {},
   center: {

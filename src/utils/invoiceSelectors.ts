@@ -190,47 +190,27 @@ export const selectInvoicesByClientId =
         [selectEnrichedInvoices],
         (invoices) => invoices.filter((inv: any) => inv.clientId === clientId)
     );
+
 export const selectClientInvoiceSummary =
     (clientId: string) =>
         createSelector(
-            [
-                selectInvoicesByClientId(clientId),
-                (state: RootState) => state.invoicesListReducer.selectedInvoice
-            ],
-            (invoices, detailsById) => {
-
+            [selectInvoicesByClientId(clientId)],
+            (invoices) => {
                 let paidAmount = 0;
                 let unpaidAmount = 0;
 
                 const mappedInvoices = invoices?.map((inv: any) => {
+                    const total = inv.totalAmount ?? 0;  // ← already on invoice
 
-                    const fullInvoice = detailsById[inv.id];
-
-                    const lineItems = fullInvoice?.lineItems ?? [];
-
-                    const total = lineItems.reduce(
-                        (sum: number, item: any) =>
-                            sum + Number(item.quantity) * Number(item.unitPrice),
-                        0
-                    );
-
-                    if (inv.status === "PAID") {
+                    if (inv.status === 'PAID') {
                         paidAmount += total;
                     } else {
                         unpaidAmount += total;
                     }
 
-                    return {
-                        ...inv,
-                        totalAmount: total,
-                    };
+                    return { ...inv, totalAmount: total };
                 });
 
-                return {
-                    totalInvoices: invoices.length,
-                    paidAmount,
-                    unpaidAmount,
-                    mappedInvoices,
-                };
+                return { totalInvoices: invoices.length, paidAmount, unpaidAmount, mappedInvoices };
             }
         );

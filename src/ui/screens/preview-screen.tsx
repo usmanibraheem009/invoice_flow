@@ -5,18 +5,20 @@ import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
-import { setInvoiceStatus, setNotes } from '@/src/redux/slices/invoiceSlice'
+import { clearInvoiceDraft, setInvoiceStatus, setNotes } from '@/src/redux/slices/invoiceSlice'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
 import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
 import { RootState } from '@/src/redux/store/myStore'
+import { cancelInvoiceReminder, scheduleInvoiceReminder, storeNotificationMapping } from '@/src/services/reminderService'
 import { formatCurrency } from '@/src/utils/helper'
-import { getClientById, mapInvoiceToApi, selectInvoiceGrandTotal, selectInvoiceStatus, selectInvoiceSubtotal, selectInvoiceTaxTotal } from '@/src/utils/invoiceSelectors'
+import { getClientById, mapInvoiceToApi, selectInvoiceGrandTotal, selectInvoiceStatus } from '@/src/utils/invoiceSelectors'
 import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import DateTimePicker from '@react-native-community/datetimepicker'
 import { router } from 'expo-router'
-import React, { useState } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import React, { useMemo, useState } from 'react'
+import { Pressable, StyleSheet, Switch, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import ScreenFooter from '../components/screen-footer'
 import AuthHeader from '../components/screen-header'
@@ -25,60 +27,103 @@ const status = [
   { name: 'PAID', value: 'PAID' },
   { name: 'OVERDUE', value: 'OVERDUE' },
   { name: 'DRAFT', value: 'DRAFT' },
+  { name: 'PENDING', value: 'PENDING' },
 ]
+
+const daysOptions = [
+  { name: '1 day before', value: '1' },
+  { name: '2 days before', value: '2' },
+  { name: '3 days before', value: '3' },
+  { name: '5 days before', value: '5' },
+];
+
+const formatTime = (hour: number, minute: number) => {
+  const date = new Date()
+  date.setHours(hour, minute)
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
 
 const PreviewScreen = () => {
 
-  const { theme } = useTheme();
-  const draft = useSelector((state: RootState) => state.invoiceReducer.draft);
-  console.log("draft from preview screen: ", draft);
-
-  const notes = draft.notes;
-  const isEditMode = Boolean(draft.invoiceId);
-  console.log('is edit mode: ', isEditMode);
-  const finalData = React.useMemo(() => mapInvoiceToApi(draft), [draft]);
-  console.log("final data: ", finalData);
-
-  const clientName = useSelector(getClientById);
-  const subTotal = useSelector(selectInvoiceSubtotal);
-  const taxRate = useSelector(selectInvoiceTaxTotal);
-  const grandTotal = useSelector(selectInvoiceGrandTotal);
+  const { theme } = useTheme()
+  const dispatch = useDispatch()
+  const draft = useSelector((state: RootState) => state.invoiceReducer.draft)
   const invoStatus = useSelector(selectInvoiceStatus)
-  const discount = subTotal > 1500 ? subTotal * 5 / 100 : 0;
-  const [statusModal, setStatusModal] = useState(false);
 
-  const dispatch = useDispatch();
+  const [reminderEnabled, setReminderEnabled] = useState(invoStatus !== 'PAID')
+  const [daysBefore, setDaysBefore] = useState(1)
+  const [reminderTime, setReminderTime] = useState<{ hour: number; minute: number }>({ hour: 9, minute: 0 })
+  const [statusModal, setStatusModal] = useState(false)
+  const [timeModal, setTimeModal] = useState(false)
+  const [daysModal, setDaysModal] = useState(false)
+
+  const notes = draft.notes
+  const isEditMode = Boolean(draft.invoiceId)
+  const finalData = React.useMemo(() => mapInvoiceToApi(draft), [draft])
+  const clientName = useSelector(getClientById)
+  const grandTotal = useSelector(selectInvoiceGrandTotal)
+
+  const reminderDate = useMemo(() => {
+    const date = new Date()
+    date.setHours(reminderTime.hour, reminderTime.minute, 0, 0)
+    return date
+  }, [reminderTime])
+
+  const handleStatusChange = (item: any) => {
+    setStatusModal(false)
+    dispatch(setInvoiceStatus(item.value))
+    if (item.value === 'PAID') {
+      setReminderEnabled(false)
+      cancelInvoiceReminder(draft.invoiceId!)
+    } else {
+      setReminderEnabled(true)
+    }
+  }
 
   const handleSubmit = async (values: any) => {
-    dispatch(setLoading(true));
+    dispatch(setLoading(true))
     try {
-
-      let response;
-      if (isEditMode === true) {
-        console.log('invoice id: ', draft.invoiceId);
-        response = await updateInvoice(draft.invoiceId!, draft);
-        console.log("edit method hit: ", draft.invoiceId);
+      let response
+      if (isEditMode) {
+        response = await updateInvoice(draft.invoiceId!, draft)
       } else {
-        response = await createInvoice(finalData);
+        response = await createInvoice(finalData)
+        dispatch(clearInvoiceDraft())
       }
-      dispatch(showSnackbar({ message: response.message, type: 'success' }));
-      router.replace('/(tabs)/invoices');
+
+      if (reminderEnabled) {
+        const invoiceId = isEditMode ? draft.invoiceId : response.data.id
+        const notificationId = await scheduleInvoiceReminder(
+          invoiceId,
+          draft.invoiceNumber,
+          draft.dueDate,
+          daysBefore,
+          reminderTime
+        )
+        if (notificationId) {
+          await storeNotificationMapping(invoiceId, notificationId)
+        }
+      }
+
+      dispatch(showSnackbar({ message: response.message, type: 'success' }))
+      router.replace('/(tabs)/invoices')
       await AsyncStorage.setItem('lastInvoiceNumber', values.invoiceNumber)
     } catch (error: any) {
-      dispatch(showSnackbar({ message: error.message, type: 'error' }));
+      dispatch(showSnackbar({ message: error.message, type: 'error' }))
     } finally {
-      dispatch(setLoading(false));
+      dispatch(setLoading(false))
     }
-  };
+  }
 
   return (
     <View style={{ flexGrow: 1 }}>
       <ScreenWrapper scrollable paddingVertical={10} keyboardAvoidingView>
         <AuthHeader arrowBack title='Step 3 of 3' />
 
-        <View style={[styles.container]}>
-          <Text style={[styles.title, { color: theme.text.primary }]} >Review & Send</Text>
+        <View style={styles.container}>
+          <Text style={[styles.title, { color: theme.text.primary }]}>Review & Send</Text>
 
+          {/* Invoice Card */}
           <View style={[styles.invoiceContainer, { backgroundColor: theme.background.secondary, borderColor: theme.border.secondary }]}>
             <View style={[styles.insideContainer, { backgroundColor: theme.background.secondary, borderColor: theme.border.secondary }]}>
               <View>
@@ -91,37 +136,20 @@ const PreviewScreen = () => {
             </View>
 
             <View style={[styles.invoiceTemp, { borderBottomColor: theme.border.secondary }]}>
-
               <View style={{ flexDirection: 'row' }}>
                 <Text style={[styles.lineItems, styles.colItem, { color: theme.text.tertiary }]}>Item</Text>
                 <Text style={[styles.lineItems, styles.colQty, { color: theme.text.tertiary }]}>Qty</Text>
                 <Text style={[styles.lineItems, styles.colPrice, { color: theme.text.tertiary }]}>Price</Text>
                 <Text style={[styles.lineItems, styles.colTotal, { color: theme.text.tertiary }]}>Total</Text>
               </View>
-
               {draft.lineItems?.map((item: any) => (
                 <View key={item.id} style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, width: '100%' }}>
                   <Text style={[styles.item, styles.colItem, { color: theme.text.primary }]} numberOfLines={1} ellipsizeMode='tail'>{item.name}</Text>
                   <Text style={[styles.item, styles.colQty, { color: theme.text.primary }]}>{item.type === 'Product' ? `${item.quantity}` : `${item.quantity}h`}</Text>
                   <Text style={[styles.price, styles.colDataPrice, { color: theme.text.secondary }]}>{item.type === 'Product' ? `${item.unitPrice}$` : `${item.unitPrice}$ /h`}</Text>
-                  <Text style={[styles.colPrice, { color: theme.text.primary }]}> {formatCurrency(Number(item.quantity) * Number(item.unitPrice), draft.currency)} </Text>
+                  <Text style={[styles.colPrice, { color: theme.text.primary }]}>{formatCurrency(Number(item.quantity) * Number(item.unitPrice), draft.currency)}</Text>
                 </View>
               ))}
-            </View>
-
-            <View style={styles.billingBox}>
-              <Text style={[styles.item, { color: theme.text.secondary }]}>Subtotal</Text>
-              <Text style={[styles.amount, { color: theme.text.secondary }]}>$ {subTotal}</Text>
-            </View>
-
-            <View style={styles.billingBox}>
-              <Text style={[styles.item, { color: theme.text.secondary }]}>Tax (10%)</Text>
-              <Text style={[styles.amount, { color: theme.text.secondary }]}>$ {taxRate}</Text>
-            </View>
-
-            <View style={styles.billingBox}>
-              <Text style={[styles.item, { color: theme.text.secondary }]}>Discount</Text>
-              <Text style={[styles.amount, { color: theme.text.secondary }]}>$ {discount}</Text>
             </View>
 
             <View style={styles.billingBox}>
@@ -130,26 +158,93 @@ const PreviewScreen = () => {
             </View>
           </View>
 
+          {/* Notes */}
           <View style={styles.notesContainer}>
             <Text style={[styles.label, { color: theme.text.secondary }]}>NOTES TO CLIENT</Text>
             <InputTab icon={<Ionicons name='pencil' color={theme.text.secondary} size={24} />} numberOfLines={2} multiline placeholder='Add a note...' value={notes} onChangeText={(text) => dispatch(setNotes(text))} />
           </View>
 
-          <Text style={[styles.statusLabel, { color: theme.text.secondary }]}>INVOICE STATUS</Text>
+          {/* Status */}
+          <Text style={[styles.label, { color: theme.text.secondary, marginTop: mVs(20), marginBottom: mVs(10) }]}>INVOICE STATUS</Text>
           <Pressable onPress={() => setStatusModal(true)}>
             <InputTab placeholder='Select Status' value={invoStatus} editable={false} />
           </Pressable>
 
-          <ModalWrapper visible={statusModal} modalTitle='Select status' data={status} labelKey='name' valueKey='value' onClose={() => setStatusModal(false)}
-            onItemPress={(item) => { setStatusModal(false); dispatch(setInvoiceStatus(item.value)) }} />
+          <View style={[styles.reminderCard, { backgroundColor: theme.background.secondary, borderColor: theme.border.secondary }]}>
+
+            <View style={styles.reminderToggleRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.reminderTitle, { color: theme.text.primary }]}>Payment Reminder</Text>
+                <Text style={[styles.reminderSubtitle, { color: theme.text.secondary }]}>
+                  {reminderEnabled ? 'Reminder is scheduled' : 'No reminder will be sent'}
+                </Text>
+              </View>
+              <Switch
+                value={reminderEnabled}
+                onValueChange={(val) => {
+                  if (invoStatus === 'PAID') return
+                  setReminderEnabled(val)
+                }}
+                trackColor={{ false: theme.border.secondary, true: theme.border.secondary }}
+                thumbColor={reminderEnabled ? theme.text.secondary : theme.text.secondary}
+                disabled={invoStatus === 'PAID'}
+              />
+            </View>
+
+            {reminderEnabled && (
+              <View style={[styles.reminderPickersRow, { borderTopColor: theme.border.secondary }]}>
+                <Pressable style={{ flex: 1 }} onPress={() => setDaysModal(true)}>
+                  <InputTab
+                    placeholder='Days before due'
+                    value={daysOptions.find(d => Number(d.value) === daysBefore)?.name ?? ''}
+                    editable={false}
+                  />
+                </Pressable>
+                <Pressable style={{ flex: 1 }} onPress={() => setTimeModal(true)}>
+                  <InputTab
+                    placeholder='Reminder time'
+                    value={formatTime(reminderTime.hour, reminderTime.minute)}
+                    editable={false}
+                  />
+                </Pressable>
+              </View>
+            )}
+          </View>
+
+          {timeModal && (
+            <DateTimePicker
+              value={reminderDate}
+              mode='time'
+              display='spinner'
+              onChange={(event, selectedDate) => {
+                if (event.type === 'dismissed') {
+                  setTimeModal(false)
+                  return
+                }
+                if (selectedDate) {
+                  setReminderTime({
+                    hour: selectedDate.getHours(),
+                    minute: selectedDate.getMinutes(),
+                  })
+                  setTimeModal(false)
+                }
+              }}
+            />
+          )}
+
         </View>
-
       </ScreenWrapper>
-      <ScreenFooter leadingButton>
-        <SimpleButton btnText='CONFIRM'
-          onPress={() => { handleSubmit(finalData) }} />
-      </ScreenFooter>
 
+      <ModalWrapper visible={statusModal} modalTitle='Select status' data={status} labelKey='name' valueKey='value'
+        onClose={() => setStatusModal(false)} onItemPress={handleStatusChange} />
+
+      <ModalWrapper visible={daysModal} modalTitle='Remind me...' data={daysOptions} labelKey='name' valueKey='value'
+        onClose={() => setDaysModal(false)}
+        onItemPress={(item) => { setDaysBefore(Number(item.value)); setDaysModal(false) }} />
+
+      <ScreenFooter leadingButton>
+        <SimpleButton btnText='CONFIRM' onPress={() => handleSubmit(finalData)} />
+      </ScreenFooter>
     </View>
   )
 }
@@ -160,6 +255,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingHorizontal: 20,
+    paddingBottom: mVs(20),
   },
   title: {
     fontSize: mVs(26),
@@ -171,8 +267,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     padding: mVs(20),
-
-    marginTop: mVs(30)
+    marginTop: mVs(30),
   },
   insideContainer: {
     flexDirection: 'row',
@@ -180,76 +275,77 @@ const styles = StyleSheet.create({
   },
   invoiceNumber: {
     fontSize: mVs(24),
-    fontWeight: 600,
+    fontWeight: '600',
   },
   user: {
     fontSize: mVs(16),
     fontWeight: 'bold',
-    marginTop: mVs(15)
+    marginTop: mVs(15),
   },
   amount: {
     fontSize: mVs(14),
-    fontWeight: 500,
-    marginTop: mVs(5)
+    fontWeight: '500',
+    marginTop: mVs(5),
   },
   label: {
     fontSize: mVs(14),
-    fontWeight: 500,
-  },
-  statusLabel: {
-    fontSize: mVs(14),
-    fontWeight: 500,
-    marginTop: mVs(20)
+    fontWeight: '500',
   },
   lineItems: {
     fontSize: mVs(18),
     fontWeight: 'bold',
-    textOverflow: 'hidden',
   },
   notesContainer: {
     marginTop: mVs(40),
-    gap: 8
+    gap: 8,
   },
   item: {
     fontSize: mVs(14),
-    fontWeight: 500,
+    fontWeight: '500',
   },
   price: {
     fontSize: mVs(14),
-    fontWeight: 500,
+    fontWeight: '500',
   },
   billingBox: {
     marginTop: mVs(5),
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
-  colItem: {
-    width: '40%',
-  },
-  colQty: {
-    width: '15%',
-    textAlign: 'center',
-  },
-  colPrice: {
-    width: '20%',
-    textAlign: 'right',
-  },
-  colDataPrice: {
-    width: '20%',
-    textAlign: 'center',
-  },
-  colTotal: {
-    width: '25%',
-    textAlign: 'right',
-  },
+  colItem: { width: '40%' },
+  colQty: { width: '15%', textAlign: 'center' },
+  colPrice: { width: '20%', textAlign: 'right' },
+  colDataPrice: { width: '20%', textAlign: 'center' },
+  colTotal: { width: '25%', textAlign: 'right' },
   invoiceTemp: {
     marginTop: 30,
     borderBottomWidth: 1,
     paddingBottom: 20,
   },
-  statusButton: {
-    height: mVs(80),
+  // Reminder card styles
+  reminderCard: {
+    marginTop: mVs(20),
     borderWidth: 1,
-  }
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  reminderToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: mVs(16),
+  },
+  reminderTitle: {
+    fontSize: mVs(14),
+    fontWeight: '600',
+  },
+  reminderSubtitle: {
+    fontSize: mVs(12),
+    marginTop: 2,
+  },
+  reminderPickersRow: {
+    gap: mVs(10),
+    padding: mVs(16),
+    borderTopWidth: 1,
+  },
 })

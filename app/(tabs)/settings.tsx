@@ -19,7 +19,7 @@ const settings = () => {
   const dispatch = useDispatch();
   const { theme } = useTheme();
   const currentMode = useSelector((state: any) => state.themeReducer.currentMode);
-  const user = useSelector((state: any) => state.userReducer.user);
+  const user = useSelector((state: RootState) => state.userReducer.user);
   const loading = useSelector((state: any) => state.loadingReducer.loading);
   const organizationData = useSelector((state: RootState) => state.organizationReducer.data);
   organizationData?.legalName && console.log("organizationData:", organizationData.legalName);
@@ -47,7 +47,7 @@ const settings = () => {
       <View style={{ paddingHorizontal: mVs(20) }}>
 
         <View style={[styles.card, { backgroundColor: theme.background.secondary, borderColor: theme.border.secondary }]}>
-          <UserAvatar name='Usman ibraheem' />
+          <UserAvatar name={user?.fullName || 'Dummy User'} />
           <View style={styles.rightBox}>
             <Text style={[styles.userName, { color: theme.text.primary }]}>{user?.fullName || 'Dummy User'}</Text>
             <Text style={[styles.taxId, { color: theme.text.secondary }]}>{organizationData?.legalName || 'No organization registered yet'}</Text>

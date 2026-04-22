@@ -23,12 +23,12 @@ const _layout = () => {
           tabBarActiveTintColor: theme.surface.primary,
           tabBarInactiveTintColor: theme.text.disableText
         }}>
-          <Tabs.Screen options={{ title: 'Dash', headerShown: false, tabBarIcon: ({ color }: any) => (<Ionicons name='grid-outline' color={color} size={24} />) }} name='index' />
-          <Tabs.Screen options={{ title: 'Invoices', headerShown: false, tabBarIcon: ({ color }: any) => (<Ionicons name='receipt-outline' color={color} size={24} />) }} name='invoices' />
-          <Tabs.Screen options={{ title: 'Clients', headerShown: false, tabBarIcon: ({ color }: any) => (<Ionicons name='people-outline' color={color} size={24} />) }} name='clients' />
-          <Tabs.Screen options={{ title: 'Reports', headerShown: false, tabBarIcon: ({ color }: any) => (<Ionicons name='bar-chart' color={color} size={24} />) }} name='reports' />
-          <Tabs.Screen options={{ title: 'Products', headerShown: false, tabBarIcon: ({ color }: any) => (<Ionicons name='cube-outline' color={color} size={24} />) }} name='products' />
-          <Tabs.Screen options={{ title: 'Settings', headerShown: false, tabBarIcon: ({ color }: any) => (<Ionicons name='settings-outline' color={color} size={24} />) }} name='settings' />
+          <Tabs.Screen options={{ title: 'Dash', headerShown: false, tabBarIcon: ({ color, focused }: any) => (<Ionicons name={focused ? 'grid' : 'grid-outline'} color={color} size={24} />) }} name='index' />
+          <Tabs.Screen options={{ title: 'Invoices', headerShown: false, tabBarIcon: ({ color, focused }: any) => (<Ionicons name={focused ? 'receipt' : 'receipt-outline'} color={color} size={24} />) }} name='invoices' />
+          <Tabs.Screen options={{ title: 'Clients', headerShown: false, tabBarIcon: ({ color, focused }: any) => (<Ionicons name={focused ? 'people' : 'people-outline'} color={color} size={24} />) }} name='clients' />
+          <Tabs.Screen options={{ title: 'Reports', headerShown: false, tabBarIcon: ({ color, focused }: any) => (<Ionicons name={focused ? 'bar-chart' : 'bar-chart-outline'} color={color} size={24} />) }} name='reports' />
+          <Tabs.Screen options={{ title: 'Products', headerShown: false, tabBarIcon: ({ color, focused }: any) => (<Ionicons name={focused ? 'cube' : 'cube-outline'} color={color} size={24} />) }} name='products' />
+          <Tabs.Screen options={{ title: 'Settings', headerShown: false, tabBarIcon: ({ color, focused }: any) => (<Ionicons name={focused ? 'settings' : 'settings-outline'} color={color} size={24} />) }} name='settings' />
         </Tabs>
       </Provider>
     </PaperProvider>
