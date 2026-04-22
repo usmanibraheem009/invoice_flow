@@ -1,4 +1,4 @@
-import { createProduct, deleteProduct, fetchProducts, updateProduct } from '@/src/apis/productApi'
+import { createProduct, deleteProduct, updateProduct } from '@/src/apis/productApi'
 import { Product } from '@/src/apis/types/type'
 import ProductCard from '@/src/components/invoice/product-card'
 import { Screen } from '@/src/components/layout'
@@ -6,9 +6,10 @@ import FloatingButton from '@/src/components/primitives/floating-button'
 import ItemModal from '@/src/components/primitives/item-modal'
 import { useTheme } from '@/src/hooks/useTheme'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
-import { addProduct, deleteStoredProduct, setProducts, updateStoredProduct } from '@/src/redux/slices/productsSlice'
+import { addProduct, deleteStoredProduct, updateStoredProduct } from '@/src/redux/slices/productsSlice'
 import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
 import { RootState } from '@/src/redux/store/myStore'
+import { fetchAllProducts, normalizeProduct } from '@/src/redux/thunks/products-thunk'
 import AuthHeader from '@/src/ui/components/screen-header'
 import { mVs } from '@/src/utils/scale'
 import React, { useEffect, useState } from 'react'
@@ -25,20 +26,9 @@ const Products = () => {
     const [visible, setVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState<Product | null>(null);
 
-    const normalizeProduct = (product: any): Product => {
-        return {
-            id: product.id,
-            name: product.name,
-            description: product.description,
-            unitPrice: Number(product.unitPrice),
-            unitCode: product.unitCode,
-            isActive: product.isActive,
-        };
-    };
-
     useEffect(() => {
-        fetchAllProducts();
-    }, []);
+        dispatch(fetchAllProducts() as any);
+    }, [])
 
     const handleSubmitItem = async (item: Product) => {
         if (selectedItem) {
@@ -89,21 +79,6 @@ const Products = () => {
             dispatch(showSnackbar({ message: error.message, type: 'error' }));
         }
     };
-
-    const fetchAllProducts = async () => {
-        dispatch(setLoading(true));
-        try {
-            const response = await fetchProducts();
-            const fetchedProducts = response.data.data;
-            const normalizedProducts = fetchedProducts.map((product: any) => normalizeProduct(product));
-            dispatch(setProducts(normalizedProducts));
-        } catch (error: any) {
-            dispatch(showSnackbar({ message: error.message, type: 'error' }));
-        } finally {
-            dispatch(setLoading(false));
-
-        }
-    }
 
     return (
         <Screen>

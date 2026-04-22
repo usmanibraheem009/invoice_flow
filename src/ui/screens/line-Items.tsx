@@ -17,14 +17,13 @@ import AuthHeader from '../components/screen-header'
 const LineItems = () => {
 
     const { theme } = useTheme();
-    const draft = useSelector((state: RootState) => state.invoiceReducer.draft);
-    console.log('darft: ', draft.invoiceId)
-
     const dispatch = useDispatch();
 
     const [visible, setVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState<LineItemForm | null>(null);
-    const items = useSelector((state: RootState) => state.invoiceReducer.draft.lineItems);
+    const items = useSelector((state: RootState) => state.invoiceReducer.draft.lineItems ?? []);
+    console.log('line items: ', items);
+
     const subTotal = useSelector(selectInvoiceSubtotal);
 
     const handleSubmitItem = (newItem: any) => {
@@ -52,9 +51,22 @@ const LineItems = () => {
     };
 
     const editItem = (item: any) => {
-        setSelectedItem(item);
+
+        const formattedItem: LineItemForm = {
+            id: item.id,
+            productId: item.productId,
+            name: item.name,
+            description: item.description,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            taxRate: item.taxRate
+        };
+
+        setSelectedItem(formattedItem);
+        console.log('formatted product id: ', formattedItem.productId);
+
         setVisible(true);
-    }
+    };
 
     const previewInvoice = () => {
 

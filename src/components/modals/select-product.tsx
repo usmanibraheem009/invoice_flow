@@ -1,9 +1,11 @@
 import { useTheme } from '@/src/hooks/useTheme'
+import { AppDispatch, RootState } from '@/src/redux/store/myStore'
+import { fetchAllProducts } from '@/src/redux/thunks/products-thunk'
 import { mVs } from '@/src/utils/scale'
 import { Formik } from 'formik'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import ModalWrapper from '../layout/modal-wrapper'
 import InputTab from '../primitives/input-tab'
 import SimpleButton from '../primitives/simple-button'
@@ -37,13 +39,20 @@ const initialValues: LineItemForm = {
 
 const SelectProduct = ({ visible, onClose, onSubmit, selectedItem }: ProductModal) => {
 
+
   const { theme } = useTheme();
-  const products = useSelector((state: any) => state.productsReducer.products);
+  const dispatch = useDispatch<AppDispatch>();
+  const products = useSelector((state: RootState) => state.productsReducer.products ?? []);
   const [showDropdown, setShowDropdown] = useState(false)
   const [search, setSearch] = useState("");
 
+  useEffect(() => {
+    dispatch(fetchAllProducts());
+  }, []);
+
   const filteredProducts = useMemo(() => {
-    return products.filter((prod: any) => prod.name.toLowerCase().includes(search.toLowerCase()))
+    console.log('products value:', products, typeof products);
+    return products?.filter((prod: any) => prod.name.toLowerCase().includes(search.toLowerCase()))
   }, [products, search]);
 
   return (

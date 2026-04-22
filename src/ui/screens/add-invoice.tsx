@@ -5,6 +5,7 @@ import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
 import { generateInvoiceNumber, setInvoiceDraft, setInvoiceNumber } from '@/src/redux/slices/invoiceSlice'
 import { RootState } from '@/src/redux/store/myStore'
+import { loadClients } from '@/src/redux/thunks/client-thunk'
 import { validationSchema } from '@/src/utils/auth-form'
 import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
@@ -23,11 +24,15 @@ import AuthHeader from '../components/screen-header'
 
 const AddInvoice = () => {
 
+    useEffect(() => {
+        dispatch(loadClients() as any);
+    }, []);
+
     const { theme } = useTheme();
     const formikRef = useRef<any>(null);
     const paymentOptions = ['Due on receipt', 'Net 7', 'Net 15', 'Net 30'];
-    const invoiceNumber = useSelector((state: any) => state.invoiceReducer.currentInvoiceNumber);
-    const clients = useSelector((state: any) => state.clientsReducer.clients);
+    const invoiceNumber = useSelector((state: RootState) => state.invoiceReducer.currentInvoiceNumber);
+    const clients = useSelector((state: RootState) => state.clientsReducer.clients ?? []);
     const dispatch = useDispatch();
     const { editable } = useLocalSearchParams();
     const isEditable = editable === 'true';
@@ -120,7 +125,7 @@ const AddInvoice = () => {
                                 </Pressable>
                                 {touched.clientName && errors.clientName && (<ErrorText errorText={errors.clientName} />)}
                                 <ModalWrapper visible={openClientModal} onClose={() => { setOpenClientModal(false) }} searchBar
-                                    data={clients} labelKey='clientName' valueKey='id' modalTitle='Select Client'
+                                    data={clients ?? []} labelKey='clientName' valueKey='id' modalTitle='Select Client'
                                     onItemPress={(item) => { setFieldValue('clientId', item.id); setFieldValue('clientName', item.clientName) }} />
 
                                 <Text style={[styles.label, { color: theme.text.secondary }]}> INVOICE NUMBER </Text>

@@ -1,5 +1,6 @@
 import { classicTemplate } from '@/src/components/invoice/templates/classicTemplate';
 import { modernTemplate } from '@/src/components/invoice/templates/modernTemplate';
+import { professionalTemplate } from '@/src/components/invoice/templates/professionalTemplate';
 import { Screen } from '@/src/components/layout';
 import SimpleButton from '@/src/components/primitives/simple-button';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -133,7 +134,7 @@ const TemplateScreen = () => {
 
       case 'template3':
       default:
-        return classicTemplate(data);
+        return professionalTemplate(data);
     }
   };
 

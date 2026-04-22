@@ -65,7 +65,7 @@ const InvoiceDetails = () => {
         status: invoice.status,
         lineItems: invoice.lineItems?.map((item: any) => ({
             id: item.id,
-            name: item.name,
+            name: item.product.name,
             description: item.description,
             unitPrice: Number(item.unitPrice),
             quantity: Number(item.quantity),
@@ -75,6 +75,8 @@ const InvoiceDetails = () => {
 
     const onEdit = async () => {
         const mappedDraft = mapInvoiceToDraft(selectedInvoice);
+        console.log('mapped draft: ', mappedDraft);
+
         dispatch(setInvoiceDraft(mappedDraft));
         router.push({ pathname: '/screens/add-invoice', params: { editable: 'true' } });
     };
@@ -146,7 +148,7 @@ const InvoiceDetails = () => {
                     <View style={[styles.lineItemsContainer, { borderBottomColor: theme.border.secondary }]}>
                         {selectedInvoice.lineItems?.map((item: any) => (
                             <View key={item.id} style={styles.itemRow}>
-                                <Text style={[styles.lineItem, { color: theme.text.secondary }]}>{item.productName} ({item.quantity})</Text>
+                                <Text style={[styles.lineItem, { color: theme.text.secondary }]}>{item.product.name} ({item.quantity})</Text>
                                 <Text style={[styles.lineItem, { color: theme.text.secondary }]}></Text>
                                 <Text style={[styles.lineItem, { color: theme.text.secondary }]}>{formatCurrency(item.amount, selectedInvoice?.currency)}</Text>
                             </View>

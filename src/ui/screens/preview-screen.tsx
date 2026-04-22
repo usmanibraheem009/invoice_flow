@@ -48,6 +48,8 @@ const PreviewScreen = () => {
   const { theme } = useTheme()
   const dispatch = useDispatch()
   const draft = useSelector((state: RootState) => state.invoiceReducer.draft)
+  console.log('draft data: ', draft);
+
   const invoStatus = useSelector(selectInvoiceStatus)
 
   const [reminderEnabled, setReminderEnabled] = useState(invoStatus !== 'PAID')
@@ -123,7 +125,6 @@ const PreviewScreen = () => {
         <View style={styles.container}>
           <Text style={[styles.title, { color: theme.text.primary }]}>Review & Send</Text>
 
-          {/* Invoice Card */}
           <View style={[styles.invoiceContainer, { backgroundColor: theme.background.secondary, borderColor: theme.border.secondary }]}>
             <View style={[styles.insideContainer, { backgroundColor: theme.background.secondary, borderColor: theme.border.secondary }]}>
               <View>
@@ -158,13 +159,11 @@ const PreviewScreen = () => {
             </View>
           </View>
 
-          {/* Notes */}
           <View style={styles.notesContainer}>
             <Text style={[styles.label, { color: theme.text.secondary }]}>NOTES TO CLIENT</Text>
             <InputTab icon={<Ionicons name='pencil' color={theme.text.secondary} size={24} />} numberOfLines={2} multiline placeholder='Add a note...' value={notes} onChangeText={(text) => dispatch(setNotes(text))} />
           </View>
 
-          {/* Status */}
           <Text style={[styles.label, { color: theme.text.secondary, marginTop: mVs(20), marginBottom: mVs(10) }]}>INVOICE STATUS</Text>
           <Pressable onPress={() => setStatusModal(true)}>
             <InputTab placeholder='Select Status' value={invoStatus} editable={false} />

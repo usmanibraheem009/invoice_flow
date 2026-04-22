@@ -1,10 +1,10 @@
-import { fetchCurrentUser, isTokenExpired } from '@/src/apis/authApi';
+import { fetchCurrentUser } from '@/src/apis/authApi';
 import { fetchOrganization } from '@/src/apis/organizationApi';
-import { loadSessionFromStore, setSession } from '@/src/redux/slices/authSlice';
 import { setOrganization } from '@/src/redux/slices/organizationSlice';
 import { RootState } from '@/src/redux/store/myStore';
+import { bootstrapAuth } from '@/src/redux/thunks/auth-thunk';
 import { requestNotificationPermission, setupNotificationChannel } from '@/src/services/notificationService';
-import { refreshAccessToken } from '@/src/services/tokenService';
+import NetInfo from "@react-native-community/netinfo";
 import * as Notifications from "expo-notifications";
 import { router, Stack } from 'expo-router';
 import React, { useEffect } from 'react';
@@ -26,32 +26,17 @@ const AppContent = () => {
     });
 
     useEffect(() => {
-        const bootstrapAuth = async () => {
-            const session = await loadSessionFromStore();
-
-            if (!session?.isLoggedIn) {
-                router.replace('/screens/login-screen');
-                return;
+        const unsubscribe = NetInfo.addEventListener(state => {
+            if (!state.isConnected) {
+                router.replace("/screens/no-internetScreen")
             }
+        });
+        return () => unsubscribe();
+    }, []);
 
-            const expired = await isTokenExpired();
-            if (expired) {
-                const newToken = await refreshAccessToken();
 
-                if (!newToken) {
-                    router.replace('/screens/login-screen');
-                    return;
-                }
-            };
-
-            dispatch(setSession(session));
-
-            setTimeout(() => {
-                router.replace('/(tabs)');
-            }, 3000)
-        };
-
-        bootstrapAuth();
+    useEffect(() => {
+        dispatch(bootstrapAuth() as any);
     }, []);
 
     useEffect(() => {
@@ -89,6 +74,7 @@ const AppContent = () => {
         <GestureHandlerRootView>
             <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="index" options={{ headerShown: false }} />
+                <Stack.Screen name="no-internetScreen" options={{ headerShown: false }} />
             </Stack>
         </GestureHandlerRootView>
     )

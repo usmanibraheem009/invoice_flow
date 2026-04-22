@@ -83,11 +83,13 @@ const SignupScreen = () => {
               <Text style={[styles.label, { color: theme.text.secondary }]}>EMAIL</Text>
               <InputTab placeholder='email' value={values.email} onChangeText={handleChange('email')} icon={<Ionicons name='mail' size={mVs(22)} color={theme.text.secondary} />} />
               {touched.email && errors.email && (<ErrorText errorText={errors.email} />)}
+
               <Text style={[styles.label, { color: theme.text.secondary }]}>PASSWORD</Text>
-              <InputTab placeholder='password' value={values.password} onChangeText={handleChange('password')} icon={<Ionicons name='lock-closed' size={mVs(22)} color={theme.text.secondary} />} />
+              <InputTab placeholder='password' value={values.password} onChangeText={handleChange('password')} icon={<Ionicons name='lock-closed' size={mVs(22)} color={theme.text.secondary} secureTextEntry />} />
               {touched.password && errors.password && (<ErrorText errorText={errors.password} />)}
+
               <Text style={[styles.label, { color: theme.text.secondary }]}>CONFIRM PASSWORD</Text>
-              <InputTab placeholder='confirm password' value={values.confirmPassword} onChangeText={handleChange('confirmPassword')} icon={<Ionicons name='lock-closed' size={mVs(22)} color={theme.text.secondary} />} />
+              <InputTab placeholder='confirm password' value={values.confirmPassword} onChangeText={handleChange('confirmPassword')} icon={<Ionicons name='lock-closed' size={mVs(22)} color={theme.text.secondary} secureTextEntry />} />
               {touched.confirmPassword && errors.confirmPassword && (<ErrorText errorText={errors.confirmPassword} />)}
 
               <TouchableOpacity onPress={() => { router.push('/screens/login-screen') }} style={styles.router}>

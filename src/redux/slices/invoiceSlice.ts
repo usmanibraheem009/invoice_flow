@@ -99,7 +99,7 @@ const InvoiceSlice = createSlice({
             state,
             action: PayloadAction<LineItem>
         ) => {
-            const index = state.draft.lineItems.findIndex(item => item.id === action.payload.productId);
+            const index = state.draft.lineItems.findIndex(item => item.id === action.payload.id);
             if (index !== -1) { state.draft.lineItems[index] = action.payload }
         },
         setInvoiceStatus: (state, action: PayloadAction<"DRAFT" | "PAID" | "OVERDUE" | "PENDING">) => {

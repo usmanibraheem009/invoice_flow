@@ -1,10 +1,10 @@
-import { fetchClients } from '@/src/apis/clientApi'
 import ClientCard from '@/src/components/client/client-card'
 import { Screen } from '@/src/components/layout'
 import FloatingButton from '@/src/components/primitives/floating-button'
 import InputTab from '@/src/components/primitives/input-tab'
 import { useTheme } from '@/src/hooks/useTheme'
-import { Client, setClients } from '@/src/redux/slices/clientsSlice'
+import { Client } from '@/src/redux/slices/clientsSlice'
+import { loadClients } from '@/src/redux/thunks/client-thunk'
 import AuthHeader from '@/src/ui/components/screen-header'
 import { dateformatter } from '@/src/utils/date-formatter'
 import { mVs } from '@/src/utils/scale'
@@ -36,41 +36,16 @@ const clients = () => {
   }, [search, clients]);
 
   useEffect(() => {
-    loadClients();
+    dispatch(loadClients() as any);
   }, []);
 
   const onRefresh = async () => {
     setRefreshing(true);
 
-    await loadClients();
+    dispatch(loadClients() as any);
 
     setRefreshing(false);
   }
-
-  const loadClients = async () => {
-    try {
-      const response = await fetchClients();
-      const apiClients = response.data.data;
-      console.log('fetched clients: ', apiClients)
-
-      const mappedClients = apiClients.map((item: any) => ({
-        id: item.id,
-        clientName: item.name,
-        clientEmail: item.email,
-        phone: item.phone,
-        addressLine1: item.addressLine1,
-        country: item.country,
-        state: item.state,
-        city: item.city,
-        postalCode: item.postalCode,
-        createdAt: item.createdAt
-      })).filter((item: any) => item.id && item.clientName)
-
-      dispatch(setClients(mappedClients));
-    } catch (error: any) {
-      console.log('Error fetching clients: ', error);
-    }
-  };
 
   return (
     <Screen>
