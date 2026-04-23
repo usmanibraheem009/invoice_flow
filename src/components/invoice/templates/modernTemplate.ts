@@ -24,7 +24,7 @@ export const modernTemplate = (data: any) => {
     .map(
       (item: any) => `
     <tr>
-      <td>${item.description}</td>
+      <td>${item.product.name ?? item.description}</td>
       <td style="text-align: right;">${item.hours ?? item.quantity ?? 0}</td>
       <td style="text-align: right;">${formatCurrency(item.unitPrice, currency)}</td>
     </tr>`
@@ -68,8 +68,8 @@ export const modernTemplate = (data: any) => {
       <div class="parties">
         <div class="party">
           <h3>FROM</h3>
-          <strong>${data.client.name}</strong><br>
-          ${data.client.addressLine1 ?? ''}<br>
+          <strong>${data.currentUser.fullName ?? ''}</strong><br>
+          ${data.currentUser.currentOrganization ?? 'No organization registered yet'}<br>
           ${data.client.addressLine2 ?? ''}<br>
           ${data.lineItems.taxRate ?? 'No tax rate specified'}
         </div>
@@ -96,12 +96,12 @@ export const modernTemplate = (data: any) => {
       </table>
       
       <table class="totals">
-        <tr class="total-row"><td>Total:</td><td style="text-align: right;">${data.totalAmount}</td></tr>
+        <tr class="total-row"><td>Total:</td><td style="text-align: right;">${formatCurrency(data.totalAmount, currency)}</td></tr>
       </table>
       
       <div class="notes">
         <strong style="color: #667eea;">Notes:</strong><br>
-        ${data.notes}<br>
+        ${data.notes ?? ''}<br>
       </div>
     </div>
   </body>

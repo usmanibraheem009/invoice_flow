@@ -12,7 +12,8 @@ import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { Formik } from 'formik'
-import React, { useState } from 'react'
+import { t } from 'i18next'
+import React from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useDispatch } from 'react-redux'
 import ErrorText from '../../components/error-text'
@@ -20,17 +21,16 @@ import ErrorText from '../../components/error-text'
 const LoginScreen = () => {
   const { theme } = useTheme();
   const dispatch = useDispatch<AppDispatch>();
-  const [snackbar, setSnackbar] = useState<{ message: string, type: 'info' | 'success' | 'error' } | null>(null)
 
   const submitFunc = async (values: any) => {
     if (!values.email || !values.password) {
-      return setSnackbar({ message: 'All Fields are required', type: 'error' });
+      return dispatch(showSnackbar({ message: 'All Fields are required', type: 'error' }));
     }
 
     dispatch(setLoading(true))
     try {
       const res = await loginUser({ email: values.email, password: values.password });
-      dispatch(showSnackbar({ message: 'Welcome Back', type: 'success' }));
+      dispatch(showSnackbar({ message: `${t('auth.welcomeBack')}`, type: 'success' }));
       console.log("user logged in successfully");
 
 
@@ -71,21 +71,21 @@ const LoginScreen = () => {
           {({ errors, touched, handleChange, values, handleSubmit }: any) => (
             <View>
 
-              <Text style={[styles.label, { color: theme.text.secondary }]}>EMAIL</Text>
-              <InputTab placeholder='Email' value={values.email} onChangeText={handleChange('email')} icon={<Ionicons name='mail' size={mVs(22)} color={theme.text.secondary} />} />
+              <Text style={[styles.label, { color: theme.text.secondary }]}>{t('auth.email')}</Text>
+              <InputTab placeholder={t('auth.email')} value={values.email} onChangeText={handleChange('email')} icon={<Ionicons name='mail' size={mVs(22)} color={theme.text.secondary} />} />
               {touched.email && errors.email && (<ErrorText errorText={errors.email} />)}
 
-              <Text style={[styles.label, { color: theme.text.secondary }]}>PASSWORD</Text>
-              <InputTab placeholder='Password' value={values.password} onChangeText={handleChange('password')} icon={<Ionicons name='lock-closed' size={mVs(22)} color={theme.text.secondary} />} secureTextEntry={true} />
+              <Text style={[styles.label, { color: theme.text.secondary }]}>{t('auth.password')}</Text>
+              <InputTab placeholder={t('auth.password')} value={values.password} onChangeText={handleChange('password')} icon={<Ionicons name='lock-closed' size={mVs(22)} color={theme.text.secondary} />} secureTextEntry={true} />
               {touched.password && errors.password && (<ErrorText errorText={errors.password} />)}
 
               <TouchableOpacity onPress={() => { router.push('/screens/signup-screen') }} style={styles.router}>
-                <Text style={[styles.authText, { color: theme.text.secondary }]}>Not registered Yet?</Text>
+                <Text style={[styles.authText, { color: theme.text.secondary }]}>{t('auth.dontHaveAccount')}</Text>
                 <Ionicons name='arrow-forward' size={20} color={theme.text.secondary} />
               </TouchableOpacity>
 
               <View style={{ marginTop: 20 }} />
-              <SimpleButton btnText='LOGIN' onPress={handleSubmit} />
+              <SimpleButton btnText={t('auth.login')} onPress={handleSubmit} />
             </View>
           )}
         </Formik>

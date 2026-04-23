@@ -33,7 +33,7 @@ export const professionalTemplate = (data: any) => {
       const amount = item.unitPrice * qty;
       return `
         <tr style="background-color: ${index % 2 === 0 ? "#ffffff" : "#fafafa"};">
-          <td style="padding: 14px 16px; font-size: 13px; color: #27272a; font-weight: 500; border-bottom: 1px solid #e4e4e7; width: 45%;">${item.description}</td>
+          <td style="padding: 14px 16px; font-size: 13px; color: #27272a; font-weight: 500; border-bottom: 1px solid #e4e4e7; width: 45%;">${item.product?.name ?? item.description}</td>
           <td style="padding: 14px 16px; font-size: 13px; color: #52525b; text-align: center; border-bottom: 1px solid #e4e4e7; width: 15%;">${qty}</td>
           <td style="padding: 14px 16px; font-size: 13px; color: #52525b; text-align: right; border-bottom: 1px solid #e4e4e7; width: 20%;">${formatCurrency(item.unitPrice, currency)}</td>
           <td style="padding: 14px 16px; font-size: 13px; color: #27272a; font-weight: 600; text-align: right; border-bottom: 1px solid #e4e4e7; width: 20%;">${formatCurrency(amount, currency)}</td>
@@ -98,7 +98,7 @@ export const professionalTemplate = (data: any) => {
               <p style="color: #ffffff; font-size: 26px; font-weight: 800; letter-spacing: 0.5px;">${invoiceNumber}</p>
             </td>
             <td style="text-align: right; vertical-align: top;">
-              <span style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 6px 14px; color: #ffffff; font-size: 11px; font-weight: 700; letter-spacing: 1.5px;">UNPAID</span>
+              <span style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 6px 14px; color: #ffffff; font-size: 11px; font-weight: 700; letter-spacing: 1.5px;">${data.status}</span>
             </td>
           </tr>
         </table>
@@ -129,7 +129,7 @@ export const professionalTemplate = (data: any) => {
           <tr>
             <td style="width: 46%; vertical-align: top;">
               <p style="font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #4F46E5; text-transform: uppercase; margin-bottom: 8px;">From</p>
-              <p style="font-size: 14px; font-weight: 700; color: #27272a; margin-bottom: 4px;">${sender?.name ?? "Your Company"}</p>
+              <p style="font-size: 14px; font-weight: 700; color: #27272a; margin-bottom: 4px;">${data?.currentUser.fullName ?? "Your Company"}</p>
               ${sender?.addressLine1 ? `<p style="font-size: 12px; color: #52525b; line-height: 18px;">${sender.addressLine1}</p>` : ""}
               ${sender?.addressLine2 ? `<p style="font-size: 12px; color: #52525b; line-height: 18px;">${sender.addressLine2}</p>` : ""}
               ${sender?.city || sender?.state ? `<p style="font-size: 12px; color: #52525b; line-height: 18px;">${[sender?.city, sender?.state].filter(Boolean).join(", ")}</p>` : ""}

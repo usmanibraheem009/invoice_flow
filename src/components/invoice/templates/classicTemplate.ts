@@ -1,4 +1,5 @@
 import { dateformatter } from "@/src/utils/date-formatter";
+import { formatCurrency } from "@/src/utils/helper";
 
 export const classicTemplate = (data: any) => {
 
@@ -6,7 +7,7 @@ export const classicTemplate = (data: any) => {
     .map((item: any) => `
       <tr>
         <td>
-          ${item.productName || item.description || ""}
+          ${item.product.name || item.description || ""}
         </td>
 
         <td style="text-align: right;">
@@ -14,7 +15,7 @@ export const classicTemplate = (data: any) => {
         </td>
 
         <td style="text-align: right;">
-          $ ${item.lineTotal || 0}
+          ${formatCurrency(item.lineTotal || 0, data.currency)}
         </td>
       </tr>
     `)
@@ -136,28 +137,28 @@ export const classicTemplate = (data: any) => {
       <tr>
         <td>Subtotal:</td>
         <td style="text-align:right">
-          $ ${data.subTotal || 0}
+          ${data.subTotal || 0}
         </td>
       </tr>
 
       <tr>
         <td>Tax:</td>
         <td style="text-align:right">
-          $ ${data.taxRate || 0}
+          ${data.taxRate || 0}
         </td>
       </tr>
 
       <tr>
         <td>Discount:</td>
         <td style="text-align:right">
-          $ ${data.discount || 0}
+          ${data.discount || 0}
         </td>
       </tr>
 
       <tr class="total-row">
         <td>Total:</td>
         <td style="text-align:right">
-          $ ${data.subTotal || 0}
+          ${formatCurrency(data.totalAmount || 0, data.currency)}
         </td>
       </tr>
 

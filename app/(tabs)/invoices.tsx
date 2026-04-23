@@ -12,23 +12,26 @@ import { dateformatter } from '@/src/utils/date-formatter'
 import { mVs } from '@/src/utils/scale'
 import { router } from 'expo-router'
 import React, { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FlatList, StyleSheet, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 const Invoices = () => {
+  const { t } = useTranslation();
 
   const filters = [
-    { label: 'All', value: 'all' },
-    { label: 'Paid', value: 'PAID' },
-    { label: 'Pending', value: 'PENDING' },
-    { label: 'Overdue', value: 'OVERDUE' },
-    { label: 'Drafts', value: 'DRAFT' },
+    { label: `${t('invoice.all')}`, value: 'all' },
+    { label: `${t('invoice.paid')}`, value: 'PAID' },
+    { label: `${t('invoice.unpaid')}`, value: 'PENDING' },
+    { label: `${t('invoice.pending')}`, value: 'OVERDUE' },
+    { label: `${t('invoice.overdue')}`, value: 'DRAFT' },
   ];
 
 
   const [activeFilter, setActiveFilter] = useState('all');
   const dispatch = useDispatch<AppDispatch>();
   const invoices = useSelector((state: RootState) => state.invoicesListReducer.invoices);
+  const [refreshing, setRefreshing] = useState(false);
   const { theme } = useTheme();
 
 
@@ -61,10 +64,16 @@ const Invoices = () => {
       </ScreenWrapper>
     );
   }
+  const onRefresh = async () => {
+    setRefreshing(true);
+
+    dispatch(fetchInvoices({ page: 1, limit: 10 }))
+    setRefreshing(false);
+  }
 
   return (
     <Screen>
-      <AuthHeader title='Invoices' trailingIcon='funnel-outline' />
+      <AuthHeader title={t('invoice.invoices')} trailingIcon='funnel-outline' />
 
       <View style={{ height: 70 }}>
         <FlatList
@@ -85,6 +94,9 @@ const Invoices = () => {
       <FlatList
         data={filteredInvoices}
         keyExtractor={(item) => item.id}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={{ gap: 12, paddingHorizontal: 20, paddingBottom: 10 }}
         ListEmptyComponent={() => (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: mVs(50) }}>

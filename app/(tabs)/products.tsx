@@ -24,11 +24,18 @@ const Products = () => {
     console.log(products);
 
     const [visible, setVisible] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
     const [selectedItem, setSelectedItem] = useState<Product | null>(null);
 
     useEffect(() => {
         dispatch(fetchAllProducts() as any);
-    }, [])
+    }, []);
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        dispatch(fetchAllProducts() as any);
+        setRefreshing(false);
+    }
 
     const handleSubmitItem = async (item: Product) => {
         if (selectedItem) {
@@ -87,6 +94,8 @@ const Products = () => {
 
             <FlatList
                 data={products}
+                refreshing={refreshing}
+                onRefresh={onRefresh}
                 keyExtractor={(item) => item.id.toString()}
                 contentContainerStyle={{ gap: 12, marginTop: 20, paddingBottom: 20, paddingHorizontal: mVs(20) }}
                 ListEmptyComponent={() => (<Text style={[styles.dummyText, { color: theme.text.secondary }]}> No items added yet </Text>)}

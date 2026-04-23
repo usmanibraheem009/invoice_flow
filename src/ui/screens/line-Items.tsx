@@ -9,6 +9,7 @@ import { selectInvoiceSubtotal } from '@/src/utils/invoiceSelectors'
 import { mVs } from '@/src/utils/scale'
 import { router } from 'expo-router'
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import ScreenFooter from '../components/screen-footer'
@@ -17,12 +18,12 @@ import AuthHeader from '../components/screen-header'
 const LineItems = () => {
 
     const { theme } = useTheme();
+    const { t } = useTranslation();
     const dispatch = useDispatch();
 
     const [visible, setVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState<LineItemForm | null>(null);
     const items = useSelector((state: RootState) => state.invoiceReducer.draft.lineItems ?? []);
-    console.log('line items: ', items);
 
     const subTotal = useSelector(selectInvoiceSubtotal);
 
@@ -71,7 +72,9 @@ const LineItems = () => {
     const previewInvoice = () => {
 
         if (items.length === 0) {
-            Alert.alert('Warning', 'Please add at least one item');
+            Alert.alert(`${t('common.warning')}`, `${t('invoice.addOneItem')}`, [
+                { text: `${t('common.ok')}` }
+            ]);
             return;
         } else {
             router.push({
@@ -83,16 +86,16 @@ const LineItems = () => {
     return (
         <>
             <Screen >
-                <AuthHeader arrowBack title='Step 2 of 3' />
+                <AuthHeader arrowBack title={t('invoice.step2')} />
 
                 <View style={{ flex: 1, backgroundColor: theme.background.primary, paddingHorizontal: 20, maxHeight: 500 }}>
-                    <Text style={[styles.title, { color: theme.text.primary }]} > Line Items </Text>
+                    <Text style={[styles.title, { color: theme.text.primary }]} >{t('invoice.lineItems')}</Text>
 
                     <FlatList
                         data={items}
                         keyExtractor={(item) => item.id}
                         contentContainerStyle={{ gap: 12, marginTop: 20, paddingBottom: 20 }}
-                        ListEmptyComponent={() => (<Text style={[styles.dummyText, { color: theme.text.secondary }]}> No items added yet </Text>)}
+                        ListEmptyComponent={() => (<Text style={[styles.dummyText, { color: theme.text.secondary }]}>{t('invoice.noItemsYet')}</Text>)}
                         renderItem={({ item }) => {
                             const total = item.quantity && item.unitPrice ? item.quantity * item.unitPrice : undefined;
                             return (
@@ -113,11 +116,11 @@ const LineItems = () => {
                 </View>
 
                 <Pressable onPress={() => { setVisible(true); setSelectedItem(null); }} style={[styles.addItemContainer, { borderBottomColor: theme.border.secondary }]}>
-                    <Text style={[styles.addItem, { color: theme.text.secondary }]}>+ Add New Item</Text>
+                    <Text style={[styles.addItem, { color: theme.text.secondary }]}>{t('invoice.addNewItem')}</Text>
                 </Pressable>
 
                 <View style={styles.statsBox}>
-                    <Text style={[styles.subtotal, { color: theme.text.secondary }]}>SUBTOTAL ESTIMATE</Text>
+                    <Text style={[styles.subtotal, { color: theme.text.secondary }]}>{t('invoice.subtotalEstimate')}</Text>
                     <Text style={[styles.totalPrice]}>${subTotal}</Text>
                 </View>
 
@@ -126,7 +129,7 @@ const LineItems = () => {
             </Screen>
 
             <ScreenFooter leadingButton>
-                <SimpleButton btnText='NEXT STEP' onPress={() => { previewInvoice() }} />
+                <SimpleButton btnText={t('common.nextStep')} onPress={() => { previewInvoice() }} />
             </ScreenFooter>
         </>
     )

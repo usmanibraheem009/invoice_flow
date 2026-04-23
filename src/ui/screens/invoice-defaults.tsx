@@ -1,3 +1,4 @@
+import { brixTemplate } from '@/src/components/invoice/templates/brixTemplate';
 import { classicTemplate } from '@/src/components/invoice/templates/classicTemplate';
 import { modernTemplate } from '@/src/components/invoice/templates/modernTemplate';
 import { professionalTemplate } from '@/src/components/invoice/templates/professionalTemplate';
@@ -19,6 +20,7 @@ const templateData = [
     { id: 'template1', name: 'Classic Template' },
     { id: 'template2', name: 'Modern Template' },
     { id: 'template3', name: 'Professional Template' },
+    { id: 'template4', name: 'Brix Template' },
 ];
 
 const InvoiceDefaults = () => {
@@ -27,7 +29,7 @@ const InvoiceDefaults = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { invoiceId } = useLocalSearchParams();
     const invoiceData = useSelector(selectEnrichedInvoiceById(invoiceId as string));
-
+    const user = useSelector((state: RootState) => state.userReducer.user);
     const { selectedTemplateId, rememberChoice } = useSelector((state: RootState) => state.templateReducer);
 
     const handleSelectTemplate = (templateId: string) => {
@@ -71,10 +73,17 @@ const InvoiceDefaults = () => {
                 return modernTemplate(data);
 
             case 'template3':
-            default:
                 return professionalTemplate(data);
+
+            case 'template4':
+            default:
+                return brixTemplate(data);
         }
     };
+    const mergedData = {
+        ...invoiceData,
+        currentUser: user,
+    }
 
     return (
         <Screen>
@@ -94,7 +103,7 @@ const InvoiceDefaults = () => {
                         <View style={[styles.invoicePreview, { borderColor: selectedTemplateId === item.id ? theme.border.tertiary : '#cccc', }]}>
                             <Pressable style={{ flex: 1 }} onPress={() => handleSelectTemplate(item.id)}>
                                 <WebView originWhitelist={['*']}
-                                    source={{ html: getTemplateHtml(item.id, invoiceData) }}
+                                    source={{ html: getTemplateHtml(item.id, mergedData) }}
                                     style={{ height: 400, }} />
                             </Pressable>
                         </View>

@@ -4,6 +4,7 @@ import { fetchAllProducts } from '@/src/redux/thunks/products-thunk'
 import { mVs } from '@/src/utils/scale'
 import { Formik } from 'formik'
 import React, { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import ModalWrapper from '../layout/modal-wrapper'
@@ -41,10 +42,21 @@ const SelectProduct = ({ visible, onClose, onSubmit, selectedItem }: ProductModa
 
 
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const products = useSelector((state: RootState) => state.productsReducer.products ?? []);
   const [showDropdown, setShowDropdown] = useState(false)
   const [search, setSearch] = useState("");
+
+  // Add local string state for the input
+  const [quantityInput, setQuantityInput] = useState(
+    selectedItem?.quantity?.toString() ?? "0"
+  );
+
+  // Reset when selectedItem changes
+  useEffect(() => {
+    setQuantityInput(selectedItem?.quantity?.toString() ?? "0");
+  }, [selectedItem]);
 
   useEffect(() => {
     dispatch(fetchAllProducts());
@@ -56,7 +68,7 @@ const SelectProduct = ({ visible, onClose, onSubmit, selectedItem }: ProductModa
   }, [products, search]);
 
   return (
-    <ModalWrapper modalTitle="Products & Services" visible={visible} onClose={onClose} labelKey={'name'} valueKey={'id'}>
+    <ModalWrapper modalTitle={t('products.title')} visible={visible} onClose={onClose} labelKey={'name'} valueKey={'id'}>
       <Formik initialValues={selectedItem ?? initialValues} enableReinitialize
         onSubmit={(values) => {
           console.log('values: ', values)
@@ -74,7 +86,7 @@ const SelectProduct = ({ visible, onClose, onSubmit, selectedItem }: ProductModa
             <View style={{ gap: mVs(15) }}>
 
               <Pressable onPress={() => setShowDropdown(!showDropdown)}>
-                <InputTab editable={false} placeholder="Select product/service" value={values.name} />
+                <InputTab editable={false} placeholder={t('products.selectProduct')} value={values.name} />
               </Pressable>
 
               {showDropdown && (
@@ -97,17 +109,31 @@ const SelectProduct = ({ visible, onClose, onSubmit, selectedItem }: ProductModa
                   )}
                 />)}
 
-              <InputTab placeholder="Quantity..." value={values.quantity.toString()} keyboardType="numeric"
+              <InputTab
+                placeholder={t('products.quantity')}
+                value={quantityInput}
+                keyboardType="numeric"
                 onChangeText={(text) => {
-                  const qty = Number(text);
-                  if (qty <= 0) return;
-                  setFieldValue('quantity', qty)
-                }
-                } />
+                  // Allow empty string while typing
+                  const cleaned = text.replace(/[^0-9]/g, ''); // digits only
+                  setQuantityInput(cleaned);
+                  const qty = Number(cleaned);
+                  if (qty > 0) {
+                    setFieldValue('quantity', qty);
+                  }
+                }}
+                onBlur={() => {
+                  // Snap back to 1 if user leaves field empty or 0
+                  if (!quantityInput || Number(quantityInput) <= 0) {
+                    setQuantityInput('1');
+                    setFieldValue('quantity', 1);
+                  }
+                }}
+              />
 
-              <InputTab editable={false} placeholder="Total" value={total.toFixed(2)} onChangeText={(text) => setFieldValue('total', total)} />
+              <InputTab editable={false} placeholder={t('products.totalAmount')} value={total.toFixed(2)} onChangeText={(text) => setFieldValue('total', total)} />
 
-              <SimpleButton btnText={selectedItem ? 'Update Product' : 'Add Product'} onPress={handleSubmit} />
+              <SimpleButton btnText={selectedItem ? t('products.updateProduct') : t('products.addProduct')} onPress={handleSubmit} />
             </View>
           )
         }}

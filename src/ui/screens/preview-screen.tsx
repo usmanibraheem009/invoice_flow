@@ -5,7 +5,7 @@ import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
 import { useTheme } from '@/src/hooks/useTheme'
-import { clearInvoiceDraft, setInvoiceStatus, setNotes } from '@/src/redux/slices/invoiceSlice'
+import { clearInvoiceDraft, incrementInvoiceNumber, setInvoiceStatus, setNotes } from '@/src/redux/slices/invoiceSlice'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
 import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
 import { RootState } from '@/src/redux/store/myStore'
@@ -18,6 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { router } from 'expo-router'
 import React, { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, Switch, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import ScreenFooter from '../components/screen-footer'
@@ -46,10 +47,9 @@ const formatTime = (hour: number, minute: number) => {
 const PreviewScreen = () => {
 
   const { theme } = useTheme()
+  const { t } = useTranslation();
   const dispatch = useDispatch()
   const draft = useSelector((state: RootState) => state.invoiceReducer.draft)
-  console.log('draft data: ', draft);
-
   const invoStatus = useSelector(selectInvoiceStatus)
 
   const [reminderEnabled, setReminderEnabled] = useState(invoStatus !== 'PAID')
@@ -90,7 +90,10 @@ const PreviewScreen = () => {
         response = await updateInvoice(draft.invoiceId!, draft)
       } else {
         response = await createInvoice(finalData)
-        dispatch(clearInvoiceDraft())
+        if (response?.success) {
+          dispatch(incrementInvoiceNumber());
+          dispatch(clearInvoiceDraft())
+        }
       }
 
       if (reminderEnabled) {
@@ -120,16 +123,16 @@ const PreviewScreen = () => {
   return (
     <View style={{ flexGrow: 1 }}>
       <ScreenWrapper scrollable paddingVertical={10} keyboardAvoidingView>
-        <AuthHeader arrowBack title='Step 3 of 3' />
+        <AuthHeader arrowBack title={t('invoice.step3')} />
 
         <View style={styles.container}>
-          <Text style={[styles.title, { color: theme.text.primary }]}>Review & Send</Text>
+          <Text style={[styles.title, { color: theme.text.primary }]}>{t('common.preview')}</Text>
 
           <View style={[styles.invoiceContainer, { backgroundColor: theme.background.secondary, borderColor: theme.border.secondary }]}>
             <View style={[styles.insideContainer, { backgroundColor: theme.background.secondary, borderColor: theme.border.secondary }]}>
               <View>
                 <Text style={[styles.invoiceNumber, { color: theme.text.primary }]}>{draft.invoiceNumber}</Text>
-                <Text style={[styles.user, { color: theme.text.primary }]}>To: {clientName}</Text>
+                <Text style={[styles.user, { color: theme.text.primary }]}>{t('invoice.to')}: {clientName}</Text>
               </View>
               <View style={{ gap: 10, alignItems: 'flex-end' }}>
                 <InvoiceStatus status={invoStatus} />
@@ -138,16 +141,16 @@ const PreviewScreen = () => {
 
             <View style={[styles.invoiceTemp, { borderBottomColor: theme.border.secondary }]}>
               <View style={{ flexDirection: 'row' }}>
-                <Text style={[styles.lineItems, styles.colItem, { color: theme.text.tertiary }]}>Item</Text>
-                <Text style={[styles.lineItems, styles.colQty, { color: theme.text.tertiary }]}>Qty</Text>
-                <Text style={[styles.lineItems, styles.colPrice, { color: theme.text.tertiary }]}>Price</Text>
-                <Text style={[styles.lineItems, styles.colTotal, { color: theme.text.tertiary }]}>Total</Text>
+                <Text style={[styles.lineItems, styles.colItem, { color: theme.text.tertiary }]}>{t('invoice.item')}</Text>
+                <Text style={[styles.lineItems, styles.colQty, { color: theme.text.tertiary }]}>{t('invoice.quantity')}</Text>
+                <Text style={[styles.lineItems, styles.colPrice, { color: theme.text.tertiary }]}>{t('invoice.price')}</Text>
+                <Text style={[styles.lineItems, styles.colTotal, { color: theme.text.tertiary }]}>{t('invoice.total')}</Text>
               </View>
               {draft.lineItems?.map((item: any) => (
                 <View key={item.id} style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, width: '100%' }}>
                   <Text style={[styles.item, styles.colItem, { color: theme.text.primary }]} numberOfLines={1} ellipsizeMode='tail'>{item.name}</Text>
-                  <Text style={[styles.item, styles.colQty, { color: theme.text.primary }]}>{item.type === 'Product' ? `${item.quantity}` : `${item.quantity}h`}</Text>
-                  <Text style={[styles.price, styles.colDataPrice, { color: theme.text.secondary }]}>{item.type === 'Product' ? `${item.unitPrice}$` : `${item.unitPrice}$ /h`}</Text>
+                  <Text style={[styles.item, styles.colQty, { color: theme.text.primary }]}>{item.type === 'Product' ? `${item.quantity}` : `${item.quantity}`}</Text>
+                  <Text style={[styles.price, styles.colDataPrice, { color: theme.text.secondary }]}>{formatCurrency(Number(item.unitPrice), draft.currency)}</Text>
                   <Text style={[styles.colPrice, { color: theme.text.primary }]}>{formatCurrency(Number(item.quantity) * Number(item.unitPrice), draft.currency)}</Text>
                 </View>
               ))}
@@ -242,7 +245,7 @@ const PreviewScreen = () => {
         onItemPress={(item) => { setDaysBefore(Number(item.value)); setDaysModal(false) }} />
 
       <ScreenFooter leadingButton>
-        <SimpleButton btnText='CONFIRM' onPress={() => handleSubmit(finalData)} />
+        <SimpleButton btnText={t('common.confirm')} onPress={() => handleSubmit(finalData)} />
       </ScreenFooter>
     </View>
   )
@@ -348,3 +351,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
 })
+
+function useTranlation(): { t: any } {
+  throw new Error('Function not implemented.')
+}

@@ -11,6 +11,7 @@ import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FlatList, StyleSheet, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -22,6 +23,7 @@ const clients = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [filteredItems, setFilteredItems] = useState(clients);
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (search === '') {
@@ -49,10 +51,10 @@ const clients = () => {
 
   return (
     <Screen>
-      <AuthHeader title='Clients' />
+      <AuthHeader title={t('clients.title')} />
       <FloatingButton icon='person-add' onPress={() => { router.push('/screens/add-client') }} />
       <View style={{ paddingHorizontal: mVs(20), paddingBottom: mVs(20), flex: 1 }}>
-        <InputTab placeholder='Search...' value={search} onChangeText={setSearch}
+        <InputTab placeholder={t('common.search')} value={search} onChangeText={setSearch}
           icon={<Ionicons name='search' size={mVs(24)} color={theme.text.primary} />}
         />
 

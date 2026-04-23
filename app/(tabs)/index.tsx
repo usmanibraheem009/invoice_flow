@@ -10,6 +10,7 @@ import { dateformatter } from '@/src/utils/date-formatter'
 import { mVs } from '@/src/utils/scale'
 import { router } from 'expo-router'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -17,6 +18,7 @@ const index = () => {
 
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const [greetings, setGreetings] = useState('');
 
   useEffect(() => {
@@ -44,15 +46,15 @@ const index = () => {
   const getGreetings = () => {
     const currentHour = new Date().getHours();
     if (currentHour < 12) {
-      return 'GOOD MORNING ☀️';
+      return `${t('greetings.goodMorning')} ☀️`;
     } else if (currentHour < 16) {
-      return 'GOOD NOON 🌤️'
+      return `${t('greetings.goodNoon')} 🌤️`
     } else if (currentHour < 18) {
-      return 'GOOD AFTERNOON 🌤️'
+      return `${t('greetings.goodAfternoon')} 🌤️`
     } else if (currentHour >= 18 && currentHour < 20) {
-      return 'GOOD EVENING 🌙';
+      return `${t('greetings.goodEvening')} 🌙`;
     } else {
-      return 'GOOD NIGHT 🌙';
+      return `${t('greetings.goodNight')} 🌙`;
     }
   };
 
@@ -83,8 +85,8 @@ const index = () => {
       </View>
 
       <View style={styles.seeMore}>
-        <Text style={[styles.invoiceText, { color: theme.text.primary }]}>Recent Invoices</Text>
-        <Pressable onPress={() => router.push('/(tabs)/invoices')}><Text style={[styles.seeAll, { color: theme.text.tertiary }]}>See all</Text></Pressable>
+        <Text style={[styles.invoiceText, { color: theme.text.primary }]}>{t('common.recentInvoices')}</Text>
+        <Pressable onPress={() => router.push('/(tabs)/invoices')}><Text style={[styles.seeAll, { color: theme.text.tertiary }]}>{t('common.seeAll')}</Text></Pressable>
       </View>
 
       <FlatList

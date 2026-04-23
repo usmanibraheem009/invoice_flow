@@ -55,16 +55,14 @@ const InvoiceDetails = () => {
     const mapInvoiceToDraft = (invoice: any) => ({
         invoiceId: invoice.id,
         clientId: invoice.client?.id,
-        clientName: invoice.client?.name || '',
-        clientEmail: invoice.client?.email || '',
         invoiceNumber: invoice.invoiceNumber,
-        issueDate: invoice.issueDate,
-        dueDate: invoice.dueDate,
+        issueDate: dateformatter(invoice.issueDate),
+        dueDate: dateformatter(invoice.dueDate),
         currency: invoice.currency,
         notes: invoice.notes || "",
         status: invoice.status,
         lineItems: invoice.lineItems?.map((item: any) => ({
-            id: item.id,
+            productId: item.product.id,
             name: item.product.name,
             description: item.description,
             unitPrice: Number(item.unitPrice),
@@ -75,8 +73,6 @@ const InvoiceDetails = () => {
 
     const onEdit = async () => {
         const mappedDraft = mapInvoiceToDraft(selectedInvoice);
-        console.log('mapped draft: ', mappedDraft);
-
         dispatch(setInvoiceDraft(mappedDraft));
         router.push({ pathname: '/screens/add-invoice', params: { editable: 'true' } });
     };

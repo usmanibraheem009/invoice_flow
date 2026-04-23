@@ -1,5 +1,6 @@
 import { fetchCurrentUser } from '@/src/apis/authApi';
 import { fetchOrganization } from '@/src/apis/organizationApi';
+import { initI18n } from "@/src/locales/i18n";
 import { setOrganization } from '@/src/redux/slices/organizationSlice';
 import { RootState } from '@/src/redux/store/myStore';
 import { bootstrapAuth } from '@/src/redux/thunks/auth-thunk';
@@ -46,6 +47,7 @@ const AppContent = () => {
     useEffect(() => {
         const loadOrganization = async () => {
             try {
+                await initI18n();
                 if (!organization?.id) return; // ✅ GUARD
 
                 const res = await fetchOrganization(organization.id);

@@ -1,3 +1,4 @@
+import { brixTemplate } from '@/src/components/invoice/templates/brixTemplate';
 import { classicTemplate } from '@/src/components/invoice/templates/classicTemplate';
 import { modernTemplate } from '@/src/components/invoice/templates/modernTemplate';
 import { professionalTemplate } from '@/src/components/invoice/templates/professionalTemplate';
@@ -24,12 +25,15 @@ const templateData = [
   { id: 'template1', name: 'Classic Template' },
   { id: 'template2', name: 'Modern Template' },
   { id: 'template3', name: 'Professional Template' },
+  { id: 'template4', name: 'Brix Template' },
 ];
 
 const TemplateScreen = () => {
 
   const dispatch = useDispatch<AppDispatch>();
   const { selectedTemplateId, rememberChoice } = useSelector((state: RootState) => state.templateReducer);
+  const user = useSelector((state: RootState) => state.userReducer.user);
+
   const { theme } = useTheme();
   const { invoiceId } = useLocalSearchParams();
   const invoiceData = useSelector(selectEnrichedInvoiceById(invoiceId as string));
@@ -86,17 +90,17 @@ const TemplateScreen = () => {
 
   const handleDownloadPDF = async () => {
     try {
-      const html = getTemplateHtml(selectedTemplateId!, rememberChoice);
+      const html = getTemplateHtml(selectedTemplateId!, mergedData);
       const { uri } = await Print.printToFileAsync({ html, });
       alert(`PDF saved at ${uri}`);
     } catch (error: any) {
-      dispatch(showSnackbar({ message: error, type: 'error' }))
+      dispatch(showSnackbar({ message: error.message, type: 'error' }))
     }
   };
 
   const handleSharePDF = async () => {
     try {
-      const html = getTemplateHtml(selectedTemplateId!, invoiceData);
+      const html = getTemplateHtml(selectedTemplateId!, mergedData);
       const { uri } = await Print.printToFileAsync({ html, });
 
       const available = await Sharing.isAvailableAsync();
@@ -106,7 +110,7 @@ const TemplateScreen = () => {
         Alert.alert('Sharing not available')
       }
     } catch (error: any) {
-      dispatch(showSnackbar({ message: error, type: 'error' }))
+      dispatch(showSnackbar({ message: error.message, type: 'error' }))
     }
   };
 
@@ -119,6 +123,7 @@ const TemplateScreen = () => {
   const mergedData = {
     ...invoiceData,
     subTotal: subTotal,
+    currentUser: user,
   }
 
   const getTemplateHtml = (
@@ -133,8 +138,11 @@ const TemplateScreen = () => {
         return modernTemplate(data);
 
       case 'template3':
-      default:
         return professionalTemplate(data);
+
+      case 'template4':
+      default:
+        return brixTemplate(data);
     }
   };
 

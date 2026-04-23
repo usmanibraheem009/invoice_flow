@@ -4,6 +4,7 @@ import { mVs } from '@/src/utils/scale';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface AuthHeaderProps {
@@ -16,12 +17,13 @@ interface AuthHeaderProps {
 const ScreenFooter = ({ children, leadingButton, downloadBtn, handleDownload }: AuthHeaderProps) => {
 
   const { theme } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background.secondary, borderTopColor: theme.border.primary }]}>
       {leadingButton && (
         <TouchableOpacity style={[styles.leadingButton, { borderColor: theme.text.primary }]} onPress={() => { router.back() }}>
-          <Text style={[styles.back, { color: theme.text.primary }]}>Back</Text>
+          <Text style={[styles.back, { color: theme.text.primary }]}>{t('common.back')}</Text>
         </TouchableOpacity>
       )}
 

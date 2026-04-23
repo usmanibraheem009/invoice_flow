@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { Formik } from 'formik'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { ActivityIndicator } from 'react-native-paper'
 import { useDispatch, useSelector } from 'react-redux'
@@ -21,6 +22,7 @@ import ErrorText from '../../components/error-text'
 const SignupScreen = () => {
 
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const loading = useSelector((state: any) => state.loadingReducer.loading);
 
@@ -76,29 +78,29 @@ const SignupScreen = () => {
         <Formik initialValues={initialValues.signup} validationSchema={validationSchema.signup} onSubmit={submitFunc}>
           {({ errors, touched, handleChange, handleSubmit, values }: any) => (
             <View>
-              <Text style={[styles.label, { color: theme.text.secondary }]}>USER NAME</Text>
-              <InputTab placeholder='user name' value={values.fullName} onChangeText={handleChange('fullName')} icon={<Ionicons name='person' size={mVs(22)} color={theme.text.secondary} />} />
+              <Text style={[styles.label, { color: theme.text.secondary }]}>{t('auth.userName')}</Text>
+              <InputTab placeholder={t('auth.userName')} value={values.fullName} onChangeText={handleChange('fullName')} icon={<Ionicons name='person' size={mVs(22)} color={theme.text.secondary} />} />
               {touched.fullName && errors.fullName && (<ErrorText errorText={errors.fullName} />)}
 
-              <Text style={[styles.label, { color: theme.text.secondary }]}>EMAIL</Text>
-              <InputTab placeholder='email' value={values.email} onChangeText={handleChange('email')} icon={<Ionicons name='mail' size={mVs(22)} color={theme.text.secondary} />} />
+              <Text style={[styles.label, { color: theme.text.secondary }]}>{t('auth.email')}</Text>
+              <InputTab placeholder={t('auth.email')} value={values.email} onChangeText={handleChange('email')} icon={<Ionicons name='mail' size={mVs(22)} color={theme.text.secondary} />} />
               {touched.email && errors.email && (<ErrorText errorText={errors.email} />)}
 
-              <Text style={[styles.label, { color: theme.text.secondary }]}>PASSWORD</Text>
-              <InputTab placeholder='password' value={values.password} onChangeText={handleChange('password')} icon={<Ionicons name='lock-closed' size={mVs(22)} color={theme.text.secondary} secureTextEntry />} />
+              <Text style={[styles.label, { color: theme.text.secondary }]}>{t('auth.password')}</Text>
+              <InputTab placeholder={t('auth.password')} value={values.password} onChangeText={handleChange('password')} icon={<Ionicons name='lock-closed' size={mVs(22)} color={theme.text.secondary} secureTextEntry />} />
               {touched.password && errors.password && (<ErrorText errorText={errors.password} />)}
 
-              <Text style={[styles.label, { color: theme.text.secondary }]}>CONFIRM PASSWORD</Text>
-              <InputTab placeholder='confirm password' value={values.confirmPassword} onChangeText={handleChange('confirmPassword')} icon={<Ionicons name='lock-closed' size={mVs(22)} color={theme.text.secondary} secureTextEntry />} />
+              <Text style={[styles.label, { color: theme.text.secondary }]}>{t('auth.confirmPassword')}</Text>
+              <InputTab placeholder={t('auth.confirmPassword')} value={values.confirmPassword} onChangeText={handleChange('confirmPassword')} icon={<Ionicons name='lock-closed' size={mVs(22)} color={theme.text.secondary} secureTextEntry />} />
               {touched.confirmPassword && errors.confirmPassword && (<ErrorText errorText={errors.confirmPassword} />)}
 
               <TouchableOpacity onPress={() => { router.push('/screens/login-screen') }} style={styles.router}>
-                <Text style={[styles.authText, { color: theme.text.secondary }]}>Already have an account?</Text>
+                <Text style={[styles.authText, { color: theme.text.secondary }]}>{t('auth.alreadyHaveAccount')}</Text>
                 <Ionicons name='arrow-forward' size={20} color={theme.text.secondary} />
               </TouchableOpacity>
 
               <View style={{ marginTop: 20 }} />
-              <SimpleButton btnText={loading ? <ActivityIndicator color={theme.text.primary} size={40} /> : 'SIGN UP'} onPress={handleSubmit} />
+              <SimpleButton btnText={loading ? <ActivityIndicator color={theme.text.primary} size={40} /> : `${t('auth.signUp')}`} onPress={handleSubmit} />
 
             </View>
           )}

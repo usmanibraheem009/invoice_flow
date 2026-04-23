@@ -24,6 +24,8 @@ const ClientProfile = () => {
   const { theme } = useTheme();
   const { clientId } = useLocalSearchParams();
   const [invoices, setInvoices] = useState<any[]>([]);
+  console.log("client invoices data: ", invoices);
+
 
   useEffect(() => {
     if (!clientId) return;

@@ -11,6 +11,7 @@ import AuthHeader from '@/src/ui/components/screen-header'
 import { mVs } from '@/src/utils/scale'
 import { router } from 'expo-router'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { Alert, StyleSheet, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -18,6 +19,7 @@ const settings = () => {
 
   const dispatch = useDispatch();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const currentMode = useSelector((state: any) => state.themeReducer.currentMode);
   const user = useSelector((state: RootState) => state.userReducer.user);
   const loading = useSelector((state: any) => state.loadingReducer.loading);
@@ -42,7 +44,7 @@ const settings = () => {
   return (
     <ScrollScreen>
 
-      <AuthHeader title='Settings' />
+      <AuthHeader title={t('settings.title')} />
 
       <View style={{ paddingHorizontal: mVs(20) }}>
 
@@ -54,22 +56,23 @@ const settings = () => {
           </View>
         </View>
 
-        <Text style={[styles.labelText, { color: theme.text.secondary }]}>Theme Mode</Text>
-        <ThemeButton modeName='Light Mode' isActive={currentMode === 'light' ? true : false} onPress={() => dispatch(setTheme('light'))} />
-        <ThemeButton modeName='Dark Mode' isActive={currentMode === 'dark' ? true : false} onPress={() => dispatch(setTheme('dark'))} />
-        <ThemeButton modeName='System' isActive={currentMode === 'system' ? true : false} onPress={() => dispatch(setTheme('system'))} />
+        <Text style={[styles.labelText, { color: theme.text.secondary }]}>{t('settings.theme')}</Text>
+        <ThemeButton modeName={t('settings.lightMode')} isActive={currentMode === 'light' ? true : false} onPress={() => dispatch(setTheme('light'))} />
+        <ThemeButton modeName={t('settings.darkMode')} isActive={currentMode === 'dark' ? true : false} onPress={() => dispatch(setTheme('dark'))} />
+        <ThemeButton modeName={t('settings.system')} isActive={currentMode === 'system' ? true : false} onPress={() => dispatch(setTheme('system'))} />
 
         <View style={{ marginTop: 20 }} />
-        <Text style={[styles.labelText, { color: theme.text.secondary }]}>Preferences</Text>
+        <Text style={[styles.labelText, { color: theme.text.secondary }]}>{t('settings.preferences')}</Text>
         <View style={[styles.preferenceBox, { backgroundColor: theme.background.secondary, borderColor: theme.border.secondary, }]}>
-          <SettingsCard icon='card-outline' label='Payment Methods' onPress={() => { }} borderBottom />
-          <SettingsCard icon='business-outline' label='Organization Settings' onPress={() => { router.push('/screens/organization-settings') }} borderBottom />
-          <SettingsCard icon='cash-outline' label='Tax Settings' onPress={() => { }} borderBottom />
-          <SettingsCard icon='document-text-outline' label='Invoice Defaults' onPress={() => router.push('/screens/invoice-defaults')} />
+          <SettingsCard icon='card-outline' label={t('settings.paymentMethods')} onPress={() => { }} borderBottom />
+          <SettingsCard icon='business-outline' label={t('settings.organizationSettings')} onPress={() => { router.push('/screens/organization-settings') }} borderBottom />
+          <SettingsCard icon='cash-outline' label={t('settings.taxSettings')} onPress={() => { }} borderBottom />
+          <SettingsCard icon='language' label={t('settings.languageSettings')} onPress={() => { router.push('/screens/language-settings') }} borderBottom />
+          <SettingsCard icon='document-text-outline' label={t('settings.invoiceDefaults')} onPress={() => router.push('/screens/invoice-defaults')} />
         </View>
 
         <View style={{ marginTop: 20 }} />
-        <SimpleButton btnText='Logout' onPress={handleLogout} backgroundColor={theme.surface.tertiary} />
+        <SimpleButton btnText={t('auth.logout')} onPress={handleLogout} backgroundColor={theme.surface.tertiary} />
       </View>
     </ScrollScreen>
   )

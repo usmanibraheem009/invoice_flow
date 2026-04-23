@@ -15,6 +15,7 @@ import { addDays, format } from 'date-fns'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Formik } from 'formik'
 import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import ErrorText from '../components/error-text'
@@ -29,6 +30,7 @@ const AddInvoice = () => {
     }, []);
 
     const { theme } = useTheme();
+    const { t } = useTranslation();
     const formikRef = useRef<any>(null);
     const paymentOptions = ['Due on receipt', 'Net 7', 'Net 15', 'Net 30'];
     const invoiceNumber = useSelector((state: RootState) => state.invoiceReducer.currentInvoiceNumber);
@@ -37,6 +39,9 @@ const AddInvoice = () => {
     const { editable } = useLocalSearchParams();
     const isEditable = editable === 'true';
     const invoice = useSelector((state: RootState) => state.invoicesListReducer.selectedInvoice);
+    const draft = useSelector((state: RootState) => state.invoiceReducer.draft);
+    console.log("dafted data: ", draft);
+
 
     const [issueDatePicker, setIssueDatePicker] = useState(false);
     const [dueDatePicker, setDueDatePicker] = useState(false);
@@ -96,7 +101,7 @@ const AddInvoice = () => {
         <>
             <Screen >
 
-                <AuthHeader arrowBack title='Step 1 of 3' />
+                <AuthHeader arrowBack title={t('invoice.step1')} />
 
                 <View style={{ flex: 1, backgroundColor: theme.background.primary, }}>
 
@@ -117,26 +122,26 @@ const AddInvoice = () => {
 
                         {({ errors, touched, setFieldValue, values }: any) => (
                             <View style={{ paddingHorizontal: 16 }}>
-                                <Text style={[styles.title, { color: theme.text.primary }]} > Client & Details </Text>
+                                <Text style={[styles.title, { color: theme.text.primary }]} >{t('invoice.clientDetails')}</Text>
 
-                                <Text style={[styles.label, { color: theme.text.secondary }]}> SELECT CLIENT </Text>
+                                <Text style={[styles.label, { color: theme.text.secondary }]}>{t('invoice.SelectClient')}</Text>
                                 <Pressable onPress={() => setOpenClientModal(!openClientModal)}>
-                                    <InputTab icon={<Ionicons name='people-outline' size={25} color={theme.text.secondary} />} placeholder='Select client...' value={values.clientName} editable={false} />
+                                    <InputTab icon={<Ionicons name='people-outline' size={25} color={theme.text.secondary} />} placeholder={t('invoice.selectClient')} value={values.clientName} editable={false} />
                                 </Pressable>
                                 {touched.clientName && errors.clientName && (<ErrorText errorText={errors.clientName} />)}
                                 <ModalWrapper visible={openClientModal} onClose={() => { setOpenClientModal(false) }} searchBar
-                                    data={clients ?? []} labelKey='clientName' valueKey='id' modalTitle='Select Client'
+                                    data={clients ?? []} labelKey='clientName' valueKey='id' modalTitle={t('invoice.selectClient')}
                                     onItemPress={(item) => { setFieldValue('clientId', item.id); setFieldValue('clientName', item.clientName) }} />
 
-                                <Text style={[styles.label, { color: theme.text.secondary }]}> INVOICE NUMBER </Text>
-                                <InputTab placeholder='Invoice Number' value={values.invoiceNumber} editable={false} />
+                                <Text style={[styles.label, { color: theme.text.secondary }]}>{t('invoice.InvoiceNumber')}</Text>
+                                <InputTab placeholder={t('invoice.invoiceNumber')} value={values.invoiceNumber} editable={false} />
                                 {touched.invoiceNumber && errors.invoiceNumber && (<ErrorText errorText={errors.invoiceNumber} />)}
 
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
                                     <View style={{ flex: 1 }}>
-                                        <Text style={[styles.label, { color: theme.text.secondary }]}>ISSUE DATE </Text>
+                                        <Text style={[styles.label, { color: theme.text.secondary }]}>{t('invoice.IssueDate')}</Text>
                                         <Pressable onPress={() => setIssueDatePicker(true)} >
-                                            <InputTab icon={<Ionicons name='calendar-number' color={theme.text.secondary} size={24} />} placeholder='Issue Date' value={values.issueDate ? format(new Date(values.issueDate), 'dd-MM-yyyy') : ''} editable={false} />
+                                            <InputTab icon={<Ionicons name='calendar-number' color={theme.text.secondary} size={24} />} placeholder={t('invoice.issueDate')} value={values.issueDate ? format(new Date(values.issueDate), 'dd-MM-yyyy') : ''} editable={false} />
                                             {touched.issueDate && errors.issueDate && (<ErrorText errorText={errors.issueDate} />)}
                                         </Pressable>
                                         {issueDatePicker && (
@@ -156,9 +161,9 @@ const AddInvoice = () => {
                                     </View>
 
                                     <View style={{ flex: 1 }}>
-                                        <Text style={[styles.label, { color: theme.text.secondary }]}> DUE DATE </Text>
+                                        <Text style={[styles.label, { color: theme.text.secondary }]}>{t('invoice.DueDate')}</Text>
                                         <Pressable onPress={() => setDueDatePicker(true)}>
-                                            <InputTab icon={<Ionicons name='calendar-number' color={theme.text.secondary} size={24} />} placeholder='Due Date' value={values.dueDate ? format(new Date(values.dueDate), 'dd-MM-yyyy') : ''} editable={false} />
+                                            <InputTab icon={<Ionicons name='calendar-number' color={theme.text.secondary} size={24} />} placeholder={t('invoice.dueDate')} value={values.dueDate ? format(new Date(values.dueDate), 'dd-MM-yyyy') : ''} editable={false} />
                                             {touched.dueDate && errors.dueDate && (<ErrorText errorText={errors.dueDate} />)}
                                         </Pressable>
                                         {dueDatePicker && (
@@ -177,9 +182,9 @@ const AddInvoice = () => {
                                     </View>
                                 </View>
 
-                                <Text style={[styles.label, { color: theme.text.secondary }]}>PAYMENT TERMS</Text>
+                                <Text style={[styles.label, { color: theme.text.secondary }]}>{t('invoice.PaymentTerms')}</Text>
                                 <Pressable onPress={() => setOpenPaymentList(!openPaymentList)}>
-                                    <InputTab icon={<Ionicons name='chevron-down' color={theme.text.secondary} size={24} />} placeholder='Payment Terms' value={values.paymentTerms} editable={false} />
+                                    <InputTab icon={<Ionicons name='chevron-down' color={theme.text.secondary} size={24} />} placeholder={t('invoice.paymentTerms')} value={values.paymentTerms} editable={false} />
                                     {touched.paymentTerms && errors.paymentTerms && (<ErrorText errorText={errors.paymentTerms} />)}
                                 </Pressable>
                                 {openPaymentList && (
@@ -203,7 +208,7 @@ const AddInvoice = () => {
                 </View>
             </Screen>
             <ScreenFooter>
-                <SimpleButton btnText='NEXT STEP' onPress={() => { formikRef.current?.handleSubmit() }} />
+                <SimpleButton btnText={t('common.nextStep')} onPress={() => { formikRef.current?.handleSubmit() }} />
             </ScreenFooter>
         </>
     )
