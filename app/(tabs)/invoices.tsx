@@ -98,11 +98,7 @@ const Invoices = () => {
         onRefresh={onRefresh}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ gap: 12, paddingHorizontal: 20, paddingBottom: 10 }}
-        ListEmptyComponent={() => (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: mVs(50) }}>
-            <Text style={{ color: theme.text.primary, fontSize: mVs(16) }}>No invoices found. Tap + to add one</Text>
-          </View>
-        )}
+        ListEmptyComponent={() => (<Text style={[styles.dummyText, { color: theme.text.secondary }]}>{t('common.dummyText', { param: t('invoice.invoices') })}</Text>)}
         renderItem={({ item }) => (
           <InvoiceCard title={item.client?.name || 'Deleted Client'} invoiceNumber={item.invoiceNumber} status={item.status} price={Number(item.totalAmount)} issueDate={dateformatter(item.issueDate)} onPress={() => handleOnPress(item.id)} />
         )}
@@ -149,4 +145,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     elevation: 2,
   },
+  dummyText: {
+    textAlign: 'center',
+    marginTop: 80,
+    fontSize: mVs(16),
+    fontWeight: 500
+  }
 });

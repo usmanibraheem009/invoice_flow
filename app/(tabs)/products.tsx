@@ -23,14 +23,16 @@ const Products = () => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const products = useSelector((state: RootState) => state.productsReducer.products);
-    console.log(products);
+    const loading = useSelector((state: RootState) => state.loadingReducer.loading);
 
     const [visible, setVisible] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [selectedItem, setSelectedItem] = useState<Product | null>(null);
 
     useEffect(() => {
+        dispatch(setLoading(true));
         dispatch(fetchAllProducts() as any);
+        dispatch(setLoading(false));
     }, []);
 
     const onRefresh = async () => {
@@ -96,42 +98,41 @@ const Products = () => {
                 }])
     };
 
-    if (products.length === 0) {
-        return (
-            <Screen>
-                <ActivityIndicator size='large' color={theme.text.secondary} style={{ marginTop: mVs(50) }} />
-            </Screen>
-        )
-    }
-
     return (
         <Screen>
             <AuthHeader title={t('products.products')} />
             <FloatingButton icon='add' onPress={() => { setVisible(true) }} />
 
-            <FlatList
-                data={products}
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                keyExtractor={(item) => item.id.toString()}
-                contentContainerStyle={{ gap: 12, marginTop: 20, paddingBottom: 20, paddingHorizontal: mVs(20) }}
-                ListEmptyComponent={() => (<Text style={[styles.dummyText, { color: theme.text.secondary }]}> No items added yet </Text>)}
-                renderItem={({ item }) => {
-                    return (
-                        <>
-                            <ProductCard
-                                id={item.id}
-                                name={item.name}
-                                description={item.description}
-                                unitPrice={item.unitPrice}
-                                onDelete={() => deleteItem(item.id)}
-                                onEdit={() => editAddedItem(item)}
-                                mode={'product'} />
+            {loading ? (
+                <ActivityIndicator
+                    size='large'
+                    color={theme.text.secondary}
+                    style={{ marginTop: mVs(50) }}
+                />
+            ) : (
+                <FlatList
+                    data={products}
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    keyExtractor={(item) => item.id.toString()}
+                    contentContainerStyle={{ gap: 12, marginTop: 20, paddingBottom: 20, paddingHorizontal: mVs(20) }}
+                    ListEmptyComponent={() => (<Text style={[styles.dummyText, { color: theme.text.secondary }]}>{t('common.dummyText', { param: t('products.products') })}</Text>)}
+                    renderItem={({ item }) => {
+                        return (
+                            <>
+                                <ProductCard
+                                    id={item.id}
+                                    name={item.name}
+                                    description={item.description}
+                                    unitPrice={item.unitPrice}
+                                    onDelete={() => deleteItem(item.id)}
+                                    onEdit={() => editAddedItem(item)}
+                                    mode={'product'} />
 
-                        </>
-                    )
-                }}>
-            </FlatList>
+                            </>
+                        )
+                    }} />
+            )}
 
             <ItemModal visible={visible} onClose={() => setVisible(false)} onSubmitItem={handleSubmitItem} editItem={selectedItem} id={''} name={''} type={'Product'} />
         </Screen>

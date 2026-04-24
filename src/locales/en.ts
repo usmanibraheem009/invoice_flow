@@ -93,6 +93,7 @@ export default {
         createdMsg: "{{param}} created Successfully",
         deletedMsg: "{{param}} deleted successfully",
         updatedMsg: "{{param}} updated successfully",
+        dummyText: "No {{param}} yet. Tap + to add one.",
     },
     auth: {
         login: "Login",

@@ -96,6 +96,7 @@ export default {
         createdMsg: "{{param}} सफलतापूर्वक बनाया गया",
         deletedMsg: "{{param}} सफलतापूर्वक हटाया गया",
         updatedMsg: "{{param}} सफलतापूर्वक अपडेट किया गया",
+        dummyText: "अभी तक कोई {{param}} नहीं है। एक जोड़ने के लिए + पर टैप करें।",
     },
     auth: {
         login: "लॉगिन",

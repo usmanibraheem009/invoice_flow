@@ -66,11 +66,7 @@ const clients = () => {
         />
 
         <FlatList data={filteredItems} refreshing={refreshing} onRefresh={onRefresh} keyExtractor={(item: any) => item.id} showsVerticalScrollIndicator={false}
-          ListEmptyComponent={() => (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: mVs(50) }}>
-              <Text style={{ color: theme.text.primary, fontSize: mVs(16) }}>No Clients found. Tap + to add one</Text>
-            </View>
-          )}
+          ListEmptyComponent={() => (<Text style={[styles.dummyText, { color: theme.text.secondary }]}>{t('common.dummyText', { param: t('clients.title') })}</Text>)}
           renderItem={({ item }) => (
             <ClientCard clientName={item.clientName} organizationName={item.addressLine1} createdAt={dateformatter(item.createdAt)}
               totalRevenue={''} onPressed={() => router.push({
@@ -89,5 +85,10 @@ const clients = () => {
 export default clients
 
 const styles = StyleSheet.create({
-
+  dummyText: {
+    textAlign: 'center',
+    marginTop: 80,
+    fontSize: mVs(16),
+    fontWeight: 500
+  }
 })
