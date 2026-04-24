@@ -1,7 +1,11 @@
+import { getTranslations } from "@/src/locales/i18n";
 import { dateformatter } from "@/src/utils/date-formatter";
 import { formatCurrency } from "@/src/utils/helper";
 
 export const classicTemplate = (data: any) => {
+
+  const t = getTranslations().invoice;
+  const y = getTranslations().clients;
 
   const itemsHtml = (data.lineItems || [])
     .map((item: any) => `
@@ -86,29 +90,29 @@ export const classicTemplate = (data: any) => {
 
     <div class="header">
       <div class="invoice-title">
-        INVOICE
+        ${t.title}
       </div>
 
       <div>
         <div>
-          <strong>Invoice #:</strong>
+          <strong>${t.title} #:</strong>
           ${data.invoiceNumber || ""}
         </div>
 
         <div>
-          <strong>Date:</strong>
+          <strong>${t.issueDate}:</strong>
           ${dateformatter(data.issueDate) || ""}
         </div>
 
         <div>
-          <strong>Due:</strong>
+          <strong>${t.dueDate}:</strong>
           ${dateformatter(data.dueDate) || ""}
         </div>
       </div>
     </div>
 
     <div>
-      <strong>Client:</strong>
+      <strong>${y.clientName}:</strong>
       ${data.client.name || ""}
     </div>
 
@@ -116,12 +120,12 @@ export const classicTemplate = (data: any) => {
 
       <thead>
         <tr>
-          <th>Description</th>
+          <th>${t.item}</th>
           <th style="text-align:right">
-            Qty
+            ${t.quantity}
           </th>
           <th style="text-align:right">
-            Amount
+            ${t.amount}
           </th>
         </tr>
       </thead>
@@ -135,28 +139,21 @@ export const classicTemplate = (data: any) => {
     <table class="totals">
 
       <tr>
-        <td>Subtotal:</td>
+        <td>${t.subtotal}:</td>
         <td style="text-align:right">
           ${data.subTotal || 0}
         </td>
       </tr>
 
       <tr>
-        <td>Tax:</td>
+        <td>${t.tax}:</td>
         <td style="text-align:right">
           ${data.taxRate || 0}
         </td>
       </tr>
 
-      <tr>
-        <td>Discount:</td>
-        <td style="text-align:right">
-          ${data.discount || 0}
-        </td>
-      </tr>
-
       <tr class="total-row">
-        <td>Total:</td>
+        <td>${t.total}:</td>
         <td style="text-align:right">
           ${formatCurrency(data.totalAmount || 0, data.currency)}
         </td>
@@ -165,7 +162,7 @@ export const classicTemplate = (data: any) => {
     </table>
 
     <div class="notes">
-      <strong>Notes:</strong>
+      <strong>${t.notes}:</strong>
       <br/>
       ${data.notes || ""}
     </div>

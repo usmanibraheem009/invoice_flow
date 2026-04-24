@@ -1,3 +1,4 @@
+import { getTranslations } from "@/src/locales/i18n";
 import { dateformatter } from "@/src/utils/date-formatter";
 import { formatCurrency } from "@/src/utils/helper";
 
@@ -26,6 +27,8 @@ export const professionalTemplate = (data: any) => {
     );
 
   const computedTaxAmount = taxAmount ?? 0;
+  const t = getTranslations().invoice;
+  const y = getTranslations().clients;
 
   const itemRows = lineItems
     .map((item: any, index: number) => {
@@ -94,7 +97,7 @@ export const professionalTemplate = (data: any) => {
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
           <tr>
             <td style="vertical-align: top;">
-              <p style="color: rgba(255,255,255,0.65); font-size: 11px; font-weight: 700; letter-spacing: 3px; margin-bottom: 4px; text-transform: uppercase;">Invoice</p>
+              <p style="color: rgba(255,255,255,0.65); font-size: 11px; font-weight: 700; letter-spacing: 3px; margin-bottom: 4px; text-transform: uppercase;">${t.title}</p>
               <p style="color: #ffffff; font-size: 26px; font-weight: 800; letter-spacing: 0.5px;">${invoiceNumber}</p>
             </td>
             <td style="text-align: right; vertical-align: top;">
@@ -107,14 +110,14 @@ export const professionalTemplate = (data: any) => {
         <table style="border-collapse: collapse;">
           <tr>
             <td style="padding-right: 16px;">
-              <p style="color: rgba(255,255,255,0.6); font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px;">Issue Date</p>
+              <p style="color: rgba(255,255,255,0.6); font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px;">${t.issueDate}</p>
               <p style="color: #ffffff; font-size: 13px; font-weight: 600;">${dateformatter(issueDate)}</p>
             </td>
             <td style="width: 1px; padding: 0 16px;">
               <div style="width: 1px; height: 32px; background: rgba(255,255,255,0.2);"></div>
             </td>
             <td style="padding: 0 16px;">
-              <p style="color: rgba(255,255,255,0.6); font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px;">Due Date</p>
+              <p style="color: rgba(255,255,255,0.6); font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px;">${t.dueDate}</p>
               <p style="color: #ffffff; font-size: 13px; font-weight: 600;">${dateformatter(dueDate)}</p>
             </td>
             ${paymentTermsCell}
@@ -128,7 +131,7 @@ export const professionalTemplate = (data: any) => {
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
             <td style="width: 46%; vertical-align: top;">
-              <p style="font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #4F46E5; text-transform: uppercase; margin-bottom: 8px;">From</p>
+              <p style="font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #4F46E5; text-transform: uppercase; margin-bottom: 8px;">${t.from}</p>
               <p style="font-size: 14px; font-weight: 700; color: #27272a; margin-bottom: 4px;">${data?.currentUser.fullName ?? "Your Company"}</p>
               ${sender?.addressLine1 ? `<p style="font-size: 12px; color: #52525b; line-height: 18px;">${sender.addressLine1}</p>` : ""}
               ${sender?.addressLine2 ? `<p style="font-size: 12px; color: #52525b; line-height: 18px;">${sender.addressLine2}</p>` : ""}
@@ -139,7 +142,7 @@ export const professionalTemplate = (data: any) => {
             </td>
             <td style="width: 8%; text-align: center; vertical-align: middle; color: #a1a1aa; font-size: 20px;">→</td>
             <td style="width: 46%; vertical-align: top; text-align: right;">
-              <p style="font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #4F46E5; text-transform: uppercase; margin-bottom: 8px;">To</p>
+              <p style="font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #4F46E5; text-transform: uppercase; margin-bottom: 8px;">${t.to}</p>
               <p style="font-size: 14px; font-weight: 700; color: #27272a; margin-bottom: 4px;">${client.name}</p>
               ${client.addressLine1 ? `<p style="font-size: 12px; color: #52525b; line-height: 18px;">${client.addressLine1}</p>` : ""}
               ${client.addressLine2 ? `<p style="font-size: 12px; color: #52525b; line-height: 18px;">${client.addressLine2}</p>` : ""}
@@ -157,10 +160,10 @@ export const professionalTemplate = (data: any) => {
         <table style="width: 100%; border-collapse: collapse;">
           <thead>
             <tr style="background-color: #4F46E5;">
-              <th style="padding: 13px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255,255,255,0.9); text-align: left; width: 45%;">Description</th>
-              <th style="padding: 13px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255,255,255,0.9); text-align: center; width: 15%;">Qty</th>
-              <th style="padding: 13px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255,255,255,0.9); text-align: right; width: 20%;">Unit Price</th>
-              <th style="padding: 13px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255,255,255,0.9); text-align: right; width: 20%;">Amount</th>
+              <th style="padding: 13px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255,255,255,0.9); text-align: left; width: 45%;">${t.item}</th>
+              <th style="padding: 13px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255,255,255,0.9); text-align: center; width: 15%;">${t.quantity}</th>
+              <th style="padding: 13px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255,255,255,0.9); text-align: right; width: 20%;">${t.unitPrice}</th>
+              <th style="padding: 13px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255,255,255,0.9); text-align: right; width: 20%;">${t.amount}</th>
             </tr>
           </thead>
           <tbody>
@@ -177,7 +180,7 @@ export const professionalTemplate = (data: any) => {
             <div style="background: #ffffff; border-radius: 12px; padding: 16px;">
               <table style="width: 100%; border-collapse: collapse;">
                 <tr>
-                  <td style="padding: 7px 0; font-size: 13px; color: #52525b;">Subtotal</td>
+                  <td style="padding: 7px 0; font-size: 13px; color: #52525b;">${t.subtotal}</td>
                   <td style="padding: 7px 0; font-size: 13px; color: #27272a; font-weight: 600; text-align: right;">${formatCurrency(computedSubTotal, currency)}</td>
                 </tr>
                 ${taxRow}
@@ -187,7 +190,7 @@ export const professionalTemplate = (data: any) => {
                   </td>
                 </tr>
                 <tr style="background-color: #EEF2FF;">
-                  <td style="padding: 14px 16px; font-size: 14px; color: #3730A3; font-weight: 700;">Total Due</td>
+                  <td style="padding: 14px 16px; font-size: 14px; color: #3730A3; font-weight: 700;">${t.total}</td>
                   <td style="padding: 14px 16px; font-size: 16px; color: #4F46E5; font-weight: 800; text-align: right;">${formatCurrency(totalAmount, currency)}</td>
                 </tr>
               </table>
@@ -201,8 +204,8 @@ export const professionalTemplate = (data: any) => {
  
       <!-- FOOTER -->
       <div style="margin: 8px 16px 24px; padding-top: 20px; border-top: 1px solid #e4e4e7; text-align: center;">
-        <p style="font-size: 13px; color: #52525b; font-weight: 500; margin-bottom: 4px;">Thank you for your business.</p>
-        <p style="font-size: 11px; color: #a1a1aa; line-height: 16px;">Please include invoice number <strong>${invoiceNumber}</strong> with your payment.</p>
+        <p style="font-size: 13px; color: #52525b; font-weight: 500; margin-bottom: 4px;">${t.thankYou}</p>
+        <p style="font-size: 11px; color: #a1a1aa; line-height: 16px;">${t.includeNumber} <strong>${invoiceNumber}</strong> ${t.withPayment}.</p>
       </div>
  
     </body>

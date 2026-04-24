@@ -15,6 +15,7 @@ import { formatCurrency } from '@/src/utils/helper'
 import { mVs } from '@/src/utils/scale'
 import { router, useLocalSearchParams } from 'expo-router'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Alert, StyleSheet, Text, View } from 'react-native'
 import { IconButton, Menu } from 'react-native-paper'
 import { useDispatch, useSelector } from 'react-redux'
@@ -25,6 +26,7 @@ import AuthHeader from '../components/screen-header'
 const InvoiceDetails = () => {
 
     const { theme } = useTheme();
+    const { t } = useTranslation();
     const { invoiceId } = useLocalSearchParams();
     console.log("invoice id: ", invoiceId);
 
@@ -130,12 +132,12 @@ const InvoiceDetails = () => {
 
                     <View style={[styles.dateSection, { borderBottomColor: theme.border.secondary }]}>
                         <View style={{ gap: mVs(10) }}>
-                            <Text style={[styles.dateType, { color: theme.text.primary }]}>ISSUE DATE</Text>
+                            <Text style={[styles.dateType, { color: theme.text.primary }]}>{t('invoice.IssueDate')}</Text>
                             <Text style={[styles.date, { color: theme.text.primary }]}>{dateformatter(selectedInvoice.issueDate)}</Text>
                         </View>
 
                         <View style={{ gap: mVs(10) }}>
-                            <Text style={[styles.dateType, { color: theme.text.primary }]}>DUE DATE</Text>
+                            <Text style={[styles.dateType, { color: theme.text.primary }]}>{t('invoice.DueDate')}</Text>
                             <Text style={[styles.date, { color: theme.text.primary }]}>{dateformatter(selectedInvoice.dueDate)}</Text>
                         </View>
                     </View>
@@ -152,7 +154,7 @@ const InvoiceDetails = () => {
                     </View>
 
                     <View style={styles.totalContainer}>
-                        <Text style={[styles.totalText, { color: theme.text.primary }]}>Total</Text>
+                        <Text style={[styles.totalText, { color: theme.text.primary }]}>{t('invoice.total')}</Text>
                         <Text style={[styles.totalText, { color: theme.surface.primary }]}>{formatCurrency(total, selectedInvoice?.currency)}</Text>
                     </View>
                 </View>
@@ -161,7 +163,7 @@ const InvoiceDetails = () => {
 
             <ScreenFooter handleDownload={() => {
             }}>
-                <SimpleButton btnText='Download PDF' onPress={() => {
+                <SimpleButton btnText={t('common.downloadPdf')} onPress={() => {
                     router.push({
                         pathname: '/screens/template-screen',
                         params: { invoiceId: selectedInvoice.id }

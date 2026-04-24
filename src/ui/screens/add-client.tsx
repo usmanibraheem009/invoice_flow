@@ -13,6 +13,7 @@ import { mVs } from '@/src/utils/scale';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import ErrorText from '../components/error-text';
@@ -25,6 +26,7 @@ const AddClient = () => {
   const { countries, states, cities } = useSelector((state: any) => state.locationReducer);
   const isEdit = editable === 'true' && parsedClientData?.id;
   const { theme } = useTheme();
+  const { t } = useTranslation();
 
   const [showCountry, setShowCountry] = useState(false);
   const [showState, setShowState] = useState(false);
@@ -137,7 +139,7 @@ const AddClient = () => {
 
   return (
     <KeyboardScreen >
-      <AuthHeader arrowBack title="Client Details" />
+      <AuthHeader arrowBack title={t('clients.clientDetails')} />
 
       <View style={{ paddingHorizontal: mVs(20), flex: 1 }}>
         <Formik
@@ -149,33 +151,33 @@ const AddClient = () => {
           {({ errors, values, touched, handleSubmit, handleChange, setFieldValue }: any) => (
             <View style={{ paddingBottom: 20 }}>
 
-              <Text style={[styles.labelText, { color: theme.text.secondary }]}>CLIENT NAME</Text>
-              <InputTab placeholder="Client Name" value={values.clientName} onChangeText={handleChange('clientName')} />
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}> {t('clients.ClientName')} </Text>
+              <InputTab placeholder={t('clients.ClientName')} value={values.clientName} onChangeText={handleChange('clientName')} />
               {touched.clientName && errors.clientName && <ErrorText errorText={errors.clientName} />}
 
-              <Text style={[styles.labelText, { color: theme.text.secondary }]}>CLIENT EMAIL</Text>
-              <InputTab placeholder="Email" value={values.clientEmail} onChangeText={handleChange('clientEmail')} />
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}>{t('clients.ClientEmail')}</Text>
+              <InputTab placeholder={t('clients.ClientEmail')} value={values.clientEmail} onChangeText={handleChange('clientEmail')} />
               {touched.clientEmail && errors.clientEmail && <ErrorText errorText={errors.clientEmail} />}
 
-              <Text style={[styles.labelText, { color: theme.text.secondary }]}>PHONE NUMBER</Text>
-              <InputTab placeholder="Phone Number" value={values.phone} onChangeText={handleChange('phone')} />
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}> {t('clients.Phone')} </Text>
+              <InputTab placeholder={t('clients.Phone')} value={values.phone} onChangeText={handleChange('phone')} />
               {touched.phone && errors.phone && <ErrorText errorText={errors.phone} />}
 
-              <Text style={[styles.labelText, { color: theme.text.secondary }]}>ADDRESSLINE 1</Text>
-              <InputTab placeholder="Address Line 1" value={values.addressLine1} onChangeText={handleChange('addressLine1')} />
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}> {t('clients.AddressLine1')} </Text>
+              <InputTab placeholder={t('clients.AddressLine1')} value={values.addressLine1} onChangeText={handleChange('addressLine1')} />
               {touched.addressLine1 && errors.addressLine1 && <ErrorText errorText={errors.addressLine1} />}
 
-              <Text style={[styles.labelText, { color: theme.text.secondary }]}>ADDRESSLINE 2</Text>
-              <InputTab placeholder="Address Line 2" value={values.addressLine2} onChangeText={handleChange('addressLine2')} />
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}> {t('clients.AddressLine2')} </Text>
+              <InputTab placeholder={t('clients.AddressLine2')} value={values.addressLine2} onChangeText={handleChange('addressLine2')} />
               {touched.addressLine2 && errors.addressLine2 && <ErrorText errorText={errors.addressLine2} />}
 
-              <Text style={[styles.labelText, { color: theme.text.secondary }]}>ORGANIZATION NAME</Text>
-              <InputTab placeholder="Organization Name" value={values.orgName} onChangeText={handleChange('orgName')} />
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}> {t('clients.OrganizationName')} </Text>
+              <InputTab placeholder={t('clients.OrganizationName')} value={values.orgName} onChangeText={handleChange('orgName')} />
               {touched.orgName && errors.orgName && <ErrorText errorText={errors.orgName} />}
 
-              <Text style={[styles.labelText, { color: theme.text.secondary }]}>COUNTRY</Text>
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}> {t('clients.Country')} </Text>
               <Pressable onPress={() => setShowCountry(true)}>
-                <InputTab placeholder="Select your country" value={values.country} editable={false} />
+                <InputTab placeholder={t('clients.Country')} value={values.country} editable={false} />
                 {touched.country && errors.country && <ErrorText errorText={errors.country} />}
               </Pressable>
 
@@ -195,9 +197,9 @@ const AddClient = () => {
                 />
               )}
 
-              <Text style={[styles.labelText, { color: theme.text.secondary }]}>STATE</Text>
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}> {t('clients.State')} </Text>
               <Pressable onPress={() => values.country && setShowState(true)}>
-                <InputTab placeholder="Select your state" value={values.state} editable={false} />
+                <InputTab placeholder={t('clients.State')} value={values.state} editable={false} />
                 {touched.state && errors.state && <ErrorText errorText={errors.state} />}
               </Pressable>
 
@@ -217,9 +219,9 @@ const AddClient = () => {
               )}
 
 
-              <Text style={[styles.labelText, { color: theme.text.secondary }]}>CITY</Text>
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}> {t('clients.City')} </Text>
               <Pressable onPress={() => cities?.length && setShowCity(true)}>
-                <InputTab placeholder="Select your city" value={values.city} editable={false} />
+                <InputTab placeholder={t('clients.City')} value={values.city} editable={false} />
                 {touched.city && errors.city && <ErrorText errorText={errors.city} />}
               </Pressable>
 
@@ -236,12 +238,12 @@ const AddClient = () => {
                 />
               )}
 
-              <Text style={[styles.labelText, { color: theme.text.secondary }]}>POSTAL CODE</Text>
-              <InputTab placeholder="Postal Code" value={values.postalCode} onChangeText={handleChange('postalCode')} />
+              <Text style={[styles.labelText, { color: theme.text.secondary }]}> {t('clients.PostalCode')} </Text>
+              <InputTab placeholder={t('clients.PostalCode')} value={values.postalCode} onChangeText={handleChange('postalCode')} />
               {touched.postalCode && errors.postalCode && <ErrorText errorText={errors.postalCode} />}
 
               <View style={{ marginTop: mVs(40) }}>
-                <SimpleButton btnText={editable === 'true' ? "Update Client" : "Add Client"} onPress={handleSubmit} />
+                <SimpleButton btnText={editable === 'true' ? t('clients.editClient') : t('clients.addClient')} onPress={handleSubmit} />
               </View>
             </View>
           )}

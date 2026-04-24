@@ -13,8 +13,10 @@ import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import { router, useLocalSearchParams } from 'expo-router'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Alert, Linking, StyleSheet, Text, View } from 'react-native'
 import { FlatList } from 'react-native-gesture-handler'
+import { ActivityIndicator } from 'react-native-paper'
 import { useDispatch } from 'react-redux'
 import AuthHeader from '../components/screen-header'
 
@@ -22,6 +24,7 @@ import AuthHeader from '../components/screen-header'
 const ClientProfile = () => {
 
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const { clientId } = useLocalSearchParams();
   const [invoices, setInvoices] = useState<any[]>([]);
   console.log("client invoices data: ", invoices);
@@ -123,16 +126,25 @@ const ClientProfile = () => {
     ]);
   };
 
+  if (!client) {
+    return (
+      <Screen>
+        <ActivityIndicator size='large' color={theme.text.secondary} style={{ marginTop: mVs(50) }} />
+        <Text>{t('clients.clientNotFound')}</Text>
+      </Screen>
+    )
+  }
+
   return (
     <Screen>
-      <AuthHeader arrowBack title='Profile' trailingIcon='pencil' onIconPress={() => {
+      <AuthHeader arrowBack title={t('clients.clientDetails')} trailingIcon='pencil' onIconPress={() => {
         router.push({ pathname: '/screens/add-client', params: { editable: 'true', clientData: JSON.stringify(client) } });
       }} />
 
       <FlatList data={invoices} keyExtractor={(item: any) => item.id} style={{ flex: 1 }} contentContainerStyle={styles.invoiceList} showsVerticalScrollIndicator={false}
         ListFooterComponent={
           <>
-            <SimpleButton btnText='Delete client' onPress={() => { deleteClient(clientId as string) }} backgroundColor={theme.surface.tertiary} />
+            <SimpleButton btnText={t('clients.deleteClient')} onPress={() => { deleteClient(clientId as string) }} backgroundColor={theme.surface.tertiary} />
           </>
         }
         ListHeaderComponent={
@@ -152,18 +164,18 @@ const ClientProfile = () => {
             </View>
 
             <View style={{ flexDirection: 'row', marginHorizontal: mVs(20), gap: mVs(15), marginTop: mVs(20), alignItems: 'center', justifyContent: 'center' }}>
-              <RevenueCard title='Invoices' amount={totalInvoices} />
-              <RevenueCard title='Paid' amount={paidAmount} status={'PAID'} />
-              <RevenueCard title='Due' amount={unpaidAmount} status='UNPAID' />
+              <RevenueCard title={t('invoice.invoices')} amount={totalInvoices} />
+              <RevenueCard title={t('invoice.paid')} amount={paidAmount} status={'PAID'} />
+              <RevenueCard title={t('invoice.unpaid')} amount={unpaidAmount} status='UNPAID' />
             </View>
 
-            <Text style={[styles.history, { color: theme.text.primary }]}>History</Text>
+            <Text style={[styles.history, { color: theme.text.primary }]}>{t('common.history')}</Text>
 
           </>
         }
         ListEmptyComponent={() => (
           <View style={styles.emptyText}>
-            <Text style={{ color: theme.text.primary, fontSize: mVs(16) }}>No invoice history</Text>
+            <Text style={{ color: theme.text.primary, fontSize: mVs(16) }}>{t('invoice.noInvoiceHistory')}</Text>
           </View>
         )}
         renderItem={({ item }) => (

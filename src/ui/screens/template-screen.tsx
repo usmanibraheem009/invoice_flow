@@ -16,6 +16,7 @@ import * as Print from 'expo-print';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import React, { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, FlatList, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useDispatch, useSelector } from 'react-redux';
@@ -35,6 +36,7 @@ const TemplateScreen = () => {
   const user = useSelector((state: RootState) => state.userReducer.user);
 
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const { invoiceId } = useLocalSearchParams();
   const invoiceData = useSelector(selectEnrichedInvoiceById(invoiceId as string));
 
@@ -148,9 +150,9 @@ const TemplateScreen = () => {
 
   return (
     <Screen>
-      <AuthHeader arrowBack title='Invoice Template' />
+      <AuthHeader arrowBack title={t('common.selectTemplate')} />
 
-      <Text style={[styles.heading, { color: theme.text.primary }]}>Preview</Text>
+      <Text style={[styles.heading, { color: theme.text.primary }]}>{t('common.preview')}</Text>
 
       <View style={styles.container}>
 
@@ -174,22 +176,22 @@ const TemplateScreen = () => {
 
         {selectedTemplateId === null ? (
           <View style={styles.rememberContainer}>
-            <Text style={[styles.rememberText, { color: theme.text.primary }]}>Remember my choice</Text>
+            <Text style={[styles.rememberText, { color: theme.text.primary }]}>{t('common.rememberChoice')}</Text>
 
             <Switch value={rememberChoice} onValueChange={handleToggleRemember} />
           </View>
         ) : (
           <Pressable style={[styles.rememberContainer, { borderColor: theme.border.secondary, backgroundColor: theme.background.secondary }]} onPress={() => { router.push({ pathname: '/screens/invoice-defaults', params: { invoiceData: JSON.stringify(invoiceData) } }) }}>
-            <Text style={[styles.rememberText, { color: theme.text.primary }]}>Selected another template</Text>
+            <Text style={[styles.rememberText, { color: theme.text.primary }]}>{t('common.selectAnother')}</Text>
             <Ionicons name='chevron-forward' size={mVs(25)} color={theme.text.primary} />
           </Pressable>
 
         )}
 
         <View style={styles.buttons}>
-          <SimpleButton btnText='Share PDF' onPress={handleSharePDF} />
+          <SimpleButton btnText={t('common.sharePdf')} onPress={handleSharePDF} />
           <View style={{ height: mVs(10) }} />
-          <SimpleButton btnText='Download PDF' onPress={handleDownloadPDF} backgroundColor={secondary[50]} />
+          <SimpleButton btnText={t('common.downloadPdf')} onPress={handleDownloadPDF} backgroundColor={secondary[50]} />
         </View>
       </View>
     </Screen>

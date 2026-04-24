@@ -1,3 +1,4 @@
+import { getTranslations } from "@/src/locales/i18n";
 import { dateformatter } from "@/src/utils/date-formatter";
 import { formatCurrency } from "@/src/utils/helper";
 
@@ -25,6 +26,7 @@ export const brixTemplate = (data: any) => {
     );
 
   const computedTaxAmount = taxAmount ?? 0;
+  const t = getTranslations().invoice;
 
   const itemRows = lineItems
     .map(
@@ -54,7 +56,7 @@ export const brixTemplate = (data: any) => {
   const notesSection = notes
     ? `
       <div style="margin: 30px 0; padding: 20px; background: #f9f9f9; border-radius: 12px;">
-        <p style="font-size: 12px; font-weight: 700; color: #2581FF; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Notes</p>
+        <p style="font-size: 12px; font-weight: 700; color: #2581FF; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">${t.notes}</p>
         <p style="font-size: 13px; color: #555; line-height: 20px;">${notes}</p>
       </div>`
     : "";
@@ -120,7 +122,7 @@ export const brixTemplate = (data: any) => {
           <tr>
             <!-- Bill To -->
             <td style="width: 50%; vertical-align: top; padding-right: 20px;">
-              <p style="font-size: 12px; color: #777; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">👤 Bill To:</p>
+              <p style="font-size: 12px; color: #777; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">👤 ${t.billTo}:</p>
               <p style="font-size: 15px; font-weight: 700; color: #1A2B4A; margin-bottom: 6px;">${client.name}</p>
               ${client.addressLine1 ? `<p style="font-size: 13px; color: #555; line-height: 20px;">${client.addressLine1}</p>` : ""}
               ${client.addressLine2 ? `<p style="font-size: 13px; color: #555; line-height: 20px;">${client.addressLine2}</p>` : ""}
@@ -131,10 +133,10 @@ export const brixTemplate = (data: any) => {
 
             <!-- Date Info -->
             <td style="width: 50%; vertical-align: top; padding-left: 20px;">
-              <p style="font-size: 12px; color: #777; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">📅 Date:</p>
-              <p style="font-size: 13px; color: #555; margin-bottom: 6px;">Invoice date: <strong>${dateformatter(issueDate)}</strong></p>
-              <p style="font-size: 13px; color: #555; margin-bottom: 6px;">Due date: <strong>${dateformatter(dueDate)}</strong></p>
-              <p style="font-size: 13px; color: #555;">Status: <strong style="color: #2581FF;">${data.status ?? "Unpaid"}</strong></p>
+              <p style="font-size: 12px; color: #777; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">📅 ${t.date}:</p>
+              <p style="font-size: 13px; color: #555; margin-bottom: 6px;">${t.issueDate}: <strong>${dateformatter(issueDate)}</strong></p>
+              <p style="font-size: 13px; color: #555; margin-bottom: 6px;">${t.dueDate}: <strong>${dateformatter(dueDate)}</strong></p>
+              <p style="font-size: 13px; color: #555;">${t.invoiceStatus}: <strong style="color: #2581FF;">${data.status ?? "Unpaid"}</strong></p>
               ${paymentTermsCell}
             </td>
           </tr>
@@ -144,10 +146,10 @@ export const brixTemplate = (data: any) => {
         <table style="width: 100%; border-collapse: separate; border-spacing: 0 10px; margin-bottom: 10px;">
           <thead>
             <tr>
-              <th style="text-align: left; background: #F8FAFC; padding: 15px; border-radius: 10px; font-size: 12px; color: #555; width: 45%;">🕹️ Item</th>
-              <th style="text-align: center; background: #F8FAFC; padding: 15px; border-radius: 10px; font-size: 12px; color: #555; width: 15%;">📊 Quantity</th>
-              <th style="text-align: right; background: #F8FAFC; padding: 15px; border-radius: 10px; font-size: 12px; color: #555; width: 20%;">💵 Price</th>
-              <th style="text-align: right; background: #F8FAFC; padding: 15px; border-radius: 10px; font-size: 12px; color: #555; width: 20%;">💰 Total</th>
+              <th style="text-align: left; background: #F8FAFC; padding: 15px; border-radius: 10px; font-size: 12px; color: #555; width: 45%;">🕹️ ${t.item}</th>
+              <th style="text-align: center; background: #F8FAFC; padding: 15px; border-radius: 10px; font-size: 12px; color: #555; width: 15%;">📊 ${t.quantity}</th>
+              <th style="text-align: right; background: #F8FAFC; padding: 15px; border-radius: 10px; font-size: 12px; color: #555; width: 20%;">💵 ${t.price}</th>
+              <th style="text-align: right; background: #F8FAFC; padding: 15px; border-radius: 10px; font-size: 12px; color: #555; width: 20%;">💰 ${t.total}</th>
             </tr>
           </thead>
           <tbody>
@@ -163,12 +165,12 @@ export const brixTemplate = (data: any) => {
               <div style="background: #2581FF; color: white; padding: 30px; border-radius: 25px;">
                 <table style="width: 100%; border-collapse: collapse;">
                   <tr>
-                    <td style="padding: 6px 0; font-size: 14px; color: rgba(255,255,255,0.85);">Subtotal</td>
+                    <td style="padding: 6px 0; font-size: 14px; color: rgba(255,255,255,0.85);">${t.subtotal}</td>
                     <td style="padding: 6px 0; font-size: 14px; color: white; text-align: right;">${formatCurrency(computedSubTotal, currency)}</td>
                   </tr>
                   ${computedTaxAmount > 0 ? `
                   <tr>
-                    <td style="padding: 6px 0; font-size: 14px; color: rgba(255,255,255,0.85);">TAX</td>
+                    <td style="padding: 6px 0; font-size: 14px; color: rgba(255,255,255,0.85);">${t.tax}</td>
                     <td style="padding: 6px 0; font-size: 14px; color: white; text-align: right;">${formatCurrency(computedTaxAmount, currency)}</td>
                   </tr>` : ""}
                   <tr>
@@ -177,7 +179,7 @@ export const brixTemplate = (data: any) => {
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding: 10px 0; font-size: 20px; font-weight: 700;">Invoice Total</td>
+                    <td style="padding: 10px 0; font-size: 20px; font-weight: 700;">${t.grandTotal}</td>
                     <td style="padding: 10px 0; font-size: 20px; font-weight: 700; text-align: right;">${formatCurrency(totalAmount, currency)}</td>
                   </tr>
                 </table>

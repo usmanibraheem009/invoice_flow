@@ -7,6 +7,7 @@ import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import { Formik } from 'formik'
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
     KeyboardAvoidingView,
     Modal,
@@ -32,6 +33,7 @@ interface modalProps extends InvoiceItem {
 const ItemModal = ({ visible, onClose, onSubmitItem, editItem }: modalProps) => {
 
     const { theme } = useTheme();
+    const { t } = useTranslation();
     const [mode, setMode] = useState<ItemMode>('Product');
     const [isActive, setIsActive] = useState(false);
     const dispatch = useDispatch();
@@ -69,15 +71,15 @@ const ItemModal = ({ visible, onClose, onSubmitItem, editItem }: modalProps) => 
                                     <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 12 }} >
                                         <ItemModeToggle mode={mode} onModeChange={setMode} />
 
-                                        <InputTab placeholder={mode === 'Product' ? 'Product Name' : 'Service Name'}
+                                        <InputTab placeholder={mode === 'Product' ? `${t('products.productName')}` : 'Service Name'}
                                             value={values.name} onChangeText={handleChange('name')} />
                                         {touched.name && errors.name && (<ErrorText errorText={errors.name} />)}
 
-                                        <InputTab placeholder={'Description'}
+                                        <InputTab placeholder={t('products.description')}
                                             value={values.description} onChangeText={handleChange('description')} multiline={true} numberOfLines={3} />
                                         {touched.description && errors.description && (<ErrorText errorText={errors.description} />)}
 
-                                        <InputTab placeholder={mode === 'Product' ? 'Unit Price' : 'Price Per Hour'} keyboardType='numeric'
+                                        <InputTab placeholder={mode === 'Product' ? `${t('products.unitPrice')}` : `${t('products.pricePerHour')}`} keyboardType='numeric'
                                             value={values.unitPrice} onChangeText={handleChange('unitPrice')} />
                                         {touched.unitPrice && errors.unitPrice && (<ErrorText errorText={errors.unitPrice} />)}
 
@@ -86,7 +88,7 @@ const ItemModal = ({ visible, onClose, onSubmitItem, editItem }: modalProps) => 
                                             <Switch value={isActive} onValueChange={(value) => setIsActive(value)} />
                                         </View>
 
-                                        <SimpleButton btnText={editItem ? 'EDIT ITEM' : 'ADD ITEM'} onPress={() => handleSubmit()} />
+                                        <SimpleButton btnText={editItem ? `${t('products.updateProduct')}` : `${t('products.addProductBtn')}`} onPress={() => handleSubmit()} />
 
                                     </ScrollView>
 

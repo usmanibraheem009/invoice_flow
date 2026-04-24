@@ -31,12 +31,6 @@ const status = [
   { name: 'PENDING', value: 'PENDING' },
 ]
 
-const daysOptions = [
-  { name: '1 day before', value: '1' },
-  { name: '2 days before', value: '2' },
-  { name: '3 days before', value: '3' },
-  { name: '5 days before', value: '5' },
-];
 
 const formatTime = (hour: number, minute: number) => {
   const date = new Date()
@@ -52,6 +46,12 @@ const PreviewScreen = () => {
   const draft = useSelector((state: RootState) => state.invoiceReducer.draft)
   const invoStatus = useSelector(selectInvoiceStatus)
 
+  const daysOptions = [
+    { name: `1 ${t('common.daysBefore')}`, value: '1' },
+    { name: `2 ${t('common.daysBefore')}`, value: '2' },
+    { name: `3 ${t('common.daysBefore')}`, value: '3' },
+    { name: `5 ${t('common.daysBefore')}`, value: '5' },
+  ];
   const [reminderEnabled, setReminderEnabled] = useState(invoStatus !== 'PAID')
   const [daysBefore, setDaysBefore] = useState(1)
   const [reminderTime, setReminderTime] = useState<{ hour: number; minute: number }>({ hour: 9, minute: 0 })
@@ -110,7 +110,7 @@ const PreviewScreen = () => {
         }
       }
 
-      dispatch(showSnackbar({ message: response.message, type: 'success' }))
+      dispatch(showSnackbar({ message: t('invoice.invoiceCreated'), type: 'success' }))
       router.replace('/(tabs)/invoices')
       await AsyncStorage.setItem('lastInvoiceNumber', values.invoiceNumber)
     } catch (error: any) {
@@ -157,17 +157,17 @@ const PreviewScreen = () => {
             </View>
 
             <View style={styles.billingBox}>
-              <Text style={[styles.item, { color: theme.text.secondary }]}>Grand Total</Text>
+              <Text style={[styles.item, { color: theme.text.secondary }]}>{t('invoice.grandTotal')}</Text>
               <Text style={[styles.amount, { color: theme.text.secondary }]}>$ {grandTotal}</Text>
             </View>
           </View>
 
           <View style={styles.notesContainer}>
-            <Text style={[styles.label, { color: theme.text.secondary }]}>NOTES TO CLIENT</Text>
+            <Text style={[styles.label, { color: theme.text.secondary }]}>{t('invoice.noteToClients')}</Text>
             <InputTab icon={<Ionicons name='pencil' color={theme.text.secondary} size={24} />} numberOfLines={2} multiline placeholder='Add a note...' value={notes} onChangeText={(text) => dispatch(setNotes(text))} />
           </View>
 
-          <Text style={[styles.label, { color: theme.text.secondary, marginTop: mVs(20), marginBottom: mVs(10) }]}>INVOICE STATUS</Text>
+          <Text style={[styles.label, { color: theme.text.secondary, marginTop: mVs(20), marginBottom: mVs(10) }]}>{t('invoice.invoiceStatus')}</Text>
           <Pressable onPress={() => setStatusModal(true)}>
             <InputTab placeholder='Select Status' value={invoStatus} editable={false} />
           </Pressable>
@@ -176,9 +176,9 @@ const PreviewScreen = () => {
 
             <View style={styles.reminderToggleRow}>
               <View style={{ flex: 1 }}>
-                <Text style={[styles.reminderTitle, { color: theme.text.primary }]}>Payment Reminder</Text>
+                <Text style={[styles.reminderTitle, { color: theme.text.primary }]}>{t('invoice.reminder')}</Text>
                 <Text style={[styles.reminderSubtitle, { color: theme.text.secondary }]}>
-                  {reminderEnabled ? 'Reminder is scheduled' : 'No reminder will be sent'}
+                  {reminderEnabled ? t('invoice.reminderScheduled') : t('invoice.noReminder')}
                 </Text>
               </View>
               <Switch
@@ -240,7 +240,7 @@ const PreviewScreen = () => {
       <ModalWrapper visible={statusModal} modalTitle='Select status' data={status} labelKey='name' valueKey='value'
         onClose={() => setStatusModal(false)} onItemPress={handleStatusChange} />
 
-      <ModalWrapper visible={daysModal} modalTitle='Remind me...' data={daysOptions} labelKey='name' valueKey='value'
+      <ModalWrapper visible={daysModal} modalTitle={t('common.remindMe')} data={daysOptions} labelKey='name' valueKey='value'
         onClose={() => setDaysModal(false)}
         onItemPress={(item) => { setDaysBefore(Number(item.value)); setDaysModal(false) }} />
 

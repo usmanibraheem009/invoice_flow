@@ -13,12 +13,14 @@ import { fetchAllProducts, normalizeProduct } from '@/src/redux/thunks/products-
 import AuthHeader from '@/src/ui/components/screen-header'
 import { mVs } from '@/src/utils/scale'
 import React, { useEffect, useState } from 'react'
-import { FlatList, StyleSheet, Text } from 'react-native'
+import { useTranslation } from 'react-i18next'
+import { ActivityIndicator, FlatList, StyleSheet, Text } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 const Products = () => {
 
     const { theme } = useTheme();
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const products = useSelector((state: RootState) => state.productsReducer.products);
     console.log(products);
@@ -87,9 +89,17 @@ const Products = () => {
         }
     };
 
+    if (products.length === 0) {
+        return (
+            <Screen>
+                <ActivityIndicator size='large' color={theme.text.secondary} style={{ marginTop: mVs(50) }} />
+            </Screen>
+        )
+    }
+
     return (
         <Screen>
-            <AuthHeader title='Products' />
+            <AuthHeader title={t('products.products')} />
             <FloatingButton icon='add' onPress={() => { setVisible(true) }} />
 
             <FlatList

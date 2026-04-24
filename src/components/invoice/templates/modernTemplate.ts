@@ -1,3 +1,4 @@
+import { getTranslations } from "@/src/locales/i18n";
 import { dateformatter } from "@/src/utils/date-formatter";
 import { formatCurrency } from "@/src/utils/helper";
 
@@ -19,6 +20,9 @@ export const modernTemplate = (data: any) => {
     footerText2,
   } = data;
 
+  const t = getTranslations().invoice;
+  const y = getTranslations().clients;
+
   // Generate table rows for items
   const itemsRows = (data.lineItems ?? [])
     .map(
@@ -36,7 +40,7 @@ export const modernTemplate = (data: any) => {
   <html>
   <head>
     <meta charset="UTF-8">
-    <title>Invoice</title>
+    <title>${t.title}</title>
     <style>
       body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; padding: 0; }
       .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; }
@@ -56,38 +60,38 @@ export const modernTemplate = (data: any) => {
   </head>
   <body>
     <div class="header">
-      <div class="invoice-title">INVOICE</div>
+      <div class="invoice-title">${t.title}</div>
       <div class="invoice-meta">
-        <div><strong>Invoice #:</strong> ${invoiceNumber}</div>
-        <div><strong>Date:</strong> ${dateformatter(issueDate)}</div>
-        <div><strong>Due:</strong> ${dateformatter(dueDate)}</div>
+        <div><strong>${t.invoiceNumber}:</strong> ${invoiceNumber}</div>
+        <div><strong>${t.issueDate}:</strong> ${dateformatter(issueDate)}</div>
+        <div><strong>${t.dueDate}:</strong> ${dateformatter(dueDate)}</div>
       </div>
     </div>
     
     <div class="content">
       <div class="parties">
         <div class="party">
-          <h3>FROM</h3>
+          <h3>${t.from}</h3>
           <strong>${data.currentUser.fullName ?? ''}</strong><br>
-          ${data.currentUser.currentOrganization ?? 'No organization registered yet'}<br>
+          ${data.currentUser.currentOrganization ?? `${y.noOrganization}`}<br>
           ${data.client.addressLine2 ?? ''}<br>
-          ${data.lineItems.taxRate ?? 'No tax rate specified'}
+          ${data.lineItems.taxRate ?? `${t.noTaxRate}`}
         </div>
         <div class="party" style="text-align: right;">
-          <h3>TO</h3>
+          <h3>${t.to}</h3>
           <strong>${data.client.name}</strong><br>
           ${data.client.addressLine1 ?? ''}<br>
           ${data.client.addressLine2 ?? ''}<br>
-          ${data.taxRate ?? 'No tax rate specified'}
+          ${data.taxRate ?? `${t.noTaxRate}`}
         </div>
       </div>
       
       <table>
         <thead>
           <tr>
-            <th>Description</th>
-            <th style="text-align: right;">Hours/Quantity</th>
-            <th style="text-align: right;">Amount</th>
+            <th>${t.item}</th>
+            <th style="text-align: right;">${t.quantity}</th>
+            <th style="text-align: right;">${t.amount}</th>
           </tr>
         </thead>
         <tbody>
@@ -96,11 +100,11 @@ export const modernTemplate = (data: any) => {
       </table>
       
       <table class="totals">
-        <tr class="total-row"><td>Total:</td><td style="text-align: right;">${formatCurrency(data.totalAmount, currency)}</td></tr>
+        <tr class="total-row"><td>${t.total}:</td><td style="text-align: right;">${formatCurrency(data.totalAmount, currency)}</td></tr>
       </table>
       
       <div class="notes">
-        <strong style="color: #667eea;">Notes:</strong><br>
+        <strong style="color: #667eea;">${t.notes}:</strong><br>
         ${data.notes ?? ''}<br>
       </div>
     </div>

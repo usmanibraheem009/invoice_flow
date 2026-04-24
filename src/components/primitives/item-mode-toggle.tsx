@@ -1,6 +1,7 @@
 import { useTheme } from '@/src/hooks/useTheme';
 import { mVs } from '@/src/utils/scale';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 export type ItemMode = 'Product' | 'Service';
@@ -13,16 +14,17 @@ interface itemModeProps {
 const ItemModeToggle = ({ mode, onModeChange }: itemModeProps) => {
 
     const { theme } = useTheme();
+    const { t } = useTranslation();
 
     return (
-        
-        <View style={[styles.container, {backgroundColor: theme.background.secondary, borderColor: theme.border.secondary}]}>
-            <Pressable style={[styles.option, {backgroundColor: mode === 'Product' ? theme.surface.secondary : 'transparent'}]} onPress={()=> onModeChange('Product')}>
-                <Text style={[styles.text,{color:  mode === 'Product' ? '#ffff': theme.text.secondary}]}>Product</Text>
+
+        <View style={[styles.container, { backgroundColor: theme.background.secondary, borderColor: theme.border.secondary }]}>
+            <Pressable style={[styles.option, { backgroundColor: mode === 'Product' ? theme.surface.secondary : 'transparent' }]} onPress={() => onModeChange('Product')}>
+                <Text style={[styles.text, { color: mode === 'Product' ? '#ffff' : theme.text.secondary }]}>{t('products.products')}</Text>
             </Pressable>
 
-            <Pressable style={[styles.option, {backgroundColor: mode === 'Service' ? theme.surface.secondary : 'transparent'}]} onPress={()=> onModeChange('Service')}>
-                <Text style={[styles.text,{color: mode === 'Service' ? '#ffff': theme.text.secondary}]}>Service</Text>
+            <Pressable style={[styles.option, { backgroundColor: mode === 'Service' ? theme.surface.secondary : 'transparent' }]} onPress={() => onModeChange('Service')}>
+                <Text style={[styles.text, { color: mode === 'Service' ? '#ffff' : theme.text.secondary }]}>Service</Text>
             </Pressable>
         </View>
     )
