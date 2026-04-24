@@ -143,6 +143,7 @@ export default {
     products: {
         title: "产品与服务",
         products: "产品",
+        product: "产品",
         addProduct: "添加产品",
         editProduct: "编辑产品",
         deleteProduct: "删除产品",

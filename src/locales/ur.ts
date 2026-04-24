@@ -145,6 +145,7 @@ export default {
     products: {
         title: "مصنوعات اور خدمات",
         products: "مصنوعات",
+        product: "پروڈکٹ",
         addProduct: "مصنوعہ شامل کریں",
         editProduct: "مصنوعہ ترمیم کریں",
         deleteProduct: "مصنوعہ حذف کریں",

@@ -90,7 +90,7 @@ const InvoiceDetails = () => {
                                 await deleteInvoice(invoiceId as string);
                                 router.back();
                                 dispatch(removeInvoice(selectedInvoice.id as string));
-                                dispatch(showSnackbar({ message: `${t('invoice.invoiceDeleted')}`, type: 'success' }));
+                                dispatch(showSnackbar({ message: `${t('common.deletedMsg', { param: `${t('invoice.title')}` })}`, type: 'success' }));
                             } catch (error: any) {
                                 dispatch(showSnackbar({ message: error?.message || 'Error deleting invoice', type: 'error' }));
                             }

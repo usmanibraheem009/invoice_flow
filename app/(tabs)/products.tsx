@@ -14,7 +14,7 @@ import AuthHeader from '@/src/ui/components/screen-header'
 import { mVs } from '@/src/utils/scale'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, FlatList, StyleSheet, Text } from 'react-native'
+import { ActivityIndicator, Alert, FlatList, StyleSheet, Text } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 const Products = () => {
@@ -80,13 +80,20 @@ const Products = () => {
     };
 
     const deleteItem = async (id: string) => {
-        try {
-            const response = await deleteProduct(id);
-            dispatch(showSnackbar({ message: response.message, type: 'success' }));
-            dispatch(deleteStoredProduct(id));
-        } catch (error: any) {
-            dispatch(showSnackbar({ message: error.message, type: 'error' }));
-        }
+        Alert.alert(`${t('common.warning')}`, `${t('common.areYouSure', { param: `${t('products.product')}` })}`,
+            [
+                { text: `${t('common.cancel')}`, style: 'cancel', },
+                {
+                    text: `${t('common.yes')}`, style: 'destructive', onPress: async () => {
+                        try {
+                            const response = await deleteProduct(id);
+                            dispatch(showSnackbar({ message: `${t('common.deletedMsg', { param: `${t('products.product')}` })}`, type: 'success' }));
+                            dispatch(deleteStoredProduct(id));
+                        } catch (error: any) {
+                            dispatch(showSnackbar({ message: error.message, type: 'error' }));
+                        }
+                    }
+                }])
     };
 
     if (products.length === 0) {

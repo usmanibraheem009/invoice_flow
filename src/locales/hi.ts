@@ -146,6 +146,7 @@ export default {
     products: {
         title: "उत्पाद और सेवाएं",
         products: "उत्पाद",
+        product: "उत्पाद",
         addProduct: "उत्पाद जोड़ें",
         editProduct: "उत्पाद संपादित करें",
         deleteProduct: "उत्पाद हटाएं",

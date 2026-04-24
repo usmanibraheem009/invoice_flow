@@ -147,6 +147,7 @@ export default {
     products: {
         title: "Products & Services",
         products: 'Products',
+        product: "Product",
         addProduct: "Add Product",
         editProduct: "Edit Product",
         deleteProduct: "Delete Product",
