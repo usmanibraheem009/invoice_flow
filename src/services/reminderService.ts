@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
+import { useTranslation } from "react-i18next";
 import { Platform } from "react-native";
 
 const STORAGE_KEY = "invoice_notifications";
@@ -67,10 +68,11 @@ export const scheduleInvoiceReminder = async (
             };
         }
 
+        const { t } = useTranslation();
         const notificationId = await Notifications.scheduleNotificationAsync({
             content: {
                 title: "Invoice Payment Reminder 💰",
-                body: `Due date for ${invoiceNumber} is reaching soon.`,
+                body: `${t('invoice.reminderMessage', { invoiceNumber, dueDate })}`,
                 sound: true,
             },
             trigger,

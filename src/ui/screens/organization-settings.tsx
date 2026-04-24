@@ -12,6 +12,7 @@ import { RootState } from '@/src/redux/store/myStore'
 import { mVs } from '@/src/utils/scale'
 import { router } from 'expo-router'
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import AuthHeader from '../components/screen-header'
@@ -21,18 +22,19 @@ const OrganizationSettings = () => {
     const organization = useSelector((state: RootState) => state.organizationReducer.data);
     const [edit, setEdit] = useState(false);
     const { theme } = useTheme();
+    const { t } = useTranslation();
     const dispatch = useDispatch();
 
     const deleteOrg = async (id: string) => {
-        Alert.alert('Warning', 'Are you sure you want to delete organization?',
+        Alert.alert(`${t('common.warning')}`, `${t('common.areYouSure', { param: `${t('organization.title')}` })}`,
             [
-                { text: 'Cancel', style: 'cancel' },
+                { text: `${t('common.cancel')}`, style: 'cancel' },
                 {
-                    text: 'Yes', onPress: async () => {
+                    text: `${t('common.yes')}`, onPress: async () => {
                         dispatch(setLoading(true));
                         try {
                             await deleteOrganization(id);
-                            dispatch(showSnackbar({ message: 'Organization Deleted successfully', type: 'success' }));
+                            dispatch(showSnackbar({ message: `${t('organization.organizationDeleted')}`, type: 'success' }));
                             dispatch(clearOrganization());
                         } catch (error: any) {
                             dispatch(showSnackbar({ message: error.message, type: error.type }));
@@ -49,11 +51,11 @@ const OrganizationSettings = () => {
     if (!organization) {
         return (
             <Screen>
-                <AuthHeader arrowBack title="Organization" />
+                <AuthHeader arrowBack title={t('organization.title')} />
 
                 <Pressable onPress={() => router.push('/screens/add-organization')} style={{ paddingHorizontal: mVs(20) }}>
                     <InputTab
-                        placeholder=" + Add new organization"
+                        placeholder={t('organization.addNewOrganization')}
                         editable={false}
                         centerAlign
                     />
@@ -64,29 +66,29 @@ const OrganizationSettings = () => {
 
     return (
         <ScreenWrapper>
-            <AuthHeader arrowBack title='Organization' />
+            <AuthHeader arrowBack title={t('organization.title')} />
             <View style={[styles.container, { borderColor: theme.border.secondary }]}>
 
                 <UserAvatar name={organization?.legalName} />
-                <Text style={[styles.labelText, { color: theme.text.secondary }]}>ORGANIZATION NAME</Text>
+                <Text style={[styles.labelText, { color: theme.text.secondary }]}>{t('organization.OrganizationName')}</Text>
                 <InputTab placeholder={'Enter legal name'} value={organization?.legalName || ''} editable={edit} />
 
-                <Text style={[styles.labelText, { color: theme.text.secondary }]}>TAX ID</Text>
+                <Text style={[styles.labelText, { color: theme.text.secondary }]}>{t('organization.TaxId')}</Text>
                 <InputTab placeholder={'Enter Tax Id'} value={organization?.taxId || ''} editable={edit} />
 
-                <Text style={[styles.labelText, { color: theme.text.secondary }]}>HOME CURRENCY</Text>
+                <Text style={[styles.labelText, { color: theme.text.secondary }]}>{t('organization.HomeCurrency')}</Text>
                 <InputTab placeholder={'Enter home currency'} value={organization?.homeCurrency || ''} editable={edit} />
             </View>
 
             <View style={styles.btnContainer}>
-                <SimpleButton btnText='Edit Info' onPress={() => {
+                <SimpleButton btnText={t('organization.editOrganization')} onPress={() => {
                     router.push({
                         pathname: '/screens/add-organization',
                         params: { editable: 'true' }
                     });
                 }} />
 
-                <SimpleButton btnText='Delete organization' onPress={() => deleteOrg(organization!.id)} backgroundColor={theme.surface.tertiary} />
+                <SimpleButton btnText={t('organization.deleteOrganization')} onPress={() => deleteOrg(organization!.id)} backgroundColor={theme.surface.tertiary} />
             </View>
         </ScreenWrapper>
     )

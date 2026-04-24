@@ -2,6 +2,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { mVs } from '@/src/utils/scale';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FlatList, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import InputTab from '../primitives/input-tab';
 
@@ -21,6 +22,7 @@ interface modalProps {
 const ModalWrapper = ({ visible, searchBar, data, children, modalTitle, onClose, onItemPress, labelKey, valueKey }: modalProps) => {
 
     const { theme } = useTheme();
+    const { t } = useTranslation();
     const [searchText, setSearchText] = useState('');
     const [filteredData, setFilteredData] = useState<any[]>(data || []);
 
@@ -43,7 +45,7 @@ const ModalWrapper = ({ visible, searchBar, data, children, modalTitle, onClose,
                         </View>
 
                         {searchBar && (
-                            <InputTab placeholder='Search' value={searchText} onChangeText={setSearchText} icon={<Ionicons name='search' size={mVs(24)} color={theme.text.primary} />} />
+                            <InputTab placeholder={t('common.search')} value={searchText} onChangeText={setSearchText} icon={<Ionicons name='search' size={mVs(24)} color={theme.text.primary} />} />
                         )}
 
                         {

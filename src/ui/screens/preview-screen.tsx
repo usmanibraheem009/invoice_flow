@@ -88,6 +88,7 @@ const PreviewScreen = () => {
       let response
       if (isEditMode) {
         response = await updateInvoice(draft.invoiceId!, draft)
+        dispatch(showSnackbar({ message: `${t('common.updatedMessage', { param: `${t('invoice.title')}` })}`, type: 'success' }))
       } else {
         response = await createInvoice(finalData)
         if (response?.success) {
@@ -110,7 +111,7 @@ const PreviewScreen = () => {
         }
       }
 
-      dispatch(showSnackbar({ message: t('invoice.invoiceCreated'), type: 'success' }))
+      dispatch(showSnackbar({ message: `${t('common.createdMsg', { param: `${t('invoice.title')}` })}`, type: 'success' }))
       router.replace('/(tabs)/invoices')
       await AsyncStorage.setItem('lastInvoiceNumber', values.invoiceNumber)
     } catch (error: any) {

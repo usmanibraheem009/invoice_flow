@@ -13,6 +13,7 @@ import { router } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlatList, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator } from 'react-native-paper'
 import { useDispatch, useSelector } from 'react-redux'
 
 const clients = () => {
@@ -47,6 +48,12 @@ const clients = () => {
     dispatch(loadClients() as any);
 
     setRefreshing(false);
+  }
+
+  if (!clients) {
+    <Screen>
+      <ActivityIndicator size={'large'} color={theme.text.secondary} />
+    </Screen>
   }
 
   return (

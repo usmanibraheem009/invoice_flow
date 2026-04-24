@@ -25,8 +25,8 @@ export default RevenueCard
 
 const styles = StyleSheet.create({
     container: {
-        height: 'auto',
-        width: mVs(100),
+        height: mVs(100),
+        width: mVs(110),
         padding: 20,
         borderRadius: 10,
         borderWidth: 1,

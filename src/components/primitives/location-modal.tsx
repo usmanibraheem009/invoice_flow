@@ -2,6 +2,7 @@ import { useTheme } from '@/src/hooks/useTheme'
 import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FlatList, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native'
 import InputTab from './input-tab'
 
@@ -21,6 +22,7 @@ interface modalProps {
 const LocationModal = ({ values, modalTitle, onSelected, onClose, visible }: modalProps) => {
 
     const { theme } = useTheme();
+    const { t } = useTranslation();
     const [searchLocation, setSearchLocation] = useState('');
     const [filteredValues, setFilteredValues] = useState(values);
 
@@ -41,7 +43,7 @@ const LocationModal = ({ values, modalTitle, onSelected, onClose, visible }: mod
                             <Ionicons name='close' color={theme.text.primary} size={24} onPress={onClose} />
                         </View>
 
-                        <InputTab placeholder='Search' value={searchLocation} onChangeText={ setSearchLocation}
+                        <InputTab placeholder={t('common.search')} value={searchLocation} onChangeText={setSearchLocation}
                             icon={<Ionicons name='search' size={mVs(24)} color={theme.text.primary} />} />
 
                         <FlatList data={filteredValues} keyExtractor={(item) => item.label} renderItem={({ item }) => (

@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     marginTop: mVs(30)
   },
   scrollContainer: {
-    paddingRight: mVs(100),
+    paddingRight: mVs(10),
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 12,

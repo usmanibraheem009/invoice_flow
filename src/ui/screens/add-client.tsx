@@ -106,7 +106,7 @@ const AddClient = () => {
 
         dispatch(
           showSnackbar({
-            message: 'Client created successfully',
+            message: `${t('common.createdMsg', { param: `${t('clients.client')}` })}`,
             type: 'success',
           })
         );
@@ -183,7 +183,7 @@ const AddClient = () => {
 
               {showCountry && (
                 <LocationModal
-                  modalTitle="Select Country"
+                  modalTitle={t('common.select', { param: `${t('clients.country')}` })}
                   visible={showCountry}
                   onClose={() => setShowCountry(false)}
                   values={countries}
@@ -205,7 +205,7 @@ const AddClient = () => {
 
               {showState && (
                 <LocationModal
-                  modalTitle="Select State"
+                  modalTitle={t('common.select', { param: `${t('clients.state')}` })}
                   visible={showState}
                   onClose={() => setShowState(false)}
                   values={states}
@@ -227,7 +227,7 @@ const AddClient = () => {
 
               {showCity && cities?.length > 0 && (
                 <LocationModal
-                  modalTitle="Select City"
+                  modalTitle={t('common.select', { param: `${t('clients.city')}` })}
                   visible={showCity}
                   onClose={() => setShowCity(false)}
                   values={cities}

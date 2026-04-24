@@ -1,4 +1,4 @@
-import { Screen } from '@/src/components/layout'
+import { ScrollScreen } from '@/src/components/layout'
 import ModalWrapper from '@/src/components/layout/modal-wrapper'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
@@ -29,6 +29,13 @@ const AddInvoice = () => {
         dispatch(loadClients() as any);
     }, []);
 
+    const termKeyMap: Record<string, string> = {
+        'Due on receipt': 'dueOnReceipt',
+        'Net 7': 'net7',
+        'Net 15': 'net15',
+        'Net 30': 'net30',
+    };
+
     const { theme } = useTheme();
     const { t } = useTranslation();
     const formikRef = useRef<any>(null);
@@ -39,9 +46,6 @@ const AddInvoice = () => {
     const { editable } = useLocalSearchParams();
     const isEditable = editable === 'true';
     const invoice = useSelector((state: RootState) => state.invoicesListReducer.selectedInvoice);
-    const draft = useSelector((state: RootState) => state.invoiceReducer.draft);
-    console.log("dafted data: ", draft);
-
 
     const [issueDatePicker, setIssueDatePicker] = useState(false);
     const [dueDatePicker, setDueDatePicker] = useState(false);
@@ -99,7 +103,7 @@ const AddInvoice = () => {
 
     return (
         <>
-            <Screen >
+            <ScrollScreen >
 
                 <AuthHeader arrowBack title={t('invoice.step1')} />
 
@@ -188,14 +192,14 @@ const AddInvoice = () => {
                                     {touched.paymentTerms && errors.paymentTerms && (<ErrorText errorText={errors.paymentTerms} />)}
                                 </Pressable>
                                 {openPaymentList && (
-                                    <View style={styles.dropdownContainer}>
+                                    <View style={[styles.dropdownContainer, { borderColor: theme.border.secondary }]}>
                                         {paymentOptions.map((term) => (
-                                            <Pressable key={term} style={styles.dropdownItem} onPress={() => {
+                                            <Pressable key={term} style={[styles.dropdownItem, { borderBottomColor: theme.border.secondary }]} onPress={() => {
                                                 setFieldValue('paymentTerms', term);
                                                 setOpenPaymentList(false);
                                                 setFieldValue('dueDate', handleAutoDueDate(values.issueDate, term))
                                             }}>
-                                                <Text style={[styles.terms, { color: theme.text.primary }]}>{term}</Text>
+                                                <Text style={[styles.terms, { color: theme.text.primary }]}>{t(`paymentTerms.${termKeyMap[term]}`, term)}</Text>
                                             </Pressable>
                                         ))}
                                     </View>
@@ -206,7 +210,7 @@ const AddInvoice = () => {
                         )}
                     </Formik>
                 </View>
-            </Screen>
+            </ScrollScreen>
             <ScreenFooter>
                 <SimpleButton btnText={t('common.nextStep')} onPress={() => { formikRef.current?.handleSubmit() }} />
             </ScreenFooter>
@@ -241,7 +245,6 @@ const styles = StyleSheet.create({
     },
     dropdownContainer: {
         borderWidth: 1,
-        borderColor: '#ccc',
         borderRadius: 6,
         marginTop: 4,
         overflow: 'hidden',
@@ -250,7 +253,6 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#eee',
     },
     terms: {
         fontSize: mVs(16),

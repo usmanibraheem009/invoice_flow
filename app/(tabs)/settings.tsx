@@ -52,7 +52,7 @@ const settings = () => {
           <UserAvatar name={user?.fullName || 'Dummy User'} />
           <View style={styles.rightBox}>
             <Text style={[styles.userName, { color: theme.text.primary }]}>{user?.fullName || 'Dummy User'}</Text>
-            <Text style={[styles.taxId, { color: theme.text.secondary }]}>{organizationData?.legalName || 'No organization registered yet'}</Text>
+            <Text style={[styles.taxId, { color: theme.text.secondary }]}>{organizationData?.legalName || `${t('clients.noOrganization')}`}</Text>
           </View>
         </View>
 

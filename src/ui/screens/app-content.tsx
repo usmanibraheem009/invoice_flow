@@ -48,7 +48,7 @@ const AppContent = () => {
         const loadOrganization = async () => {
             try {
                 await initI18n();
-                if (!organization?.id) return; // ✅ GUARD
+                if (!organization?.id) return;
 
                 const res = await fetchOrganization(organization.id);
 

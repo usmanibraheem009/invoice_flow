@@ -80,17 +80,17 @@ const InvoiceDetails = () => {
     };
 
     const onDelete = async () => {
-        Alert.alert('Warning', 'Are you sure you want to delete this item',
+        Alert.alert(`${t('common.warning')}`, `${t('common.areYouSure', { param: `${t('invoice.title')}` })}`,
             [
-                { text: 'Cancel', style: 'cancel', },
+                { text: `${t('common.cancel')}`, style: 'cancel', },
                 {
-                    text: 'Yes', style: 'destructive', onPress: async () => {
+                    text: `${t('common.yes')}`, style: 'destructive', onPress: async () => {
                         if (invoiceId) {
                             try {
                                 await deleteInvoice(invoiceId as string);
                                 router.back();
                                 dispatch(removeInvoice(selectedInvoice.id as string));
-                                dispatch(showSnackbar({ message: 'Invoice deleted successfully', type: 'success' }));
+                                dispatch(showSnackbar({ message: `${t('invoice.invoiceDeleted')}`, type: 'success' }));
                             } catch (error: any) {
                                 dispatch(showSnackbar({ message: error?.message || 'Error deleting invoice', type: 'error' }));
                             }
@@ -114,8 +114,8 @@ const InvoiceDetails = () => {
             <ScrollScreen>
                 <AuthHeader arrowBack title={selectedInvoice.invoiceNumber || 'INV-0001'} trailingComponent={
                     <Menu visible={showDropDown} anchor={<IconButton icon={'dots-vertical'} onPress={() => openMenu()} />}>
-                        <Menu.Item title='Edit' onPress={() => { onEdit(); closeMenu() }} />
-                        <Menu.Item title='Delete' onPress={() => { onDelete(); closeMenu() }} />
+                        <Menu.Item title={t('common.edit')} onPress={() => { onEdit(); closeMenu() }} />
+                        <Menu.Item title={t('common.delete')} onPress={() => { onDelete(); closeMenu() }} />
                     </Menu>
                 } />
                 <View style={[styles.container, { borderColor: theme.border.secondary, backgroundColor: theme.background.secondary }]}>

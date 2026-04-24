@@ -102,19 +102,18 @@ const ClientProfile = () => {
   };
 
   const deleteClient = async (id: string) => {
-    Alert.alert('Warning', 'Delete client permanently?', [
-      { text: 'cancel', style: 'cancel' },
+    Alert.alert(`${t('common.warning')}`, `${t('common.areYouSure', { param: `${t('clients.client')}` })}`, [
+      { text: `${t('common.cancel')}`, style: 'cancel', },
       {
-        text: 'Yes', onPress: async () => {
+        text: `${t('common.yes')}`, style: 'destructive', onPress: async () => {
           dispatch(setLoading(true))
           try {
             await deleteExistingClient(id);
             dispatch(showSnackbar({
-              message: 'Client deleted successfully', type: 'error'
+              message: `${t('common.deletedMessage', { param: `${t('clients.client')}` })}`, type: 'error'
             }));
             router.back();
           } catch (error: any) {
-            console.log('delete error: ', error)
             dispatch(showSnackbar({
               message: error.message, type: error.type
             }))

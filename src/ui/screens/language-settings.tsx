@@ -22,17 +22,6 @@ const LanguageScreen = () => {
     try {
       setLoading(true);
       await changeLanguage(selected);
-
-      const isRTL = selected === 'ur';
-      if (isRTL) {
-        Alert.alert(
-          'Language Changed',
-          'Please restart the app for the layout direction to update fully.',
-          [{ text: 'OK', onPress: () => router.back() }]
-        );
-      } else {
-        router.back();
-      }
     } catch (error) {
       Alert.alert('Error', 'Failed to change language');
       console.log(error);

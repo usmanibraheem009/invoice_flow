@@ -3,6 +3,7 @@ import { ScrollScreen } from '@/src/components/layout'
 import ModalWrapper from '@/src/components/layout/modal-wrapper'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
+import { useTheme } from '@/src/hooks/useTheme'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
 import { setOrganization } from '@/src/redux/slices/organizationSlice'
 import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
@@ -12,20 +13,23 @@ import { initialValues, validationSchema } from '@/src/utils/auth-form'
 import { mVs } from '@/src/utils/scale'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Formik } from 'formik'
-import React, { useEffect, useState } from 'react'
-import { Pressable, StyleSheet, View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import ErrorText from '../components/error-text'
+import ScreenFooter from '../components/screen-footer'
 import AuthHeader from '../components/screen-header'
 
 const AddOrganization = () => {
 
     const { editable } = useLocalSearchParams();
     const [showCurrencyModal, setShowCurrencyModal] = useState(false);
-    const [snackbar, setSnackbar] = useState<{ message: string, type: 'info' | 'success' | 'error' } | null>(null)
     const [countries, setCountries] = useState<CountryCurrency[]>([]);
     const dispatch = useDispatch();
-    const loading = useSelector((state: RootState) => state.loadingReducer.loading);
+    const { t } = useTranslation();
+    const { theme } = useTheme();
+    const formikRef = useRef<any>(null);
     const organization = useSelector((state: RootState) => state.organizationReducer.data);
 
 
@@ -38,7 +42,7 @@ const AddOrganization = () => {
             const data = await fetchCountries();
             setCountries(data);
         } catch (error: any) {
-            setSnackbar({ message: error.message, type: error.type })
+            dispatch(showSnackbar({ message: error.message, type: error.type }))
         }
     }
 
@@ -58,7 +62,7 @@ const AddOrganization = () => {
             } else {
                 res = await createOrganization(payload);
                 dispatch(showSnackbar({
-                    message: "Organization created successfully",
+                    message: `${t('common.createdMsg', { param: `${t('organization.title')}` })}`,
                     type: "success",
                 }));
                 router.back();
@@ -66,7 +70,7 @@ const AddOrganization = () => {
             dispatch(setOrganization(res.data));
 
         } catch (error: any) {
-            setSnackbar({ message: error?.message || "Something went wrong", type: "error", });
+            dispatch(showSnackbar({ message: error?.message || "Something went wrong", type: "error", }));
         } finally {
             dispatch(setLoading(false));
         }
@@ -80,38 +84,47 @@ const AddOrganization = () => {
     }
 
     return (
-        <ScrollScreen >
-            <AuthHeader title={editable ? 'Edit Organization' : 'Add Organization'} arrowBack />
+        <>
+            <ScrollScreen >
+                <AuthHeader title={editable ? `${t('organization.editOrganization')}` : `${t('organization.addOrganization')}`} arrowBack />
 
-            <View>
-                <Formik initialValues={editable ? editableInitials : initialValues.addOrganization} validationSchema={validationSchema.addOrganization} onSubmit={onSubmitFunc} >
-                    {({ values, errors, touched, handleChange, setFieldValue, handleSubmit }: any) => (
-                        <View style={styles.container}>
-                            <InputTab placeholder='Enter organization name' value={values.legalName} onChangeText={handleChange('legalName')} />
-                            {touched.legalName && errors.legalName && (<ErrorText errorText={errors.legalName} />)}
+                <View>
+                    <Formik innerRef={formikRef} initialValues={editable ? editableInitials : initialValues.addOrganization} validationSchema={validationSchema.addOrganization} onSubmit={onSubmitFunc} >
+                        {({ values, errors, touched, handleChange, setFieldValue, handleSubmit }: any) => (
+                            <View style={styles.container}>
 
-                            <InputTab placeholder='Enter Tax Id' value={values.taxId} onChangeText={handleChange('taxId')} />
-                            {touched.taxId && errors.taxId && (<ErrorText errorText={errors.taxId} />)}
+                                <Text style={[styles.labelText, { color: theme.text.secondary }]}> {t('organization.OrganizationName')} </Text>
+                                <InputTab placeholder={t('organization.organizationName')} value={values.legalName} onChangeText={handleChange('legalName')} />
+                                {touched.legalName && errors.legalName && (<ErrorText errorText={errors.legalName} />)}
 
-                            <Pressable onPress={() => setShowCurrencyModal(true)}>
-                                <InputTab placeholder='Select home currency' value={values.homeCurrency || ''} editable={false} />
-                                {touched.homeCurrency && errors.homeCurrency && (<ErrorText errorText={errors.homeCurrency} />)}
-                            </Pressable>
+                                <Text style={[styles.labelText, { color: theme.text.secondary }]}> {t('organization.TaxId')} </Text>
+                                <InputTab placeholder={t('organization.taxId')} value={values.taxId} onChangeText={handleChange('taxId')} />
+                                {touched.taxId && errors.taxId && (<ErrorText errorText={errors.taxId} />)}
 
-                            <SimpleButton btnText={editable ? 'Update Organization' : 'Add Organization'} onPress={handleSubmit} />
+                                <Text style={[styles.labelText, { color: theme.text.secondary }]}> {t('organization.HomeCurrency')} </Text>
+                                <Pressable onPress={() => setShowCurrencyModal(true)}>
+                                    <InputTab placeholder={t('organization.homeCurrency')} value={values.homeCurrency || ''} editable={false} />
+                                    {touched.homeCurrency && errors.homeCurrency && (<ErrorText errorText={errors.homeCurrency} />)}
+                                </Pressable>
 
-                            <ModalWrapper visible={showCurrencyModal} onClose={() => setShowCurrencyModal(false)} modalTitle='Select home currency' searchBar={true}
-                                labelKey={'label'} valueKey={'value'} data={countries} onItemPress={(item: CountryCurrency) => {
-                                    setFieldValue('homeCurrency', item.currencyCode);
-                                    console.log('selected currency: ', item);
-                                    setShowCurrencyModal(false);
-                                }} />
 
-                        </View>
-                    )}
-                </Formik>
-            </View>
-        </ScrollScreen>
+                                <ModalWrapper visible={showCurrencyModal} onClose={() => setShowCurrencyModal(false)} modalTitle={t('organization.homeCurrency')} searchBar={true}
+                                    labelKey={'label'} valueKey={'value'} data={countries} onItemPress={(item: CountryCurrency) => {
+                                        setFieldValue('homeCurrency', item.currencyCode);
+                                        console.log('selected currency: ', item);
+                                        setShowCurrencyModal(false);
+                                    }} />
+
+                            </View>
+                        )}
+                    </Formik>
+                </View>
+
+            </ScrollScreen>
+            <ScreenFooter>
+                <SimpleButton btnText={editable ? `${t('organization.updateOrganization')}` : `${t('organization.addOrganization')}`} onPress={() => { formikRef.current?.handleSubmit() }} />
+            </ScreenFooter>
+        </>
     )
 }
 
@@ -119,7 +132,13 @@ export default AddOrganization
 
 const styles = StyleSheet.create({
     container: {
-        gap: mVs(15),
         paddingHorizontal: mVs(20)
-    }
+    },
+    labelText: {
+        fontSize: mVs(14),
+        fontWeight: 500,
+        marginTop: mVs(15),
+        marginBottom: mVs(5)
+    },
+
 })
