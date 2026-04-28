@@ -19,7 +19,7 @@ import AuthHeader from '../components/screen-header'
 
 const OrganizationSettings = () => {
 
-    const organization = useSelector((state: RootState) => state.organizationReducer.data);
+    const currentOrg = useSelector((state: RootState) => state.userReducer.user?.currentOrganization ?? null);
     const [edit, setEdit] = useState(false);
     const { theme } = useTheme();
     const { t } = useTranslation();
@@ -48,7 +48,7 @@ const OrganizationSettings = () => {
 
     };
 
-    if (!organization) {
+    if (!currentOrg) {
         return (
             <Screen>
                 <AuthHeader arrowBack title={t('organization.title')} />
@@ -69,15 +69,15 @@ const OrganizationSettings = () => {
             <AuthHeader arrowBack title={t('organization.title')} />
             <View style={[styles.container, { borderColor: theme.border.secondary }]}>
 
-                <UserAvatar name={organization?.legalName} />
+                <UserAvatar name={currentOrg?.legalName ?? ''} />
                 <Text style={[styles.labelText, { color: theme.text.secondary }]}>{t('organization.OrganizationName')}</Text>
-                <InputTab placeholder={'Enter legal name'} value={organization?.legalName || ''} editable={edit} />
+                <InputTab placeholder={'Enter legal name'} value={currentOrg?.legalName || ''} editable={edit} />
 
                 <Text style={[styles.labelText, { color: theme.text.secondary }]}>{t('organization.TaxId')}</Text>
-                <InputTab placeholder={'Enter Tax Id'} value={organization?.taxId || ''} editable={edit} />
+                <InputTab placeholder={'Enter Tax Id'} value={currentOrg?.taxId || ''} editable={edit} />
 
                 <Text style={[styles.labelText, { color: theme.text.secondary }]}>{t('organization.HomeCurrency')}</Text>
-                <InputTab placeholder={'Enter home currency'} value={organization?.homeCurrency || ''} editable={edit} />
+                <InputTab placeholder={'Enter home currency'} value={currentOrg?.homeCurrency || ''} editable={edit} />
             </View>
 
             <View style={styles.btnContainer}>
@@ -88,7 +88,7 @@ const OrganizationSettings = () => {
                     });
                 }} />
 
-                <SimpleButton btnText={t('organization.deleteOrganization')} onPress={() => deleteOrg(organization!.id)} backgroundColor={theme.surface.tertiary} />
+                <SimpleButton btnText={t('organization.deleteOrganization')} onPress={() => deleteOrg(currentOrg!.id)} backgroundColor={theme.surface.tertiary} />
             </View>
         </ScreenWrapper>
     )

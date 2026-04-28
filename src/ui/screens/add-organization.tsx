@@ -15,7 +15,7 @@ import { router, useLocalSearchParams } from 'expo-router'
 import { Formik } from 'formik'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import ErrorText from '../components/error-text'
 import ScreenFooter from '../components/screen-footer'
@@ -30,7 +30,7 @@ const AddOrganization = () => {
     const { t } = useTranslation();
     const { theme } = useTheme();
     const formikRef = useRef<any>(null);
-    const organization = useSelector((state: RootState) => state.organizationReducer.data);
+    const currentOrg = useSelector((state: RootState) => state.userReducer.user?.currentOrganization ?? null);
 
 
     useEffect(() => {
@@ -52,12 +52,12 @@ const AddOrganization = () => {
         try {
             let res;
 
-            if (organization?.id) {
-                res = await updateOrganization(organization.id, payload);
-                dispatch(showSnackbar({
-                    message: "Organization updated successfully",
-                    type: "success"
-                }));
+            if (currentOrg?.id) {
+                res = await updateOrganization(currentOrg.id, payload);
+                dispatch(showSnackbar({ message: `${t('common.updatedMsg', { param: `${t('organization.title')}` })}`, type: 'success' }))
+                Alert.alert(`${t('common.restartTitle')}`, `${t('common.restartBody')}`, [
+                    { text: `${t('common.ok')}`, style: 'default', },
+                ]);
                 router.back();
             } else {
                 res = await createOrganization(payload);
@@ -77,10 +77,10 @@ const AddOrganization = () => {
     };
 
     const editableInitials = {
-        legalName: organization?.legalName || '',
-        organizationId: organization?.id || '',
-        taxId: organization?.taxId || '',
-        homeCurrency: organization?.homeCurrency || ''
+        legalName: currentOrg?.legalName || '',
+        organizationId: currentOrg?.id || '',
+        taxId: currentOrg?.taxId || '',
+        homeCurrency: currentOrg?.homeCurrency || ''
     }
 
     return (
@@ -122,7 +122,7 @@ const AddOrganization = () => {
 
             </ScrollScreen>
             <ScreenFooter>
-                <SimpleButton btnText={editable ? `${t('organization.updateOrganization')}` : `${t('organization.addOrganization')}`} onPress={() => { formikRef.current?.handleSubmit() }} />
+                <SimpleButton btnText={editable ? `${t('organization.editOrganization')}` : `${t('organization.addOrganization')}`} onPress={() => { formikRef.current?.handleSubmit() }} />
             </ScreenFooter>
         </>
     )

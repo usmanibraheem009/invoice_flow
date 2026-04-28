@@ -1,5 +1,7 @@
+import { useCurrency } from '@/src/hooks/useCurrency'
 import { useTheme } from '@/src/hooks/useTheme'
 import { secondary } from '@/src/theme/colors'
+import { formatCurrency } from '@/src/utils/helper'
 import { mVs } from '@/src/utils/scale'
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
@@ -8,15 +10,17 @@ interface revenueCardProps {
     title?: string,
     amount?: number,
     status?: string,
+    currency?: boolean
 }
 
-const RevenueCard = ({ title, amount, status }: revenueCardProps) => {
+const RevenueCard = ({ title, amount, status, currency }: revenueCardProps) => {
     const { theme } = useTheme();
+    const { homeCurrency } = useCurrency();
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background.secondary, borderColor: theme.border.primary }]}>
             <Text style={[styles.title, { color: theme.text.secondary }]}>{title}</Text>
-            <Text style={[styles.price, { color: status === 'PAID' ? secondary[50] : secondary[200] }]}>$ {amount}</Text>
+            <Text style={[styles.price, { color: status === 'PAID' ? secondary[50] : secondary[200] }]}>{currency ? formatCurrency(amount ?? 0, homeCurrency) : amount}</Text>
         </View>
     )
 }

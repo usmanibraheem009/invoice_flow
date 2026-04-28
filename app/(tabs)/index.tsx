@@ -95,7 +95,7 @@ const index = () => {
         contentContainerStyle={{ gap: 12, marginTop: mVs(20) }}
         ListEmptyComponent={() => (<Text style={[styles.dummyText, { color: theme.text.secondary }]}>{t('common.dummyText', { param: t('invoice.invoices') })}</Text>)}
         renderItem={({ item }) => (
-          <InvoiceCard title={item.client.name} invoiceNumber={item.invoiceNumber} status={item.status} price={Number(item.totalAmount)} issueDate={dateformatter(item.issueDate)} onPress={() => handleOnPress(item.id)} />
+          <InvoiceCard title={item.client?.name ?? 'Deleted Client'} invoiceNumber={item.invoiceNumber} status={item.status} price={Number(item.totalAmount)} issueDate={dateformatter(item.issueDate)} onPress={() => handleOnPress(item.id)} />
         )}
       />
 

@@ -5,6 +5,7 @@ import InvoiceCard from '@/src/components/invoice/invoice-card'
 import { Screen } from '@/src/components/layout'
 import ContactButton from '@/src/components/primitives/contact-button'
 import SimpleButton from '@/src/components/primitives/simple-button'
+import { useCurrency } from '@/src/hooks/useCurrency'
 import { useTheme } from '@/src/hooks/useTheme'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
 import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
@@ -25,6 +26,7 @@ const ClientProfile = () => {
 
   const { theme } = useTheme();
   const { t } = useTranslation();
+  const { homeCurrency } = useCurrency();
   const { clientId } = useLocalSearchParams();
   const [invoices, setInvoices] = useState<any[]>([]);
   console.log("client invoices data: ", invoices);
@@ -164,8 +166,8 @@ const ClientProfile = () => {
 
             <View style={{ flexDirection: 'row', marginHorizontal: mVs(20), gap: mVs(15), marginTop: mVs(20), alignItems: 'center', justifyContent: 'center' }}>
               <RevenueCard title={t('invoice.invoices')} amount={totalInvoices} />
-              <RevenueCard title={t('invoice.paid')} amount={paidAmount} status={'PAID'} />
-              <RevenueCard title={t('invoice.unpaid')} amount={unpaidAmount} status='UNPAID' />
+              <RevenueCard title={t('invoice.paid')} amount={paidAmount} status={'PAID'} currency />
+              <RevenueCard title={t('invoice.pending')} amount={unpaidAmount} status='UNPAID' currency />
             </View>
 
             <Text style={[styles.history, { color: theme.text.primary }]}>{t('common.history')}</Text>

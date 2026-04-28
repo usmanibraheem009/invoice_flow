@@ -2,7 +2,7 @@ import { getTranslations } from "@/src/locales/i18n";
 import { dateformatter } from "@/src/utils/date-formatter";
 import { formatCurrency } from "@/src/utils/helper";
 
-export const brixTemplate = (data: any) => {
+export const brixTemplate = (data: any, currency: string) => {
   const {
     invoiceNumber,
     issueDate,
@@ -13,7 +13,6 @@ export const brixTemplate = (data: any) => {
     subTotal,
     taxAmount,
     totalAmount,
-    currency = "USD",
     notes,
   } = data;
 

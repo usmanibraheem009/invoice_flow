@@ -1,9 +1,10 @@
 import { createInvoice, updateInvoice } from '@/src/apis/invoiceApi'
 import InvoiceStatus from '@/src/components/invoice/invoice-status'
+import { KeyboardScreen } from '@/src/components/layout'
 import ModalWrapper from '@/src/components/layout/modal-wrapper'
-import ScreenWrapper from '@/src/components/layout/screen-wrapper'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
+import { useCurrency } from '@/src/hooks/useCurrency'
 import { useTheme } from '@/src/hooks/useTheme'
 import { clearInvoiceDraft, incrementInvoiceNumber, setInvoiceStatus, setNotes } from '@/src/redux/slices/invoiceSlice'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
@@ -42,6 +43,7 @@ const PreviewScreen = () => {
 
   const { theme } = useTheme()
   const { t } = useTranslation();
+  const { homeCurrency } = useCurrency();
   const dispatch = useDispatch()
   const draft = useSelector((state: RootState) => state.invoiceReducer.draft)
   const invoStatus = useSelector(selectInvoiceStatus)
@@ -87,11 +89,12 @@ const PreviewScreen = () => {
     try {
       let response
       if (isEditMode) {
-        response = await updateInvoice(draft.invoiceId!, draft)
-        dispatch(showSnackbar({ message: `${t('common.updatedMessage', { param: `${t('invoice.title')}` })}`, type: 'success' }))
+        response = await updateInvoice(draft.invoiceId!, finalData)
+        dispatch(showSnackbar({ message: `${t('common.updatedMsg', { param: `${t('invoice.title')}` })}`, type: 'success' }))
       } else {
         response = await createInvoice(finalData)
         if (response?.success) {
+          dispatch(showSnackbar({ message: `${t('common.createdMsg', { param: `${t('invoice.title')}` })}`, type: 'success' }))
           dispatch(incrementInvoiceNumber());
           dispatch(clearInvoiceDraft())
         }
@@ -111,7 +114,6 @@ const PreviewScreen = () => {
         }
       }
 
-      dispatch(showSnackbar({ message: `${t('common.createdMsg', { param: `${t('invoice.title')}` })}`, type: 'success' }))
       router.replace('/(tabs)/invoices')
       await AsyncStorage.setItem('lastInvoiceNumber', values.invoiceNumber)
     } catch (error: any) {
@@ -123,7 +125,7 @@ const PreviewScreen = () => {
 
   return (
     <View style={{ flexGrow: 1 }}>
-      <ScreenWrapper scrollable paddingVertical={10} keyboardAvoidingView>
+      <KeyboardScreen >
         <AuthHeader arrowBack title={t('invoice.step3')} />
 
         <View style={styles.container}>
@@ -145,21 +147,20 @@ const PreviewScreen = () => {
                 <Text style={[styles.lineItems, styles.colItem, { color: theme.text.tertiary }]}>{t('invoice.item')}</Text>
                 <Text style={[styles.lineItems, styles.colQty, { color: theme.text.tertiary }]}>{t('invoice.quantity')}</Text>
                 <Text style={[styles.lineItems, styles.colPrice, { color: theme.text.tertiary }]}>{t('invoice.price')}</Text>
-                <Text style={[styles.lineItems, styles.colTotal, { color: theme.text.tertiary }]}>{t('invoice.total')}</Text>
               </View>
+
               {draft.lineItems?.map((item: any) => (
                 <View key={item.id} style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, width: '100%' }}>
                   <Text style={[styles.item, styles.colItem, { color: theme.text.primary }]} numberOfLines={1} ellipsizeMode='tail'>{item.name}</Text>
                   <Text style={[styles.item, styles.colQty, { color: theme.text.primary }]}>{item.type === 'Product' ? `${item.quantity}` : `${item.quantity}`}</Text>
-                  <Text style={[styles.price, styles.colDataPrice, { color: theme.text.secondary }]}>{formatCurrency(Number(item.unitPrice), draft.currency)}</Text>
-                  <Text style={[styles.colPrice, { color: theme.text.primary }]}>{formatCurrency(Number(item.quantity) * Number(item.unitPrice), draft.currency)}</Text>
+                  <Text style={[styles.price, styles.colDataPrice, { color: theme.text.secondary }]}>{formatCurrency(Number(item.unitPrice), homeCurrency)}</Text>
                 </View>
               ))}
             </View>
 
             <View style={styles.billingBox}>
               <Text style={[styles.item, { color: theme.text.secondary }]}>{t('invoice.grandTotal')}</Text>
-              <Text style={[styles.amount, { color: theme.text.secondary }]}>$ {grandTotal}</Text>
+              <Text style={[styles.amount, { color: theme.text.secondary }]}>{formatCurrency(grandTotal, homeCurrency)}</Text>
             </View>
           </View>
 
@@ -236,7 +237,7 @@ const PreviewScreen = () => {
           )}
 
         </View>
-      </ScreenWrapper>
+      </KeyboardScreen>
 
       <ModalWrapper visible={statusModal} modalTitle='Select status' data={status} labelKey='name' valueKey='value'
         onClose={() => setStatusModal(false)} onItemPress={handleStatusChange} />
@@ -317,10 +318,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   colItem: { width: '40%' },
-  colQty: { width: '15%', textAlign: 'center' },
-  colPrice: { width: '20%', textAlign: 'right' },
-  colDataPrice: { width: '20%', textAlign: 'center' },
-  colTotal: { width: '25%', textAlign: 'right' },
+  colQty: { width: '30%', textAlign: 'center' },
+  colPrice: { width: '30%', textAlign: 'right' },
+  colDataPrice: { width: '40%', textAlign: 'center' },
   invoiceTemp: {
     marginTop: 30,
     borderBottomWidth: 1,

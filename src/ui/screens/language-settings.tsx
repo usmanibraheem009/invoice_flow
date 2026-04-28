@@ -22,6 +22,10 @@ const LanguageScreen = () => {
     try {
       setLoading(true);
       await changeLanguage(selected);
+      Alert.alert(`${t('common.restartTitle')}`, `${t('common.restartBody')}`, [
+        { text: `${t('common.ok')}`, style: 'default', },
+      ]);
+      // return;
     } catch (error) {
       Alert.alert('Error', 'Failed to change language');
       console.log(error);

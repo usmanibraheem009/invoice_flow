@@ -16,7 +16,7 @@ export default {
         invoiceTotal: "انوائس کا کل",
         notes: "نوٹس",
         noteToClients: "کلائنٹس کے لیے نوٹ",
-        unpaid: "غیر ادا شدہ",
+        draft: "مسودہ",
         paid: "ادا شدہ",
         overdue: "میعاد گزری",
         invoices: "انوائسز",
@@ -94,6 +94,9 @@ export default {
         deletedMsg: "{{param}} کامیابی سے حذف کر دیا گیا",
         updatedMsg: "{{param}} کامیابی سے اپ ڈیٹ کر دیا گیا",
         dummyText: "ابھی تک کوئی {{param}} نہیں ہے۔ ایک شامل کرنے کے لیے + پر ٹیپ کریں۔",
+        restartTitle: "دوبارہ شروع کریں",
+        restartBody: "تبدیلیوں کو مکمل طور پر لاگو کرنے کے لیے براہِ کرم ایپ کو دوبارہ شروع کریں۔",
+        underDevelopment: "یہ فیچر زیرِ تعمیر ہے۔ جلد دستیاب ہوگا۔"
     },
     auth: {
         login: "لاگ ان",

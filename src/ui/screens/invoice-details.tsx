@@ -4,6 +4,7 @@ import InvoiceStatus from '@/src/components/invoice/invoice-status'
 import { Screen, ScrollScreen } from '@/src/components/layout'
 import LoadingIndicator from '@/src/components/layout/loading-indicator'
 import SimpleButton from '@/src/components/primitives/simple-button'
+import { useCurrency } from '@/src/hooks/useCurrency'
 import { useTheme } from '@/src/hooks/useTheme'
 import { fetchInvoiceById, removeInvoice } from '@/src/redux/slices/invoiceListSlice'
 import { setInvoiceDraft } from '@/src/redux/slices/invoiceSlice'
@@ -28,7 +29,7 @@ const InvoiceDetails = () => {
     const { theme } = useTheme();
     const { t } = useTranslation();
     const { invoiceId } = useLocalSearchParams();
-    console.log("invoice id: ", invoiceId);
+    const { homeCurrency } = useCurrency();
 
 
     const dispatch = useDispatch<AppDispatch>();
@@ -64,6 +65,7 @@ const InvoiceDetails = () => {
         notes: invoice.notes || "",
         status: invoice.status,
         lineItems: invoice.lineItems?.map((item: any) => ({
+            id: item.id,
             productId: item.product.id,
             name: item.product.name,
             description: item.description,
@@ -113,7 +115,7 @@ const InvoiceDetails = () => {
         <>
             <ScrollScreen>
                 <AuthHeader arrowBack title={selectedInvoice.invoiceNumber || 'INV-0001'} trailingComponent={
-                    <Menu visible={showDropDown} anchor={<IconButton icon={'dots-vertical'} onPress={() => openMenu()} />}>
+                    <Menu visible={showDropDown} onDismiss={() => closeMenu()} anchor={<IconButton icon={'dots-vertical'} onPress={() => openMenu()} />}>
                         <Menu.Item title={t('common.edit')} onPress={() => { onEdit(); closeMenu() }} />
                         <Menu.Item title={t('common.delete')} onPress={() => { onDelete(); closeMenu() }} />
                     </Menu>
@@ -148,14 +150,14 @@ const InvoiceDetails = () => {
                             <View key={item.id} style={styles.itemRow}>
                                 <Text style={[styles.lineItem, { color: theme.text.secondary }]}>{item.product.name} ({item.quantity})</Text>
                                 <Text style={[styles.lineItem, { color: theme.text.secondary }]}></Text>
-                                <Text style={[styles.lineItem, { color: theme.text.secondary }]}>{formatCurrency(item.amount, selectedInvoice?.currency)}</Text>
+                                <Text style={[styles.lineItem, { color: theme.text.secondary }]}>{formatCurrency(item.amount, homeCurrency)}</Text>
                             </View>
                         ))}
                     </View>
 
                     <View style={styles.totalContainer}>
                         <Text style={[styles.totalText, { color: theme.text.primary }]}>{t('invoice.total')}</Text>
-                        <Text style={[styles.totalText, { color: theme.surface.primary }]}>{formatCurrency(total, selectedInvoice?.currency)}</Text>
+                        <Text style={[styles.totalText, { color: theme.surface.primary }]}>{formatCurrency(total, homeCurrency)}</Text>
                     </View>
                 </View>
 

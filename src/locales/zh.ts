@@ -17,7 +17,7 @@ export default {
         invoiceTotal: "发票总额",
         notes: "备注",
         noteToClients: "给客户的备注",
-        unpaid: "未付款",
+        draft: "草稿",
         paid: "已付款",
         overdue: "逾期",
         invoices: "发票",
@@ -94,7 +94,10 @@ export default {
         createdMsg: "{{param}} 创建成功",
         deletedMsg: "{{param}} 删除成功",
         updatedMsg: "{{param}} 更新成功",
-        dummyText: "还没有{{param}}。点击 + 添加一个。"
+        dummyText: "还没有{{param}}。点击 + 添加一个。",
+        restartTitle: "需要重启",
+        restartBody: "请重新启动应用以完全应用更改。",
+        underDevelopment: "该功能正在开发中。即将推出。"
     },
     auth: {
         login: "登录",

@@ -3,7 +3,7 @@ import { dateformatter } from "@/src/utils/date-formatter";
 import { formatCurrency } from "@/src/utils/helper";
 
 // src/components/invoice/templates/modernTemplate.ts
-export const modernTemplate = (data: any) => {
+export const modernTemplate = (data: any, currency: string) => {
   const {
     invoiceNumber,
     issueDate,
@@ -15,7 +15,6 @@ export const modernTemplate = (data: any) => {
     tax,
     taxAmount,
     total,
-    currency,
     footerText,
     footerText2,
   } = data;
@@ -73,7 +72,7 @@ export const modernTemplate = (data: any) => {
         <div class="party">
           <h3>${t.from}</h3>
           <strong>${data.currentUser.fullName ?? ''}</strong><br>
-          ${data.currentUser.currentOrganization ?? `${y.noOrganization}`}<br>
+          ${data.currentUser.currentOrganization.legalName ?? `${y.noOrganization}`}<br>
           ${data.client.addressLine2 ?? ''}<br>
           ${data.lineItems.taxRate ?? `${t.noTaxRate}`}
         </div>

@@ -1,4 +1,6 @@
+import { useCurrency } from '@/src/hooks/useCurrency'
 import { useTheme } from '@/src/hooks/useTheme'
+import { formatCurrency } from '@/src/utils/helper'
 import { mVs } from '@/src/utils/scale'
 import React from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
@@ -7,7 +9,7 @@ import UserAvatar from './user-avatar'
 interface ClientCardProps {
     clientName: string,
     organizationName: string,
-    totalRevenue: string,
+    totalRevenue: number,
     createdAt: string,
     onPressed: () => void,
 }
@@ -15,6 +17,7 @@ interface ClientCardProps {
 const ClientCard = ({ clientName, createdAt, organizationName, totalRevenue, onPressed }: ClientCardProps) => {
 
     const { theme } = useTheme();
+    const { homeCurrency } = useCurrency();
 
     return (
         <Pressable style={[styles.container, { backgroundColor: theme.background.secondary, borderColor: theme.border.primary }]} onPress={onPressed}>
@@ -27,7 +30,7 @@ const ClientCard = ({ clientName, createdAt, organizationName, totalRevenue, onP
             </View>
 
             <View style={styles.rightContainer}>
-                <Text style={[styles.revenue, { color: theme.text.tertiary }]}>${totalRevenue}</Text>
+                <Text style={[styles.revenue, { color: theme.text.tertiary }]}>{formatCurrency(totalRevenue ?? 0, homeCurrency)}</Text>
                 <Text style={[styles.subTitle, { color: theme.text.tertiary }]}>{createdAt}</Text>
             </View>
         </Pressable>

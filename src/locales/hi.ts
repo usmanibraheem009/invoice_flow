@@ -19,7 +19,7 @@ export default {
         invoiceTotal: "चालान कुल",
         notes: "नोट्स",
         noteToClients: "ग्राहकों के लिए नोट",
-        unpaid: "अवैतनिक",
+        draft: "मसौदा",
         paid: "भुगतान किया",
         overdue: "अतिदेय",
         invoices: "इनवॉइस",
@@ -97,6 +97,9 @@ export default {
         deletedMsg: "{{param}} सफलतापूर्वक हटाया गया",
         updatedMsg: "{{param}} सफलतापूर्वक अपडेट किया गया",
         dummyText: "अभी तक कोई {{param}} नहीं है। एक जोड़ने के लिए + पर टैप करें।",
+        restartTitle: "पुनः आरंभ आवश्यक",
+        restartBody: "कृपया बदलावों को पूरी तरह लागू करने के लिए ऐप को पुनः प्रारंभ करें।",
+        underDevelopment: "यह फीचर विकासाधीन है। जल्द उपलब्ध होगा।"
     },
     auth: {
         login: "लॉगिन",

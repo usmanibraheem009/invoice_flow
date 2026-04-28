@@ -2,7 +2,7 @@ import { getTranslations } from "@/src/locales/i18n";
 import { dateformatter } from "@/src/utils/date-formatter";
 import { formatCurrency } from "@/src/utils/helper";
 
-export const classicTemplate = (data: any) => {
+export const classicTemplate = (data: any, currency: string) => {
 
   const t = getTranslations().invoice;
   const y = getTranslations().clients;
@@ -19,7 +19,7 @@ export const classicTemplate = (data: any) => {
         </td>
 
         <td style="text-align: right;">
-          ${formatCurrency(item.lineTotal || 0, data.currency)}
+          ${formatCurrency(item.lineTotal || 0, currency)}
         </td>
       </tr>
     `)
@@ -155,7 +155,7 @@ export const classicTemplate = (data: any) => {
       <tr class="total-row">
         <td>${t.total}:</td>
         <td style="text-align:right">
-          ${formatCurrency(data.totalAmount || 0, data.currency)}
+          ${formatCurrency(data.totalAmount || 0, currency)}
         </td>
       </tr>
 

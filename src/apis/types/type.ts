@@ -29,13 +29,21 @@ export interface LoginResponse {
     data: LoginSession;
 };
 
+export interface Organization {
+    id: string,
+    legalName: string,
+    taxId: string,
+    homeCurrency: string
+}
+
 export interface User {
     id: string
     fullName: string
     email: string
     status: 'ACTIVE' | 'INACTIVE'
     role: 'ADMIN' | 'USER'
-    createdAt: string
+    createdAt: string,
+    currentOrganization?: Organization
 };
 
 export interface OrganizationRequest {

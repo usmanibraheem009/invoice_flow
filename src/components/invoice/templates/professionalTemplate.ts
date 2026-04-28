@@ -2,7 +2,7 @@ import { getTranslations } from "@/src/locales/i18n";
 import { dateformatter } from "@/src/utils/date-formatter";
 import { formatCurrency } from "@/src/utils/helper";
 
-export const professionalTemplate = (data: any) => {
+export const professionalTemplate = (data: any, currency: string) => {
   const {
     invoiceNumber,
     issueDate,
@@ -14,7 +14,6 @@ export const professionalTemplate = (data: any) => {
     subTotal,
     taxAmount,
     totalAmount,
-    currency = "USD",
     notes,
   } = data;
 

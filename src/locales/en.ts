@@ -17,7 +17,7 @@ export default {
         invoiceTotal: "Invoice Total",
         notes: "Notes",
         noteToClients: "Note to clients",
-        unpaid: "UNPAID",
+        draft: "DRAFT",
         paid: "PAID",
         overdue: "OVERDUE",
         all: "All",
@@ -94,6 +94,9 @@ export default {
         deletedMsg: "{{param}} deleted successfully",
         updatedMsg: "{{param}} updated successfully",
         dummyText: "No {{param}} yet. Tap + to add one.",
+        restartTitle: "Restart required",
+        restartBody: "Please restart the app to apply the changes fully.",
+        underDevelopment: "Feature is under development. Will be available soon"
     },
     auth: {
         login: "Login",

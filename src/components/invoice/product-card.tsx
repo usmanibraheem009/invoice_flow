@@ -1,4 +1,6 @@
+import { useCurrency } from '@/src/hooks/useCurrency';
 import { useTheme } from '@/src/hooks/useTheme';
+import { formatCurrency } from '@/src/utils/helper';
 import { mVs } from '@/src/utils/scale';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
@@ -20,6 +22,7 @@ interface ProductCardProps {
 const ProductCard = ({ id, name, unitPrice, quantity, total, description, mode, type, onDelete, onEdit }: ProductCardProps) => {
 
     const { theme } = useTheme();
+    const { homeCurrency } = useCurrency();
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background.secondary, borderColor: theme.border.primary }]}>
@@ -35,11 +38,11 @@ const ProductCard = ({ id, name, unitPrice, quantity, total, description, mode, 
                 )}
 
                 {mode === 'product' && unitPrice && (
-                    <Text style={[styles.price, { color: theme.text.secondary }]}>{type === 'Product' ? `unit price: $ ${unitPrice}` : `price per hour: $ ${unitPrice}`}</Text>
+                    <Text style={[styles.price, { color: theme.text.secondary }]}>{type === 'Product' ? `unit price: ${formatCurrency(unitPrice, homeCurrency)}` : `price per hour: ${formatCurrency(unitPrice, homeCurrency)}`}</Text>
                 )}
 
                 {total !== undefined && (
-                    <Text style={[styles.price, { color: theme.text.primary }]}>${total}</Text>
+                    <Text style={[styles.price, { color: theme.text.primary }]}>{formatCurrency(total, homeCurrency)}</Text>
                 )}
             </View>
 

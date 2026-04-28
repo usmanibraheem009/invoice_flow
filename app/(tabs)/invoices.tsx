@@ -22,15 +22,15 @@ const Invoices = () => {
   const filters = [
     { label: `${t('invoice.all')}`, value: 'all' },
     { label: `${t('invoice.paid')}`, value: 'PAID' },
-    { label: `${t('invoice.unpaid')}`, value: 'PENDING' },
-    { label: `${t('invoice.pending')}`, value: 'OVERDUE' },
-    { label: `${t('invoice.overdue')}`, value: 'DRAFT' },
+    { label: `${t('invoice.pending')}`, value: 'PENDING' },
+    { label: `${t('invoice.overdue')}`, value: 'OVERDUE' },
+    { label: `${t('invoice.draft')}`, value: 'DRAFT' },
   ];
 
 
   const [activeFilter, setActiveFilter] = useState('all');
   const dispatch = useDispatch<AppDispatch>();
-  const invoices = useSelector((state: RootState) => state.invoicesListReducer.invoices);
+  const invoices = useSelector((state: RootState) => state.invoicesListReducer.invoices ?? []);
   const [refreshing, setRefreshing] = useState(false);
   const { theme } = useTheme();
 

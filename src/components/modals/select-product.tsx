@@ -1,6 +1,8 @@
+import { useCurrency } from '@/src/hooks/useCurrency'
 import { useTheme } from '@/src/hooks/useTheme'
 import { AppDispatch, RootState } from '@/src/redux/store/myStore'
 import { fetchAllProducts } from '@/src/redux/thunks/products-thunk'
+import { formatCurrency } from '@/src/utils/helper'
 import { mVs } from '@/src/utils/scale'
 import { Formik } from 'formik'
 import React, { useEffect, useMemo, useState } from 'react'
@@ -43,12 +45,12 @@ const SelectProduct = ({ visible, onClose, onSubmit, selectedItem }: ProductModa
 
   const { theme } = useTheme();
   const { t } = useTranslation();
+  const { homeCurrency } = useCurrency();
   const dispatch = useDispatch<AppDispatch>();
   const products = useSelector((state: RootState) => state.productsReducer.products ?? []);
   const [showDropdown, setShowDropdown] = useState(false)
   const [search, setSearch] = useState("");
 
-  // Add local string state for the input
   const [quantityInput, setQuantityInput] = useState(
     selectedItem?.quantity?.toString() ?? "0"
   );
@@ -63,7 +65,6 @@ const SelectProduct = ({ visible, onClose, onSubmit, selectedItem }: ProductModa
   }, []);
 
   const filteredProducts = useMemo(() => {
-    console.log('products value:', products, typeof products);
     return products?.filter((prod: any) => prod.name.toLowerCase().includes(search.toLowerCase()))
   }, [products, search]);
 
@@ -104,7 +105,7 @@ const SelectProduct = ({ visible, onClose, onSubmit, selectedItem }: ProductModa
                         setShowDropdown(false);
                       }}>
                       <Text style={[styles.product, { color: theme.text.primary }]}>{item.name}</Text>
-                      <Text style={[styles.product, { color: theme.text.primary }]}>$ {item.unitPrice}</Text>
+                      <Text style={[styles.product, { color: theme.text.primary }]}>{formatCurrency(item.unitPrice, homeCurrency)}</Text>
                     </Pressable>
                   )}
                 />)}
@@ -114,8 +115,7 @@ const SelectProduct = ({ visible, onClose, onSubmit, selectedItem }: ProductModa
                 value={quantityInput}
                 keyboardType="numeric"
                 onChangeText={(text) => {
-                  // Allow empty string while typing
-                  const cleaned = text.replace(/[^0-9]/g, ''); // digits only
+                  const cleaned = text.replace(/[^0-9]/g, '');
                   setQuantityInput(cleaned);
                   const qty = Number(cleaned);
                   if (qty > 0) {
@@ -123,7 +123,6 @@ const SelectProduct = ({ visible, onClose, onSubmit, selectedItem }: ProductModa
                   }
                 }}
                 onBlur={() => {
-                  // Snap back to 1 if user leaves field empty or 0
                   if (!quantityInput || Number(quantityInput) <= 0) {
                     setQuantityInput('1');
                     setFieldValue('quantity', 1);

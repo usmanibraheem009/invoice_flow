@@ -2,9 +2,11 @@ import ProductCard from '@/src/components/invoice/product-card'
 import { Screen } from '@/src/components/layout'
 import SelectProduct, { LineItemForm } from '@/src/components/modals/select-product'
 import SimpleButton from '@/src/components/primitives/simple-button'
+import { useCurrency } from '@/src/hooks/useCurrency'
 import { useTheme } from '@/src/hooks/useTheme'
 import { addLineItem, removeLineItem, updateLineItem } from '@/src/redux/slices/invoiceSlice'
 import { RootState } from '@/src/redux/store/myStore'
+import { formatCurrency } from '@/src/utils/helper'
 import { selectInvoiceSubtotal } from '@/src/utils/invoiceSelectors'
 import { mVs } from '@/src/utils/scale'
 import { router } from 'expo-router'
@@ -19,6 +21,7 @@ const LineItems = () => {
 
     const { theme } = useTheme();
     const { t } = useTranslation();
+    const { homeCurrency } = useCurrency();
     const dispatch = useDispatch();
 
     const [visible, setVisible] = useState(false);
@@ -30,8 +33,11 @@ const LineItems = () => {
     const handleSubmitItem = (newItem: any) => {
         const quantity = Number(newItem.quantity ?? 1);
         const unitPrice = Number(newItem.unitPrice);
+
+        const isEditing = Boolean(selectedItem?.id);
+
         const lineItem = {
-            id: newItem.id || Math.random().toString(36).substr(2, 9),
+            id: newItem.id || `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             productId: newItem.productId,
             name: newItem.name,
             description: newItem.description ?? '',
@@ -39,11 +45,15 @@ const LineItems = () => {
             quantity,
             taxRate: newItem.taxRate ?? 0
         }
-        if (newItem.id) {
+
+        console.log("submitting line item: ", lineItem);
+
+        if (isEditing) {
             dispatch(updateLineItem(lineItem));
         } else {
             dispatch(addLineItem(lineItem))
         }
+        setSelectedItem(null);
         setVisible(false);
     };
 
@@ -121,7 +131,7 @@ const LineItems = () => {
 
                 <View style={styles.statsBox}>
                     <Text style={[styles.subtotal, { color: theme.text.secondary }]}>{t('invoice.subtotalEstimate')}</Text>
-                    <Text style={[styles.totalPrice]}>${subTotal}</Text>
+                    <Text style={[styles.totalPrice]}>${formatCurrency(subTotal, homeCurrency)}</Text>
                 </View>
 
                 <SelectProduct visible={visible} onClose={() => setVisible(false)} onSubmit={handleSubmitItem} selectedItem={selectedItem} />

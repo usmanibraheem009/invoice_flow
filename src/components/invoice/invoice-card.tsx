@@ -1,4 +1,6 @@
+import { useCurrency } from '@/src/hooks/useCurrency'
 import { useTheme } from '@/src/hooks/useTheme'
+import { formatCurrency } from '@/src/utils/helper'
 import { mVs } from '@/src/utils/scale'
 import React from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
@@ -16,19 +18,20 @@ interface invoiceCardProps {
 }
 
 const InvoiceCard = ({ title, status, price, issueDate, onPress, invoiceNumber }: invoiceCardProps) => {
-    // const InvoiceCard = ({invoiceNumber, title, issueDate, totalPrice}: invoiceCardProps) => {
 
     const { theme } = useTheme();
+    const { homeCurrency } = useCurrency();
+
     return (
         <Pressable style={[styles.container, { backgroundColor: theme.background.secondary, borderColor: theme.border.primary }]} onPress={onPress}>
             <View style={styles.leftContainer}>
                 <Text style={[styles.invoiceNo, { color: theme.text.secondary }]}>{invoiceNumber}</Text>
-                <Text style={[styles.title, { color: theme.text.primary }]}>{title}</Text>
+                <Text style={[styles.title, { color: theme.text.primary }]}>{title ?? ''}</Text>
                 <Text style={[styles.date, { color: theme.text.secondary }]}>{issueDate}</Text>
             </View>
 
             <View style={styles.rightContainer}>
-                <Text style={[styles.price, { color: theme.text.primary }]}>$ {price}</Text>
+                <Text style={[styles.price, { color: theme.text.primary }]}>{formatCurrency(price ?? 0, homeCurrency)}</Text>
                 <InvoiceStatus status={status} />
             </View>
         </Pressable>

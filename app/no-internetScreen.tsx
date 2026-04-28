@@ -1,34 +1,34 @@
 import { Screen } from "@/src/components/layout";
 import SimpleButton from "@/src/components/primitives/simple-button";
 import { useTheme } from "@/src/hooks/useTheme";
-import { setLoading } from "@/src/redux/slices/loadingSlice";
 import { showSnackbar } from "@/src/redux/slices/snackbarSlice";
-import { AppDispatch, RootState } from "@/src/redux/store/myStore";
+import { AppDispatch } from "@/src/redux/store/myStore";
 import { bootstrapAuth } from "@/src/redux/thunks/auth-thunk";
 import NetInfo from "@react-native-community/netinfo";
+import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { ActivityIndicator } from "react-native-paper";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 export default function NoInternetScreen() {
     const { theme } = useTheme();
     const dispatch = useDispatch<AppDispatch>();
-    const loading = useSelector((state: RootState) => state.loadingReducer.loading);
+    const [loading, setLoading] = useState(false);
 
     const handleRetry = async () => {
-        const state = await NetInfo.fetch();
-        if (state.isConnected) {
-            dispatch(setLoading(true));
-            try {
+        setLoading(true);
+        console.log("set loading: true");
+        try {
+            const state = await NetInfo.fetch();
+            if (state.isConnected) {
                 dispatch(bootstrapAuth() as any)
-            } catch (error: any) {
-                dispatch(showSnackbar({ message: error.message, type: 'error' }));
-            } finally {
-                dispatch(setLoading(false));
+            } else {
+                dispatch(showSnackbar({ message: 'No internet connection', type: 'error' }));
             }
-        } else {
-            dispatch(showSnackbar({ message: 'No internet connection', type: 'error' }));
-            dispatch(setLoading(false))
+        } catch (error: any) {
+            dispatch(showSnackbar({ message: error.message, type: 'error' }));
+        } finally {
+            setLoading(false);
+            console.log("set loading: false");
         }
     };
 
@@ -44,8 +44,9 @@ export default function NoInternetScreen() {
                 </Text>
 
                 <SimpleButton
-                    btnText={loading ? <ActivityIndicator size={'large'} color="#ffff" /> : "Retry"}
+                    btnText={"Retry"}
                     onPress={handleRetry}
+                    loading={loading}
                 />
             </View>
         </Screen>

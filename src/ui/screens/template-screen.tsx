@@ -4,6 +4,7 @@ import { modernTemplate } from '@/src/components/invoice/templates/modernTemplat
 import { professionalTemplate } from '@/src/components/invoice/templates/professionalTemplate';
 import { Screen } from '@/src/components/layout';
 import SimpleButton from '@/src/components/primitives/simple-button';
+import { useCurrency } from '@/src/hooks/useCurrency';
 import { useTheme } from '@/src/hooks/useTheme';
 import { showSnackbar } from '@/src/redux/slices/snackbarSlice';
 import { loadPersistedTemp, persistTemplate, setRememberChoice, setTemplateId } from '@/src/redux/slices/templateSlice';
@@ -18,6 +19,7 @@ import * as Sharing from 'expo-sharing';
 import React, { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, FlatList, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import RNBlobUtil from 'react-native-blob-util';
 import { WebView } from 'react-native-webview';
 import { useDispatch, useSelector } from 'react-redux';
 import AuthHeader from '../components/screen-header';
@@ -37,6 +39,7 @@ const TemplateScreen = () => {
 
   const { theme } = useTheme();
   const { t } = useTranslation();
+  const { homeCurrency } = useCurrency();
   const { invoiceId } = useLocalSearchParams();
   const invoiceData = useSelector(selectEnrichedInvoiceById(invoiceId as string));
 
@@ -93,10 +96,23 @@ const TemplateScreen = () => {
   const handleDownloadPDF = async () => {
     try {
       const html = getTemplateHtml(selectedTemplateId!, mergedData);
-      const { uri } = await Print.printToFileAsync({ html, });
-      alert(`PDF saved at ${uri}`);
+
+      const { uri } = await Print.printToFileAsync({ html });
+      const srcPath = uri.replace('file://', '');
+
+      const fileName = `invoice_${Date.now()}.pdf`;
+      const destPath = `/storage/emulated/0/Download/${fileName}`;
+
+      await RNBlobUtil.fs.cp(srcPath, destPath);
+      await RNBlobUtil.fs.unlink(srcPath);
+
+      dispatch(showSnackbar({ message: `PDF saved to Downloads: ${fileName}`, type: 'success' }));
+
+      await RNBlobUtil.fs.scanFile([{ path: destPath, mime: 'application/pdf' }]);
+      await RNBlobUtil.android.actionViewIntent(destPath, 'application/pdf');
+
     } catch (error: any) {
-      dispatch(showSnackbar({ message: error.message, type: 'error' }))
+      dispatch(showSnackbar({ message: error.message, type: 'error' }));
     }
   };
 
@@ -107,7 +123,11 @@ const TemplateScreen = () => {
 
       const available = await Sharing.isAvailableAsync();
       if (available) {
-        await Sharing.shareAsync(uri);
+        await Sharing.shareAsync(uri, {
+          mimeType: 'application/pdf',
+          dialogTitle: 'Save or Share your Invoice',
+          UTI: 'com.adobe.pdf',
+        });
       } else {
         Alert.alert('Sharing not available')
       }
@@ -134,17 +154,17 @@ const TemplateScreen = () => {
   ) => {
     switch (templateId) {
       case 'template1':
-        return classicTemplate(data);
+        return classicTemplate(data, homeCurrency);
 
       case 'template2':
-        return modernTemplate(data);
+        return modernTemplate(data, homeCurrency);
 
       case 'template3':
-        return professionalTemplate(data);
+        return professionalTemplate(data, homeCurrency);
 
       case 'template4':
       default:
-        return brixTemplate(data);
+        return brixTemplate(data, homeCurrency);
     }
   };
 

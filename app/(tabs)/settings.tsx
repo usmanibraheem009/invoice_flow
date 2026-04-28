@@ -22,9 +22,7 @@ const settings = () => {
   const { t } = useTranslation();
   const currentMode = useSelector((state: any) => state.themeReducer.currentMode);
   const user = useSelector((state: RootState) => state.userReducer.user);
-  const loading = useSelector((state: any) => state.loadingReducer.loading);
-  const organizationData = useSelector((state: RootState) => state.organizationReducer.data);
-  organizationData?.legalName && console.log("organizationData:", organizationData.legalName);
+  const currentOrg = useSelector((state: RootState) => state.userReducer.user?.currentOrganization ?? null)
 
   const handleLogout = async () => {
     Alert.alert('Logout', 'Are you sure you want to logout?',
@@ -41,6 +39,11 @@ const settings = () => {
     )
   };
 
+  const underDev = () => {
+    Alert.alert(`${t('common.warning')}`, `${t('common.underDevelopment')}`, [
+      { text: `${t('common.ok')}` }
+    ])
+  }
   return (
     <ScrollScreen>
 
@@ -52,7 +55,7 @@ const settings = () => {
           <UserAvatar name={user?.fullName || 'Dummy User'} />
           <View style={styles.rightBox}>
             <Text style={[styles.userName, { color: theme.text.primary }]}>{user?.fullName || 'Dummy User'}</Text>
-            <Text style={[styles.taxId, { color: theme.text.secondary }]}>{organizationData?.legalName || `${t('clients.noOrganization')}`}</Text>
+            <Text style={[styles.taxId, { color: theme.text.secondary }]}>{currentOrg?.legalName || `${t('clients.noOrganization')}`}</Text>
           </View>
         </View>
 
@@ -64,9 +67,9 @@ const settings = () => {
         <View style={{ marginTop: 20 }} />
         <Text style={[styles.labelText, { color: theme.text.secondary }]}>{t('settings.preferences')}</Text>
         <View style={[styles.preferenceBox, { backgroundColor: theme.background.secondary, borderColor: theme.border.secondary, }]}>
-          <SettingsCard icon='card-outline' label={t('settings.paymentMethods')} onPress={() => { }} borderBottom />
+          <SettingsCard icon='card-outline' label={t('settings.paymentMethods')} onPress={() => { underDev() }} borderBottom />
           <SettingsCard icon='business-outline' label={t('settings.organizationSettings')} onPress={() => { router.push('/screens/organization-settings') }} borderBottom />
-          <SettingsCard icon='cash-outline' label={t('settings.taxSettings')} onPress={() => { }} borderBottom />
+          <SettingsCard icon='cash-outline' label={t('settings.taxSettings')} onPress={() => { underDev() }} borderBottom />
           <SettingsCard icon='language' label={t('settings.languageSettings')} onPress={() => { router.push('/screens/language-settings') }} borderBottom />
           <SettingsCard icon='document-text-outline' label={t('settings.invoiceDefaults')} onPress={() => router.push('/screens/invoice-defaults')} />
         </View>

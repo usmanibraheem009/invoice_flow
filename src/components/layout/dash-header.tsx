@@ -3,25 +3,33 @@ import { RootState } from '@/src/redux/store/myStore'
 import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { useTranslation } from 'react-i18next'
+import { Alert, StyleSheet, Text, View } from 'react-native'
 import { useSelector } from 'react-redux'
 import UserAvatar from '../client/user-avatar'
 
-const DashHeader = ({greeting}: {greeting: string}) => {
-    const {theme} = useTheme();
-    const user = useSelector((state : RootState) => state.userReducer.user);
+const DashHeader = ({ greeting }: { greeting: string }) => {
+    const { theme } = useTheme();
+    const { t } = useTranslation();
+    const user = useSelector((state: RootState) => state.userReducer.user);
+
+    const underDev = () => {
+        Alert.alert(`${t('common.warning')}`, `${t('common.underDevelopment')}`, [
+            { text: `${t('common.ok')}` }
+        ])
+    }
 
     return (
         <View style={styles.container}>
             <View>
-                <Text style={[styles.greeting, {color: theme.text.secondary}]}>{greeting},</Text>
-                <Text style={[styles.userName,{color: theme.text.primary}]}>{user?.fullName}</Text>
+                <Text style={[styles.greeting, { color: theme.text.secondary }]}>{greeting},</Text>
+                <Text style={[styles.userName, { color: theme.text.primary }]}>{user?.fullName}</Text>
             </View>
-           <View style={styles.rightContainer}>
-             <Ionicons name='notifications-outline' size={mVs(30)} color={theme.text.primary}/>
-             <UserAvatar name={user?.fullName || 'NA'} />
-           </View>
-            
+            <View style={styles.rightContainer}>
+                <Ionicons name='notifications-outline' size={mVs(30)} color={theme.text.primary} onPress={() => underDev()} />
+                <UserAvatar name={user?.fullName || 'NA'} />
+            </View>
+
         </View>
     )
 }
@@ -48,5 +56,5 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 13
     }
-    
+
 })

@@ -26,9 +26,12 @@ export const getInvoiceById = async (id: string) => {
 }
 
 export const updateInvoice = async (id: string, payload: any) => {
-    const res = await axiosInstance.put(`/invoice/${id}`, payload);
-    console.log('invoice updated: ', res.data);
-    return res.data;
+    try {
+        const res = await axiosInstance.patch(`/invoice/${id}`, payload);
+        return res.data;
+    } catch (error: any) {
+        throw error;
+    }
 };
 
 export const deleteInvoice = async (id: string) => {
