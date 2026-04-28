@@ -352,7 +352,3 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
 })
-
-function useTranlation(): { t: any } {
-  throw new Error('Function not implemented.')
-}

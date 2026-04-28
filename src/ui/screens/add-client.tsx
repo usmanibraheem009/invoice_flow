@@ -256,20 +256,6 @@ const AddClient = () => {
 export default AddClient;
 
 const styles = StyleSheet.create({
-  imageContainer: {
-    height: mVs(100),
-    width: mVs(100),
-    borderRadius: mVs(50),
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',
-    marginVertical: mVs(10),
-  },
-  userAvatar: {
-    height: mVs(100),
-    width: mVs(100),
-    borderRadius: mVs(50),
-  },
   labelText: {
     fontSize: mVs(14),
     fontWeight: 500,

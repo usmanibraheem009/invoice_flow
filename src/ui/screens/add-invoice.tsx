@@ -25,10 +25,6 @@ import AuthHeader from '../components/screen-header'
 
 const AddInvoice = () => {
 
-    useEffect(() => {
-        dispatch(loadClients() as any);
-    }, []);
-
     const termKeyMap: Record<string, string> = {
         'Due on receipt': 'dueOnReceipt',
         'Net 7': 'net7',
@@ -51,6 +47,10 @@ const AddInvoice = () => {
     const [dueDatePicker, setDueDatePicker] = useState(false);
     const [openPaymentList, setOpenPaymentList] = useState(false);
     const [openClientModal, setOpenClientModal] = useState(false);
+
+    useEffect(() => {
+        dispatch(loadClients() as any);
+    }, []);
 
     useEffect(() => {
         if (editable) return;

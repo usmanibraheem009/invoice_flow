@@ -5,7 +5,6 @@ import InvoiceCard from '@/src/components/invoice/invoice-card'
 import { Screen } from '@/src/components/layout'
 import ContactButton from '@/src/components/primitives/contact-button'
 import SimpleButton from '@/src/components/primitives/simple-button'
-import { useCurrency } from '@/src/hooks/useCurrency'
 import { useTheme } from '@/src/hooks/useTheme'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
 import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
@@ -26,7 +25,6 @@ const ClientProfile = () => {
 
   const { theme } = useTheme();
   const { t } = useTranslation();
-  const { homeCurrency } = useCurrency();
   const { clientId } = useLocalSearchParams();
   const [invoices, setInvoices] = useState<any[]>([]);
   console.log("client invoices data: ", invoices);
@@ -36,14 +34,14 @@ const ClientProfile = () => {
     if (!clientId) return;
     fetchClient();
     fetchClientInvoices();
-  }, []);
+  }, [clientId]);
 
   const fetchClientInvoices = async () => {
     try {
       const response = await getInvoicesByClientId(clientId as string);
       setInvoices(response.data.data);
     } catch (error: any) {
-      console.log('error fetching client invoices:', error);
+      dispatch(showSnackbar({ message: error.message, type: 'error' }))
     }
   };
 
@@ -53,11 +51,6 @@ const ClientProfile = () => {
 
   const [client, setClient] = useState<any>(null);
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (!clientId) return;
-    fetchClient();
-  }, []);
 
   const fetchClient = async () => {
     try {

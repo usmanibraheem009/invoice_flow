@@ -27,6 +27,18 @@ const AppContent = () => {
     });
 
     useEffect(() => {
+        const init = async () => {
+            await initI18n();
+            await dispatch(bootstrapAuth() as any);
+            await dispatch(fetchCurrentUser() as any);
+            requestNotificationPermission();
+            setupNotificationChannel();
+        }
+
+        init();
+    }, [])
+
+    useEffect(() => {
         const unsubscribe = NetInfo.addEventListener(state => {
             if (!state.isConnected) {
                 router.replace("/screens/no-internetScreen")
@@ -37,17 +49,8 @@ const AppContent = () => {
 
 
     useEffect(() => {
-        dispatch(bootstrapAuth() as any);
-    }, []);
-
-    useEffect(() => {
-        dispatch(fetchCurrentUser() as any);
-    }, []);
-
-    useEffect(() => {
         const loadOrganization = async () => {
             try {
-                await initI18n();
                 if (!organization?.id) return;
 
                 const res = await fetchOrganization(organization.id);
@@ -64,13 +67,6 @@ const AppContent = () => {
         loadOrganization();
     }, [organization?.id]);
 
-    useEffect(() => {
-        requestNotificationPermission();
-    }, []);
-
-    useEffect(() => {
-        setupNotificationChannel();
-    }, []);
 
     return (
         <GestureHandlerRootView>
