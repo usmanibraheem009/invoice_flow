@@ -18,7 +18,6 @@ import {
     Text,
     View
 } from 'react-native'
-import { useDispatch } from 'react-redux'
 import InputTab from './input-tab'
 import ItemModeToggle, { ItemMode } from './item-mode-toggle'
 import SimpleButton from './simple-button'
@@ -36,7 +35,6 @@ const ItemModal = ({ visible, onClose, onSubmitItem, editItem }: modalProps) => 
     const { t } = useTranslation();
     const [mode, setMode] = useState<ItemMode>('Product');
     const [isActive, setIsActive] = useState(false);
-    const dispatch = useDispatch();
 
     const onSubmitFunc = (values: any, { resetForm }: any) => {
 

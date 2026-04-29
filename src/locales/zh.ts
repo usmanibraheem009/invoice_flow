@@ -114,6 +114,7 @@ export default {
         createAccount: "创建账户",
         alreadyHaveAccount: "已有账户？",
         dontHaveAccount: "没有账户？",
+        areYouSure: "您确定要退出登录吗？"
     },
     clients: {
         title: "客户",

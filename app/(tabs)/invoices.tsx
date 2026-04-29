@@ -67,7 +67,7 @@ const Invoices = () => {
   const onRefresh = async () => {
     setRefreshing(true);
 
-    dispatch(fetchInvoices({ page: 1, limit: 10 }))
+    await dispatch(fetchInvoices({ page: 1, limit: 10 }))
     setRefreshing(false);
   }
 
@@ -112,39 +112,6 @@ const Invoices = () => {
 export default Invoices
 
 const styles = StyleSheet.create({
-  filterSection: {
-    height: mVs(20),
-    width: 'auto',
-    paddingLeft: mVs(50)
-  },
-  filterButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginRight: 10,
-    borderRadius: 20,
-    backgroundColor: '#eee',
-  },
-
-  activeFilterButton: {
-    backgroundColor: '#1B5E20',
-  },
-
-  filterText: {
-    color: '#333',
-  },
-
-  activeFilterText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-
-  invoiceCard: {
-    padding: 16,
-    marginVertical: 6,
-    borderRadius: 10,
-    backgroundColor: '#fff',
-    elevation: 2,
-  },
   dummyText: {
     textAlign: 'center',
     marginTop: 80,

@@ -1,4 +1,5 @@
 import { fetchCurrentUser, loginUser } from '@/src/apis/authApi'
+import { LoginRequest } from '@/src/apis/types/type'
 import { KeyboardScreen } from '@/src/components/layout'
 import InputTab from '@/src/components/primitives/input-tab'
 import SimpleButton from '@/src/components/primitives/simple-button'
@@ -12,27 +13,22 @@ import { mVs } from '@/src/utils/scale'
 import { Ionicons } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { Formik } from 'formik'
-import { t } from 'i18next'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useDispatch } from 'react-redux'
 import ErrorText from '../../components/error-text'
 
 const LoginScreen = () => {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
 
-  const submitFunc = async (values: any) => {
-    if (!values.email || !values.password) {
-      return dispatch(showSnackbar({ message: 'All Fields are required', type: 'error' }));
-    }
-
+  const submitFunc = async (values: LoginRequest) => {
     dispatch(setLoading(true))
     try {
       const res = await loginUser({ email: values.email, password: values.password });
       dispatch(showSnackbar({ message: `${t('auth.welcomeBack')}`, type: 'success' }));
-      console.log("user logged in successfully");
-
 
       dispatch(setSession({
         accessToken: res.accessToken,
@@ -49,8 +45,6 @@ const LoginScreen = () => {
         sessionId: res.sessionId,
         isLoggedIn: true
       });
-
-      await new Promise(r => setTimeout(r, 100));
 
       await dispatch(fetchCurrentUser());
       if (res?.accessToken) {

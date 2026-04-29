@@ -113,6 +113,7 @@ export default {
         createAccount: "Create Account",
         alreadyHaveAccount: "Already have an account?",
         dontHaveAccount: "Don't have an account?",
+        areYouSure: "Are you sure you want to logout?"
     },
     clients: {
         title: "Clients",

@@ -8,7 +8,7 @@ import { useTheme } from '@/src/hooks/useTheme'
 import { setLoading } from '@/src/redux/slices/loadingSlice'
 import { addProduct, deleteStoredProduct, updateStoredProduct } from '@/src/redux/slices/productsSlice'
 import { showSnackbar } from '@/src/redux/slices/snackbarSlice'
-import { RootState } from '@/src/redux/store/myStore'
+import { AppDispatch, RootState } from '@/src/redux/store/myStore'
 import { fetchAllProducts, normalizeProduct } from '@/src/redux/thunks/products-thunk'
 import AuthHeader from '@/src/ui/components/screen-header'
 import { mVs } from '@/src/utils/scale'
@@ -21,7 +21,7 @@ const Products = () => {
 
     const { theme } = useTheme();
     const { t } = useTranslation();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const products = useSelector((state: RootState) => state.productsReducer.products);
     const loading = useSelector((state: RootState) => state.loadingReducer.loading);
 
@@ -30,16 +30,17 @@ const Products = () => {
     const [selectedItem, setSelectedItem] = useState<Product | null>(null);
 
     useEffect(() => {
-        dispatch(setLoading(true));
-        dispatch(fetchAllProducts() as any);
-        dispatch(setLoading(false));
-    }, []);
+        dispatch(fetchAllProducts());
+    }, [dispatch]);
 
     const onRefresh = async () => {
-        setRefreshing(true);
-        dispatch(fetchAllProducts() as any);
-        setRefreshing(false);
-    }
+        try {
+            setRefreshing(true);
+            await dispatch(fetchAllProducts());
+        } finally {
+            setRefreshing(false);
+        }
+    };
 
     const handleSubmitItem = async (item: Product) => {
         if (selectedItem) {
@@ -49,7 +50,7 @@ const Products = () => {
                 const updatedProduct = response.data;
                 const normalizedProduct = normalizeProduct(updatedProduct);
                 dispatch(updateStoredProduct(normalizedProduct));
-                dispatch(showSnackbar({ message: 'Product updated successfully', type: 'success' }));
+                dispatch(showSnackbar({ message: `${t('common.updatedMsg', { param: `${t('products.product')}` })}`, type: 'success' }))
                 setVisible(false);
             } catch (error: any) {
                 dispatch(showSnackbar({ message: error.message, type: 'error' }));
@@ -63,7 +64,7 @@ const Products = () => {
                 const response = await createProduct(item);
                 const product = response.data;
                 const newProduct = normalizeProduct(product);
-                dispatch(showSnackbar({ message: 'Product created successfully', type: 'success' }));
+                dispatch(showSnackbar({ message: `${t('common.createdMsg', { param: `${t('products.product')}` })}`, type: 'success' }))
                 dispatch(addProduct(newProduct));
                 setVisible(false);
             } catch (error: any) {
@@ -88,7 +89,7 @@ const Products = () => {
                 {
                     text: `${t('common.yes')}`, style: 'destructive', onPress: async () => {
                         try {
-                            const response = await deleteProduct(id);
+                            await deleteProduct(id);
                             dispatch(showSnackbar({ message: `${t('common.deletedMsg', { param: `${t('products.product')}` })}`, type: 'success' }));
                             dispatch(deleteStoredProduct(id));
                         } catch (error: any) {
@@ -119,22 +120,20 @@ const Products = () => {
                     ListEmptyComponent={() => (<Text style={[styles.dummyText, { color: theme.text.secondary }]}>{t('common.dummyText', { param: t('products.products') })}</Text>)}
                     renderItem={({ item }) => {
                         return (
-                            <>
-                                <ProductCard
-                                    id={item.id}
-                                    name={item.name}
-                                    description={item.description}
-                                    unitPrice={item.unitPrice}
-                                    onDelete={() => deleteItem(item.id)}
-                                    onEdit={() => editAddedItem(item)}
-                                    mode={'product'} />
+                            <ProductCard
+                                id={item.id}
+                                name={item.name}
+                                description={item.description}
+                                unitPrice={item.unitPrice}
+                                onDelete={() => deleteItem(item.id)}
+                                onEdit={() => editAddedItem(item)}
+                                mode='product' />
 
-                            </>
                         )
                     }} />
             )}
 
-            <ItemModal visible={visible} onClose={() => setVisible(false)} onSubmitItem={handleSubmitItem} editItem={selectedItem} id={''} name={''} type={'Product'} />
+            <ItemModal visible={visible} onClose={() => setVisible(false)} onSubmitItem={handleSubmitItem} editItem={selectedItem} id='' name='' type='Product' />
         </Screen>
     )
 }

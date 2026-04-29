@@ -29,7 +29,12 @@ const clientsSlice = createSlice({
     reducers: {
         addClient: (state, action: PayloadAction<Client>) => {
             if (!action.payload?.id) return;
-            state.clients.unshift(action.payload);
+            const exists = state.clients.some(
+                (c) => c.id === action.payload.id
+            );
+            if (!exists) {
+                state.clients.unshift(action.payload);
+            }
         },
         setClients: (state, action: PayloadAction<Client[]>) => {
             state.clients = action.payload
@@ -40,13 +45,7 @@ const clientsSlice = createSlice({
             );
         },
         updateExistingClient: (state, action: PayloadAction<Client>) => {
-            const index = state.clients.findIndex(
-                (c) => c.id === action.payload.id
-            );
-
-            if (index !== -1) {
-                state.clients[index] = action.payload; // replace existing
-            }
+            state.clients = state.clients.map((c) => c.id === action.payload.id ? action.payload : c);
         },
     }
 })

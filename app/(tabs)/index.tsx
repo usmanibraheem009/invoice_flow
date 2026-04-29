@@ -9,7 +9,7 @@ import { AppDispatch, RootState } from '@/src/redux/store/myStore'
 import { dateformatter } from '@/src/utils/date-formatter'
 import { mVs } from '@/src/utils/scale'
 import { router } from 'expo-router'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -22,20 +22,14 @@ const index = () => {
   const [greetings, setGreetings] = useState('');
 
   useEffect(() => {
-    setGreetings(getGreetings());
-  }, []);
-
-  useEffect(() => {
     dispatch(fetchInvoices({ page: 1, limit: 3 }));
   }, []);
 
   useEffect(() => {
-
+    setGreetings(getGreetings())
     const updateGreeting = () => {
       setGreetings(getGreetings());
     };
-
-    updateGreeting();
 
     const interval = setInterval(updateGreeting, 60000);
 
@@ -58,7 +52,8 @@ const index = () => {
     }
   };
 
-  const invoices = useSelector((state: RootState) => state.invoicesListReducer.invoices).slice(0, 3);
+  const allInvoices = useSelector((state: RootState) => state.invoicesListReducer.invoices)
+  const invoices = useMemo(() => allInvoices.slice(0, 3), [allInvoices]);
 
   const handleOnPress = (invoiceId: string) => {
     router.push({
@@ -117,17 +112,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 12,
-  },
-  floatingButton: {
-    height: 60,
-    width: 60,
-    borderRadius: 60,
-    position: 'absolute',
-    right: 30,
-    bottom: 20,
-    zIndex: 10,
-    justifyContent: 'center',
-    alignItems: 'center'
   },
   seeMore: {
     flexDirection: 'row',

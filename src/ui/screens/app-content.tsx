@@ -2,7 +2,7 @@ import { fetchCurrentUser } from '@/src/apis/authApi';
 import { fetchOrganization } from '@/src/apis/organizationApi';
 import { initI18n } from "@/src/locales/i18n";
 import { setOrganization } from '@/src/redux/slices/organizationSlice';
-import { RootState } from '@/src/redux/store/myStore';
+import { AppDispatch, RootState } from '@/src/redux/store/myStore';
 import { bootstrapAuth } from '@/src/redux/thunks/auth-thunk';
 import { requestNotificationPermission, setupNotificationChannel } from '@/src/services/notificationService';
 import NetInfo from "@react-native-community/netinfo";
@@ -12,25 +12,25 @@ import React, { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useDispatch, useSelector } from 'react-redux';
 
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
+    }),
+});
+
 const AppContent = () => {
 
-
-    const dispatch = useDispatch();
-    const organization = useSelector((state: RootState) => state.organizationReducer.data);
-    Notifications.setNotificationHandler({
-        handleNotification: async () => ({
-            shouldPlaySound: true,
-            shouldSetBadge: false,
-            shouldShowBanner: true,
-            shouldShowList: true,
-        }),
-    });
+    const dispatch = useDispatch<AppDispatch>();
+    const orgId = useSelector((state: RootState) => state.organizationReducer.data?.id);
 
     useEffect(() => {
         const init = async () => {
-            await initI18n();
-            await dispatch(bootstrapAuth() as any);
-            await dispatch(fetchCurrentUser() as any);
+            Promise.all([await initI18n(),
+            await dispatch(bootstrapAuth()),
+            await dispatch(fetchCurrentUser())]);
             requestNotificationPermission();
             setupNotificationChannel();
         }
@@ -40,36 +40,36 @@ const AppContent = () => {
 
     useEffect(() => {
         const unsubscribe = NetInfo.addEventListener(state => {
-            if (!state.isConnected) {
+            if (state.isConnected === false) {
                 router.replace("/screens/no-internetScreen")
             }
         });
-        return () => unsubscribe();
+        return unsubscribe;
     }, []);
 
 
     useEffect(() => {
         const loadOrganization = async () => {
             try {
-                if (!organization?.id) return;
+                if (!orgId) return;
 
-                const res = await fetchOrganization(organization.id);
+                const res = await fetchOrganization(orgId);
 
                 if (res?.data) {
                     dispatch(setOrganization(res.data));
                 }
 
             } catch (error: any) {
-                console.log("Error loading org: ", error);
+                throw error;
             }
         };
 
         loadOrganization();
-    }, [organization?.id]);
+    }, [orgId]);
 
 
     return (
-        <GestureHandlerRootView>
+        <GestureHandlerRootView style={{ flex: 1 }}>
             <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="index" options={{ headerShown: false }} />
                 <Stack.Screen name="no-internetScreen" options={{ headerShown: false }} />

@@ -16,7 +16,7 @@ import { FlatList, StyleSheet, Text, View } from 'react-native'
 import { ActivityIndicator } from 'react-native-paper'
 import { useDispatch, useSelector } from 'react-redux'
 
-const clients = () => {
+const Clients = () => {
 
   const clients = useSelector((state: any) => state.clientsReducer.clients);
   const { theme } = useTheme();
@@ -45,15 +45,15 @@ const clients = () => {
   const onRefresh = async () => {
     setRefreshing(true);
 
-    dispatch(loadClients() as any);
+    await dispatch(loadClients() as any);
 
     setRefreshing(false);
   }
 
   if (!clients) {
-    <Screen>
+    return (<Screen>
       <ActivityIndicator size={'large'} color={theme.text.secondary} />
-    </Screen>
+    </Screen>)
   }
 
   return (
@@ -69,7 +69,7 @@ const clients = () => {
           ListEmptyComponent={() => (<Text style={[styles.dummyText, { color: theme.text.secondary }]}>{t('common.dummyText', { param: t('clients.title') })}</Text>)}
           renderItem={({ item }) => (
             <ClientCard clientName={item.clientName} organizationName={item.addressLine1} createdAt={dateformatter(item.createdAt)}
-              totalRevenue={''} onPressed={() => router.push({
+              totalRevenue={0} onPressed={() => router.push({
                 pathname: '/screens/client-profile',
                 params: {
                   clientId: item.id
@@ -82,7 +82,7 @@ const clients = () => {
   )
 }
 
-export default clients
+export default Clients
 
 const styles = StyleSheet.create({
   dummyText: {

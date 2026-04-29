@@ -9,14 +9,13 @@ import { PersistGate } from "redux-persist/integration/react";
 
 export default function RootLayout() {
   return (
-    <PaperProvider>
-
-      <Provider store={MyStore}>
-        <PersistGate persistor={persistor} loading={null}>
+    <Provider store={MyStore}>
+      <PersistGate persistor={persistor} loading={null}>
+        <PaperProvider>
           <AppContent />
           <SnackBar />
-        </PersistGate>
-      </Provider>
-    </ PaperProvider>
+        </PaperProvider>
+      </PersistGate>
+    </Provider>
   );
 }

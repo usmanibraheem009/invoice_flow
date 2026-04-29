@@ -5,7 +5,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { StyleSheet, Text, View } from 'react-native'
 
-const reports = () => {
+const Reports = () => {
 
   const { theme } = useTheme();
   const { t } = useTranslation();
@@ -19,7 +19,7 @@ const reports = () => {
   )
 }
 
-export default reports
+export default Reports
 
 const styles = StyleSheet.create({
   text: {

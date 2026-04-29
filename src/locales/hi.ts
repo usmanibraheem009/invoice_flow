@@ -116,6 +116,7 @@ export default {
         createAccount: "खाता बनाएं",
         alreadyHaveAccount: "पहले से खाता है?",
         dontHaveAccount: "खाता नहीं है?",
+        areYouSure: "क्या आप वाकई लॉगआउट करना चाहते हैं?"
     },
     clients: {
         title: "ग्राहक",

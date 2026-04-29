@@ -20,23 +20,21 @@ const settings = () => {
   const dispatch = useDispatch();
   const { theme } = useTheme();
   const { t } = useTranslation();
-  const currentMode = useSelector((state: any) => state.themeReducer.currentMode);
+  const currentMode = useSelector((state: RootState) => state.themeReducer.currentMode);
   const user = useSelector((state: RootState) => state.userReducer.user);
   const currentOrg = useSelector((state: RootState) => state.userReducer.user?.currentOrganization ?? null)
 
   const handleLogout = async () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Yes', onPress: async () => {
-            dispatch(logout());
-            await clearSessionFromStore();
-            router.replace('/screens/login-screen');
-          }
+    Alert.alert(t('common.warning'), t('auth.areYouSure'), [
+      { text: t('common.cancel') },
+      {
+        text: t('common.yes'), onPress: async () => {
+          dispatch(logout());
+          await clearSessionFromStore();
+          router.replace('/screens/login-screen');
         }
-      ]
-    )
+      }
+    ])
   };
 
   const underDev = () => {

@@ -1,10 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import { persistReducer, persistStore } from "redux-persist";
+import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE, persistReducer, persistStore } from "redux-persist";
 import authReducer from "../slices/authSlice";
-import clientsInvoicesReducer from "../slices/clientInvoices";
 import clientsReducer from "../slices/clientsSlice";
-import imageReducer from "../slices/imageSlice";
 import invoicesListReducer from "../slices/invoiceListSlice";
 import invoiceReducer from "../slices/invoiceSlice";
 import loadingReducer from "../slices/loadingSlice";
@@ -19,14 +17,13 @@ import userReducer from "../slices/userSlice";
 const persistConfig = {
     key: "root",
     storage: AsyncStorage,
-    whitelist: ["authReducer", "templateReducer", "clientsReducer"],
+    whitelist: ["authReducer", "templateReducer", "themeReducer"],
 };
 
 const rootReducer = combineReducers({
     themeReducer,
     templateReducer,
     invoiceReducer,
-    imageReducer,
     locationReducer,
     clientsReducer,
     loadingReducer,
@@ -36,7 +33,7 @@ const rootReducer = combineReducers({
     snackbarReducer,
     organizationReducer,
     invoicesListReducer,
-    clientsInvoicesReducer
+    // clientsInvoicesReducer
 });
 
 const persistedReducer =
@@ -47,13 +44,22 @@ const MyStore = configureStore({
 
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
-            serializableCheck: false,
+            serializableCheck: {
+                ignoredActions: [
+                    FLUSH,
+                    REHYDRATE,
+                    PAUSE,
+                    PERSIST,
+                    PURGE,
+                    REGISTER,
+                ],
+            },
         }),
 });
 
 export const persistor = persistStore(MyStore);
 
-export type RootState = ReturnType<typeof rootReducer>;
+export type RootState = ReturnType<typeof MyStore.getState>;
 export type AppDispatch = typeof MyStore.dispatch;
 
 export default MyStore;
